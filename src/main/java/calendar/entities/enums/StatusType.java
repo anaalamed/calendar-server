@@ -1,6 +1,6 @@
 package calendar.entities.enums;
 
-public enum Status {
+public enum StatusType {
     APPROVED,
     REJECTED,
     TENTATIVE
