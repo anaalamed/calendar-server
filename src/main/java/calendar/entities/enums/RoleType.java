@@ -1,6 +1,6 @@
 package calendar.entities.enums;
 
-public enum Role {
+public enum RoleType {
     ORGANIZER,
     ADMIN,
     GUEST
