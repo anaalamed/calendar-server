@@ -16,7 +16,6 @@ import java.sql.SQLDataException;
 import java.util.*;
 
 
-
 @Service
 public class AuthService {
     @Autowired
@@ -72,13 +71,17 @@ public class AuthService {
 
     /**
      * Check if user is authenticated
-     * @param userId
+     *
      * @param token
-     * @return true if user is authenticated, otherwise - false
+     * @return userId if is present in usersTokensMap
      */
-//    public boolean isAuthenticated(int userId, String token) {
-//        return usersTokensMap.containsKey(userId) && usersTokensMap.get(userId).equals(token);
-//    }
-
+    public Optional<Integer> getUserIdByToken(String token) {
+        return usersTokensMap
+                .entrySet()
+                .stream()
+                .filter(entry -> token.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .findFirst();
+    }
 
 }
