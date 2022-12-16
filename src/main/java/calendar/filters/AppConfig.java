@@ -48,7 +48,8 @@ public class AppConfig {
         FilterRegistrationBean <TokenFilter> registrationBean = new FilterRegistrationBean<>();
         TokenFilter customURLFilter = new TokenFilter(authService);
         registrationBean.setFilter(customURLFilter);
-        registrationBean.addUrlPatterns("/user/*");
+//        registrationBean.addUrlPatterns("/user/update*", "/user/*");
+        registrationBean.addUrlPatterns("/user/update", "/user/delete");
         registrationBean.setOrder(2); //set precedence
         return registrationBean;
     }
