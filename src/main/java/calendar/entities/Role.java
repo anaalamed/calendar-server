@@ -19,9 +19,11 @@ public class Role {
     private Event event;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StatusType statusType;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RoleType roleType;
 
     public Role() {
