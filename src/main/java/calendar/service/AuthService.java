@@ -76,8 +76,6 @@ public class AuthService {
      * @return userId if is present in usersTokensMap
      */
     public Optional<Integer> getUserIdByToken(String token) {
-        logger.debug(usersTokensMap);
-        logger.debug(token);
         return usersTokensMap
                 .entrySet()
                 .stream()

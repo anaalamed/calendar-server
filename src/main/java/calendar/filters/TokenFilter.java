@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class TokenFilter implements Filter {
-    public static final Logger logger = LogManager.getLogger(TokenFilter.class);
     private final AuthService authService;
+    public static final Logger logger = LogManager.getLogger(TokenFilter.class);
     public TokenFilter(AuthService authService) {
         this.authService = authService;
     }
@@ -39,11 +39,10 @@ public class TokenFilter implements Filter {
      *
      * @param servletRequest  The request to process
      * @param servletResponse The response associated with the request
-     * @param filterChain    Provides access to the next filter in the chain for this
-     *                 filter to pass the request and response to for further
-     *                 processing
-     *
-     * @throws IOException if an I/O exception occurs during the processing of the request/response.
+     * @param filterChain     Provides access to the next filter in the chain for this
+     *                        filter to pass the request and response to for further
+     *                        processing
+     * @throws IOException      if an I/O exception occurs during the processing of the request/response.
      * @throws ServletException if the processing fails.
      */
     @Override
@@ -57,7 +56,6 @@ public class TokenFilter implements Filter {
             Optional<Integer> userId = authService.getUserIdByToken(token);
 
             if (userId.isPresent()) {
-                logger.debug("booom" + userId.get());
                 req.setAttribute("userId", (int)userId.get());
                 filterChain.doFilter(req,res);
             } else returnBadResponse(res);

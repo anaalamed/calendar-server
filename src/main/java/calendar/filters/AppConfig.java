@@ -21,20 +21,18 @@ public class AppConfig {
 
     /**
      * this method is used to register the cors filter
-     *
-     * @return FilterRegistrationBean<TokenFilter>
-     *
+     * @return FilterRegistrationBean<CorsFilter>
      */
-//    @Bean
-//    public FilterRegistrationBean<CorsFilter> corsFilterBean() {
-//        logger.info("CorsFilterBean has been created");
-//        FilterRegistrationBean <CorsFilter> registrationBean = new FilterRegistrationBean<>();
-//        CorsFilter corsFilter= new CorsFilter();
-//        registrationBean.setFilter(corsFilter);
-//        registrationBean.addUrlPatterns("/*");
-//        registrationBean.setOrder(1); //set precedence
-//        return registrationBean;
-//    }
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterBean() {
+        logger.info("CorsFilterBean has been created");
+        FilterRegistrationBean <CorsFilter> registrationBean = new FilterRegistrationBean<>();
+        CorsFilter corsFilter= new CorsFilter();
+        registrationBean.setFilter(corsFilter);
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(1); //set precedence
+        return registrationBean;
+    }
 
     /**
      * his method is used to register the token filter
@@ -48,7 +46,6 @@ public class AppConfig {
         FilterRegistrationBean <TokenFilter> registrationBean = new FilterRegistrationBean<>();
         TokenFilter customURLFilter = new TokenFilter(authService);
         registrationBean.setFilter(customURLFilter);
-//        registrationBean.addUrlPatterns("/user/update*", "/user/*");
         registrationBean.addUrlPatterns("/user/update", "/user/delete");
         registrationBean.setOrder(2); //set precedence
         return registrationBean;
