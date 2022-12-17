@@ -41,7 +41,7 @@ public class RoleController {
      * @param eventId - The id of the event which we want to retrieve all roles with the same event id.
      * @return All the Roles we wanted to get from the DB with the same event id.
      */
-    @RequestMapping(value = "/getRoleByEventId", method = RequestMethod.POST)
+    @RequestMapping(value = "/getRoleByEventId", method = RequestMethod.GET)
     public List<Role> getRoleByEventId(@RequestParam int eventId) {
         return roleService.getRoleByEventId(eventId);
     }
@@ -52,7 +52,7 @@ public class RoleController {
      * @param userId - The id of the event which we want to retrieve all roles with the same user id.
      * @return All the Roles we wanted to get from the DB with the same user ID
      */
-    @RequestMapping(value = "/getRoleByUserId", method = RequestMethod.POST)
+    @RequestMapping(value = "/getRoleByUserId", method = RequestMethod.GET)
     public ResponseEntity<BaseResponse<List<Role>>> getRoleByUserId(@RequestParam int userId) {
         User user = userService.getById(userId);
         if(!userService.getAllUsers().contains(user)){
@@ -69,7 +69,7 @@ public class RoleController {
      * @param eventId - The id of the event which we want to retrieve.
      * @return The Role we wanted to get from the DB with the exact user ID and event id combination.
      */
-    @RequestMapping(value = "/getSpecificRole", method = RequestMethod.POST)
+    @RequestMapping(value = "/getSpecificRole", method = RequestMethod.GET)
     public ResponseEntity<BaseResponse<Role>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
         Role role = roleService.getSpecificRole(userId,eventId);
         if(role == null){
