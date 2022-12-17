@@ -169,7 +169,7 @@ public class RoleController {
         }
 
         return ResponseEntity.ok(BaseResponse.success(roleService.inviteGuest(userService.getById(user.get().getId()),
-                eventService.getEventById(eventId))));
+                event)));
     }
 
     /**
