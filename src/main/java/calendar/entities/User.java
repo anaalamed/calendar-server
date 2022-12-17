@@ -27,6 +27,10 @@ public class User {
         return id;
     }
 
+    public void setId(int  id) {
+        this.id = id;
+    } // This is here for testing only!
+
     public String getName() {
         return name;
     }
