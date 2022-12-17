@@ -4,11 +4,12 @@ package calendar.controller.request;
 import java.io.File;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class EventRequest {
     private boolean isPublic;
-    private Clock time;
+    private LocalDateTime time;
     private LocalDate date;
     private float duration;//in hours
     private String location;
@@ -24,11 +25,11 @@ public class EventRequest {
         isPublic = aPublic;
     }
 
-    public Clock getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(Clock time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 
