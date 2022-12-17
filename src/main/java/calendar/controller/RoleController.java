@@ -70,7 +70,7 @@ public class RoleController {
      * @return The Role we wanted to get from the DB with the exact user ID and event id combination.
      */
     @RequestMapping(value = "/getSpecificRole", method = RequestMethod.POST)
-    public ResponseEntity<BaseResponse<Object>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<Role>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
         Role role = roleService.getSpecificRole(userId,eventId);
         if(role == null){
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
