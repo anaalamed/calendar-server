@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
 @Service
 public class EventService {
@@ -47,6 +48,15 @@ public class EventService {
         } else {
             throw new SQLDataException(String.format("Event %s not exists!",id));
         }
+    }
+
+    /**
+     * Returns all the events in the user repo , this is used for server side only so no need to use DTO.
+     *
+     * @return a list of all the events inside the DB.
+     */
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
     }
 
     /**

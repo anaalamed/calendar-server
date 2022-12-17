@@ -3,12 +3,10 @@ package calendar.service;
 import calendar.entities.*;
 import calendar.entities.enums.*;
 import calendar.repository.RoleRepository;
-import calendar.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RoleService {
@@ -50,5 +48,11 @@ public class RoleService {
             roleToPromote.setRoleType(RoleType.GUEST);
         }
         roleRepository.save(roleToPromote);
+    }
+
+    public Role inviteGuest(User user, Event event) {
+        Role role = new Role(user,event,StatusType.TENTATIVE,RoleType.GUEST);
+        roleRepository.save(role);
+        return role;
     }
 }
