@@ -44,7 +44,7 @@ public class UserService {
     }
 
     /**
-     * Get User by email
+     * Get UserDTO by email
      *
      * @param email
      * @return the User if exists
