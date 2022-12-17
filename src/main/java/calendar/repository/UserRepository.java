@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
         Optional<User> findByEmail(String email);
 
+        User findById(int id);
+
         @Transactional
         @Modifying
         @Query("delete from User u where u.id = ?1")

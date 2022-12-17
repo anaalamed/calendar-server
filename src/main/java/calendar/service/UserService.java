@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,8 +22,30 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+
+    /**
+     * Returns all the users in the user repo , this is used for server side only so no need to use DTO.
+     *
+     * @return a list of all the users inside the DB.
+     */
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Get a user by his ID from the DB
+     *
+     * @param id - the id of the user we want to retrieve
+     * @return the User if exists
+     */
+    public User getById(int id) {
+        User user = userRepository.findById(id);
+        return user;
+    }
+
     /**
      * Get User by email
+     *
      * @param email
      * @return the User if exists
      */
@@ -37,6 +60,7 @@ public class UserService {
 
     /**
      * Get User id by Email
+     *
      * @param email
      * @return the id
      */
@@ -52,6 +76,7 @@ public class UserService {
 
     /**
      * Delete user by Id
+     *
      * @param id
      * @return true if user was deleted, otherwise - false
      */
@@ -68,6 +93,7 @@ public class UserService {
 
     /**
      * Update User's name
+     *
      * @param id
      * @param name
      * @return the updated User
@@ -81,6 +107,7 @@ public class UserService {
 
     /**
      * Update user's email
+     *
      * @param id
      * @param email
      * @return the updated User
@@ -94,6 +121,7 @@ public class UserService {
 
     /**
      * Update user's password
+     *
      * @param id
      * @param password
      * @return the updated User
@@ -107,13 +135,14 @@ public class UserService {
 
     /**
      * Get updated user
+     *
      * @param id
      * @param lines
      * @return the User if exists
      */
     private Optional<UserDTO> getUpdatedUser(int id, int lines) {
         if (lines == 1) {
-            Optional<User> user = userRepository.findById(id);
+            Optional<User> user = Optional.ofNullable(userRepository.findById(id));
             logger.debug("User #" + id + " updated: " + user.get());
             UserDTO userDTO = new UserDTO(user.get());
             return Optional.of(userDTO);
