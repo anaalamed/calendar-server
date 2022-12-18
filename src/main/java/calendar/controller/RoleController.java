@@ -30,14 +30,16 @@ public class RoleController {
      * @param role - The role we wish to save in the DB
      * @return
      */
-    @RequestMapping(value = "/saveRole", method = RequestMethod.POST) // HERE FOR TESTING!! WILL REMOVE LATER
+    @RequestMapping(value = "/saveRole", method = RequestMethod.POST)
     public ResponseEntity<BaseResponse<Role>> saveRoleInDB(@RequestBody Role role) {
 
-        if (roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId()) != null) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure("A user cant have more than one role in the same event!"));
-        }
+        Role roleToSave = roleService.saveRoleInDB(role);
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.saveRoleInDB(role)));
+        if(roleToSave == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("A user cant have more than one role in the same event!"));
+        }else{
+            return ResponseEntity.ok(BaseResponse.success(roleToSave));
+        }
     }
 
     /**
@@ -111,14 +113,11 @@ public class RoleController {
     @RequestMapping(value = "/deleteRole", method = RequestMethod.DELETE)
     public ResponseEntity<BaseResponse<Role>> deleteRole(@RequestBody Role role) {
 
-        Role roleToDelete = roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId());
-
-        if (roleToDelete == null) {
+        if (roleService.deleteRole(role) ) {
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The role was deleted successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
-
-        roleService.deleteRole(roleToDelete);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The role was deleted successfully!"));
     }
 
     /**
@@ -130,14 +129,11 @@ public class RoleController {
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<Role>> switchRole(@RequestBody Role role) {
 
-        Role roleToPromote = roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId());
-
-        if (roleToPromote == null) {
+        if (roleService.switchRole(role)) {
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
-
-        roleService.switchRole(roleToPromote);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
     }
 
     /**
@@ -162,14 +158,13 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        Role roleToAdd = roleService.getSpecificRole(user.get().getId(), eventId);
+        Role RoleToAdd = roleService.inviteGuest(userService.getById(user.get().getId()), event);
 
-        if (roleToAdd != null) {
+        if (RoleToAdd == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.inviteGuest(userService.getById(user.get().getId()),
-                event)));
+        return ResponseEntity.ok(BaseResponse.success(RoleToAdd));
     }
 
     /**
@@ -194,13 +189,10 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        Role roleToRemove = roleService.getSpecificRole(user.get().getId(), eventId);
-
-        if (roleToRemove == null) {
+        if(roleService.removeGuest(user.get().getId(),eventId)){
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not part of the event!"));
         }
-
-        roleService.deleteRole(roleToRemove);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
     }
 }
