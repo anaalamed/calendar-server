@@ -22,6 +22,15 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Transactional
     int deleteById(@Param("id") int id);
 
+
+    @Modifying
+    @Query("update Event e set e.isPublic =:isPublic,e.title =:title,e.date =:date,e.time =:time,e.duration =:duration,e.location =:location,e.description =:description where e.id =:id")
+    @Transactional
+    int updateEvent(@Param("isPublic") boolean isPublic, @Param("title") String title, @Param("date") LocalDate date
+            , @Param("time") LocalDateTime time, @Param("duration") float duration
+            , @Param("location") String location, @Param("description") String description, @Param("id") int id);
+
+
     @Modifying
     @Query("update Event e set e.title =:title where e.id =:id")
     @Transactional
@@ -31,7 +40,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Modifying
     @Query("update Event e set e.date =:date where e.id =:id")
     @Transactional
-    int updateEventDate(@Param("date")LocalDate date,
+    int updateEventDate(@Param("date") LocalDate date,
                         @Param("id") int id);
 
     @Modifying
@@ -44,7 +53,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("update Event e set e.duration =:duration where e.id =:id")
     @Transactional
     int updateEventDuration(@Param("duration") float duration,
-                        @Param("id") int id);
+                            @Param("id") int id);
 
     @Modifying
     @Query("update Event e set e.location =:location where e.id =:id")
@@ -56,12 +65,12 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("update Event e set e.description =:description where e.id =:id")
     @Transactional
     int updateEventDescription(@Param("description") String description,
-                            @Param("id") int id);
+                               @Param("id") int id);
 
     @Modifying
     @Query("update Event e set e.isPublic =:isPublic where e.id =:id")
     @Transactional
     int updateEventIsPublic(@Param("isPublic") boolean isPublic,
-                               @Param("id") int id);
+                            @Param("id") int id);
 
 }

@@ -46,7 +46,7 @@ public class EventService {
         if (eventRepository.findById(id).isPresent()) {
             return eventRepository.findById(id).get();
         } else {
-            throw new SQLDataException(String.format("Event %s not exists!",id));
+            return null;
         }
     }
 
@@ -70,7 +70,7 @@ public class EventService {
         if (eventRepository.findById(event.getId()).isPresent()) {
             return eventRepository.deleteById(event.getId());
         } else {
-            throw new SQLDataException(String.format("Event %s not exists!", event.getId()));
+            return 0;
         }
     }
 
@@ -82,22 +82,13 @@ public class EventService {
      * @throws SQLDataException
      */
     public Event updateEvent(Event event) throws SQLDataException {
-        if (eventRepository.findById(event.getId()).isPresent()) {
-            updateEventTitle(event);
-            updateEventDescription(event);
-            updateEventDate(event);
-            updateEventDuration(event);
-            updateEventTime(event);
-            updateEventLocation(event);
-            updateEventIsPublic(event);
-
-            if (eventRepository.updateEventIsPublic(event.isPublic(), event.getId()) > 0)
-                return eventRepository.findById(event.getId()).get();
-
+        int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getDate(), event.getTime()
+                , event.getDuration(), event.getLocation(), event.getDescription(), event.getId());
+        if (rows > 0) {
+            return eventRepository.findById(event.getId()).get();
         } else {
-            throw new SQLDataException(String.format("Event %s not exists!", event.getId()));
+            return null;
         }
-        return getEventById(event.getId());
     }
 
     /**
@@ -108,10 +99,12 @@ public class EventService {
      * @throws SQLDataException
      */
     public Event updateEventTitle(Event event) throws SQLDataException {
-        if (eventRepository.updateEventTitle(event.getTitle(), event.getId()) > 0)
+        int rows = eventRepository.updateEventTitle(event.getTitle(), event.getId());
+        if (rows > 0)//number of updated rows in db
+        {
             return eventRepository.findById(event.getId()).get();
-        else {
-            throw new SQLDataException(String.format("Failed to update Title of Event %s !", event.getId()));
+        } else {
+            return null;
         }
     }
 
@@ -126,7 +119,7 @@ public class EventService {
         if (eventRepository.updateEventLocation(event.getLocation(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update Location of Event %s !", event.getId()));
+            return null;
         }
     }
 
@@ -141,7 +134,7 @@ public class EventService {
         if (eventRepository.updateEventTime(event.getTime(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update Time of Event %s !", event.getId()));
+            return null;
         }
     }
 
@@ -156,7 +149,7 @@ public class EventService {
         if (eventRepository.updateEventIsPublic(event.isPublic(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update accessibility of Event %s !", event.getId()));
+            return null;
         }
     }
 
@@ -171,7 +164,7 @@ public class EventService {
         if (eventRepository.updateEventDuration(event.getDuration(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update Duration of Event %s !", event.getId()));
+            return null;
         }
     }
 
@@ -186,7 +179,7 @@ public class EventService {
         if (eventRepository.updateEventDescription(event.getDescription(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update Description of Event %s !", event.getId()));
+            return null;
         }
     }
 
@@ -201,7 +194,7 @@ public class EventService {
         if (eventRepository.updateEventDate(event.getDate(), event.getId()) > 0)
             return eventRepository.findById(event.getId()).get();
         else {
-            throw new SQLDataException(String.format("Failed to update Date of Event %s !", event.getId()));
+            return null;
         }
     }
 
