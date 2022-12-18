@@ -5,4 +5,4 @@ tokens
 
 logs
 src/main/resources/application.properties
-src/main/resources/client_secret_538665247207-pqk8ij7q5dtloa5k3pru3an4vmcmh2ng.apps.googleusercontent.com.json
+src/main/resources/gmail.json

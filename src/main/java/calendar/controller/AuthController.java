@@ -5,6 +5,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.service.AuthService;
+import calendar.utils.GMailer;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,6 +69,19 @@ public class AuthController {
 
         return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
                 orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: Wrong Email or Password")));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/testemail")
+    public ResponseEntity<BaseResponse<String>> testEmail()  {
+        logger.info("in testEmail()");
+
+        try {
+            GMailer.sendMail("anaalamed@gmail.com", "Test Email", "testingggggg");
+            return ResponseEntity.ok(BaseResponse.noContent(true, "mail sent"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("exception"));
+        }
     }
 
 }

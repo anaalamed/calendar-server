@@ -30,7 +30,7 @@ import static javax.mail.Message.RecipientType.TO;
 
 public class GMailer {
 
-    private static final String FROM_EMAIL = "tbz1996@gmail.com";
+    private static final String FROM_EMAIL = "anaalamed@gmail.com";
 
     private static Gmail init() throws Exception {
         NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -45,7 +45,7 @@ public class GMailer {
     private static Credential getCredentials(final NetHttpTransport httpTransport, GsonFactory jsonFactory)
             throws IOException {
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, new InputStreamReader(GMailer.class
-                .getResourceAsStream("/client_secret_832098226915-qg699ff2itjs5q3hlifomniigbf3jhpv.apps.googleusercontent.com.json")));
+                .getResourceAsStream("/gmail.json")));
 
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
