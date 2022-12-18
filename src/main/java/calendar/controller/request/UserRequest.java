@@ -1,7 +1,12 @@
 package calendar.controller.request;
 
+import calendar.entities.enums.ProviderType;
+
 public class UserRequest {
     private String email, name, password;
+
+//    private ProviderType provider;
+
 
     public UserRequest() {}
 
@@ -9,6 +14,7 @@ public class UserRequest {
         this.email = email;
         this.name = name;
         this.password = password;
+//        this.provider = provider;
     }
 
     public UserRequest(String email, String password) {

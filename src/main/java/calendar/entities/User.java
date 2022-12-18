@@ -1,6 +1,9 @@
 package calendar.entities;
 
+import calendar.entities.enums.ProviderType;
+
 import javax.persistence.*;
+import java.security.Provider;
 import java.util.Objects;
 
 @Entity
@@ -14,13 +17,17 @@ public class User {
     private String email;
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private ProviderType provider;
+
     public User() {
     }
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, ProviderType provider) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.provider = provider;
     }
 
     public int getId() {
@@ -53,6 +60,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public ProviderType getProvider() {
+        return provider;
+    }
+
+    public void setProvider(ProviderType provider) {
+        this.provider = provider;
     }
 
     @Override
