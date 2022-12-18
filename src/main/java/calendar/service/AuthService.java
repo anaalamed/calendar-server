@@ -13,6 +13,7 @@ import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,9 @@ import java.util.*;
 public class AuthService {
     @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
+    private Environment env;
 
     static HashMap<Integer, String> usersTokensMap = new HashMap<>();
 
@@ -91,37 +95,49 @@ public class AuthService {
     public Optional<LoginDataDTO> loginGithub(String code) throws SQLDataException {
         logger.info("in loginGithub()");
 
+        GitUser githubUser = getGithubUser(code);
+        logger.info("user: " + githubUser);
+
+        if (githubUser != null) {
+            if ( !userRepository.findByEmail(githubUser.getEmail()).isPresent() ) {
+                if (githubUser.getName() != "" && githubUser.getName() != null) {
+                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
+                    logger.info(userCreated);
+                } else {
+                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
+                    logger.info(userCreated);
+                }
+            }
+
+            // if user with email created and has password ??
+            Optional<LoginDataDTO> login = login(new UserRequest(githubUser.getEmail(), ""));
+            logger.info(login);
+            return login;
+        }
+        return null;
+    }
+
+    public ResponseEntity<GitToken> getGithubToken(String code) {
         String baseLink = "https://github.com/login/oauth/access_token?";
-        String clientId = "ed4a65a952cea0d51abe";
-        String clientSecret = "163683c64698c1ae1fb7576bde75bb0bd8a97e45";
-        String foolink = baseLink + "client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code;
-        logger.debug(foolink);
+        String clientId = env.getProperty("spring.security.oauth2.client.registration.github.client-id");
+        String clientSecret = env.getProperty("spring.security.oauth2.client.registration.github.client-secret");
+        String linkGetToken = baseLink + "client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code;
+        logger.debug(linkGetToken);
 
-        String linkGetUser = "https://api.github.com/user";
+        return Utils.reqGitGetToken(linkGetToken);
+    }
 
-        ResponseEntity<GitToken> gitTokenResponseEntity = Utils.sendRequest(foolink);
-        if (gitTokenResponseEntity != null) {
-            String token= gitTokenResponseEntity.getBody().getAccess_token();
+    public GitUser getGithubUser( String code ) {
+        ResponseEntity<GitToken> gitTokenResponse = getGithubToken(code);
+
+        if (gitTokenResponse != null) {
+            String token = gitTokenResponse.getBody().getAccess_token();
             logger.info("token: " + token);
 
-            GitUser user = Utils.getUser(linkGetUser, token).getBody();
-            logger.info("user: " + user);
-            if (user != null) {
-                if ( !userRepository.findByEmail(user.getEmail()).isPresent() ) {
-                    if (user.getName() != "" && user.getName() != null) {
-                        UserDTO userCreated = createUser(new UserRequest(user.getEmail(), user.getName(), ""), ProviderType.GITHUB);
-                        logger.info(userCreated);
-                    } else {
-                        UserDTO userCreated = createUser(new UserRequest(user.getEmail(), user.getLogin(), ""), ProviderType.GITHUB);
-                        logger.info(userCreated);
-                    }
-                }
-
-                Optional<LoginDataDTO> login = login(new UserRequest(user.getEmail(), ""));
-                logger.info(login);
-                return login;
-            }
+            String linkGetUser = "https://api.github.com/user";
+            return Utils.reqGitGetUser(linkGetUser, token).getBody();
         }
+
         return null;
     }
 

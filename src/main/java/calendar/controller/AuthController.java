@@ -91,7 +91,7 @@ public class AuthController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/getToken")
+    @RequestMapping(method = RequestMethod.POST, path = "/loginGithub")
     public ResponseEntity<BaseResponse<LoginDataDTO>> loginGithub(@RequestParam String code) throws SQLDataException {
         logger.info("in loginGithub()");
 
@@ -103,16 +103,6 @@ public class AuthController {
         return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
                 orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: github")));
 
-
-//        ResponseEntity<GitToken> gitTokenResponseEntity = Utils.sendRequest(foolink);
-//        if (gitTokenResponseEntity != null) {
-//            String token= gitTokenResponseEntity.getBody().getAccess_token();
-//            logger.info(token);
-//            return ResponseEntity.ok(BaseResponse.noContent(true, "logged in with git"));
-//        }
-
-//        return ResponseEntity.ok(BaseResponse.noContent(true, "logged in with git"));
-//        return ResponseEntity.badRequest().body(BaseResponse.failure("log in with git failed"));
     }
 
 }

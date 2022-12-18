@@ -36,7 +36,7 @@ public class Utils {
 
     public static boolean verifyPassword(String passwordFromUser, String passwordFromDB) {
         if (passwordFromUser == null || passwordFromUser == "" || passwordFromDB == null || passwordFromDB == "") {
-            return true; // github
+            return true; // github registration without password
         }
         BCrypt.Result result = BCrypt.verifyer().verify(passwordFromUser.toCharArray(),
                 passwordFromDB.toCharArray());
@@ -44,7 +44,9 @@ public class Utils {
         return result.verified;
     }
 
-    public static ResponseEntity<GitToken> sendRequest(String link) {
+
+    // refactoring to generic function ???
+    public static ResponseEntity<GitToken> reqGitGetToken(String link) {
         logger.info("in sendRequest()");
         logger.debug(link);
 
@@ -55,17 +57,14 @@ public class Utils {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
         try {
-            response = restTemplate.exchange(link, HttpMethod.POST, entity, GitToken.class);
-            logger.info(response);
-            return response;
-//            logger.info(response.getBody().getAccess_token());
+            return restTemplate.exchange(link, HttpMethod.POST, entity, GitToken.class);
         } catch (Exception e) {
             logger.error("git get token  exception" + e);
         }
         return null;
     }
 
-    public static ResponseEntity<GitUser> getUser(String link, String bearerToken) {
+    public static ResponseEntity<GitUser> reqGitGetUser(String link, String bearerToken) {
         logger.info("in getUser()");
         logger.info(link);
         logger.info(bearerToken);
@@ -77,10 +76,7 @@ public class Utils {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
         try {
-            response = restTemplate.exchange(link, HttpMethod.GET, entity, GitUser.class);
-            logger.info(response);
-            return response;
-//            logger.info(response.getBody().getAccess_token());
+            return restTemplate.exchange(link, HttpMethod.GET, entity, GitUser.class);
         } catch (Exception e) {
             logger.error("git get token  exception" + e);
         }
