@@ -2,15 +2,23 @@ package calendar.controller;
 
 import calendar.controller.request.UserRequest;
 import calendar.controller.response.BaseResponse;
+import calendar.controller.response.GitToken;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.enums.ProviderType;
 import calendar.service.AuthService;
+import calendar.utils.GMailer;
 import calendar.utils.InputValidation;
+import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.SQLDataException;
 import java.util.Optional;
@@ -45,7 +53,7 @@ public class AuthController {
         }
 
         try {
-            UserDTO createdUser = authService.createUser(userRequest);
+            UserDTO createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
 //            authService.publishRegistrationEvent(createdUser, request.getLocale(), request.getContextPath());
             return ResponseEntity.ok(BaseResponse.success(createdUser));
         } catch (SQLDataException e) {
@@ -68,6 +76,33 @@ public class AuthController {
 
         return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
                 orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: Wrong Email or Password")));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/testemail")
+    public ResponseEntity<BaseResponse<String>> testEmail()  {
+        logger.info("in testEmail()");
+
+        try {
+            GMailer.sendMail("anaalamed@gmail.com", "Test Email", "testingggggg");
+            return ResponseEntity.ok(BaseResponse.noContent(true, "mail sent"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("exception"));
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/loginGithub")
+    public ResponseEntity<BaseResponse<LoginDataDTO>> loginGithub(@RequestParam String code) throws SQLDataException {
+        logger.info("in loginGithub()");
+
+        Optional<LoginDataDTO> loginData = authService.loginGithub(code);
+
+        logger.info("User github has logged in");
+        logger.info("login data: " + loginData);
+
+        return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
+                orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: github")));
+
     }
 
 }
