@@ -30,9 +30,9 @@ public class RoleService {
     public boolean deleteRole(Role role) {
         Role roleToDelete = getSpecificRole(role.getUser().getId(), role.getEvent().getId());
 
-        if(roleToDelete == null){
+        if (roleToDelete == null) {
             return false;
-        }else{
+        } else {
             roleRepository.delete(roleToDelete);
             return true;
         }
@@ -48,8 +48,14 @@ public class RoleService {
     }
 
     public Role getSpecificRole(int userId, int eventId) {
-        List<Role>  roles = roleRepository.findByUserId(userId);
-        return  roles.stream().filter(role -> role.getEvent().getId() == eventId).findFirst()
+
+        List<Role> roles = roleRepository.findByUserId(userId);
+
+        if (roles == null) {
+            return null;
+        }
+
+        return roles.stream().filter(role -> role.getEvent().getId() == eventId).findFirst()
                 .orElse(null);
     }
 
@@ -57,13 +63,13 @@ public class RoleService {
 
         Role roleToPromote = getSpecificRole(role.getUser().getId(), role.getEvent().getId());
 
-        if(roleToPromote == null){
+        if (roleToPromote == null) {
             return false;
         }
 
-        if(roleToPromote.getRoleType().equals(RoleType.GUEST)){
+        if (roleToPromote.getRoleType().equals(RoleType.GUEST)) {
             roleToPromote.setRoleType(RoleType.ADMIN);
-        }else if(roleToPromote.getRoleType().equals(RoleType.ADMIN)){
+        } else if (roleToPromote.getRoleType().equals(RoleType.ADMIN)) {
             roleToPromote.setRoleType(RoleType.GUEST);
         }
 
@@ -75,22 +81,22 @@ public class RoleService {
 
         Role roleToAdd = getSpecificRole(user.getId(), event.getId());
 
-        if(roleToAdd != null){
+        if (roleToAdd != null) {
             return null;
         }
 
-        Role role = new Role(user,event,StatusType.TENTATIVE,RoleType.GUEST);
+        Role role = new Role(user, event, StatusType.TENTATIVE, RoleType.GUEST);
         roleRepository.save(role);
         return role;
     }
 
-    public boolean removeGuest(int userId, int eventId){
+    public boolean removeGuest(int userId, int eventId) {
 
         Role roleToRemove = getSpecificRole(userId, eventId);
 
-        if(roleToRemove == null){
+        if (roleToRemove == null) {
             return false;
-        }else{
+        } else {
             roleRepository.delete(roleToRemove);
             return true;
         }
