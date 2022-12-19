@@ -5,13 +5,14 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.ProviderType;
-import calendar.event.emailNotification.OnRegistrationCompleteEvent;
+import calendar.entities.enums.NotificationType;
+import calendar.event.emailNotification.NotificationPublisher;
+import calendar.event.emailNotification.OnRegistrationNotification;
 import calendar.service.AuthService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +25,12 @@ import java.util.Optional;
 public class AuthController {
     @Autowired
     private AuthService authService;
-    @Autowired
-    private static final Logger logger = LogManager.getLogger(AuthController.class.getName());
 
     @Autowired
-    ApplicationEventPublisher eventPublisher;
+    public NotificationPublisher notificationPublisher;
+
+    @Autowired
+    private static final Logger logger = LogManager.getLogger(AuthController.class.getName());
 
     /**
      * Creates a User and saves it to the database (enabled=0).
@@ -51,7 +53,7 @@ public class AuthController {
 
         try {
             UserDTO createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
-            publishRegistrationEvent(createdUser.getEmail());
+            notificationPublisher.publishRegistrationEvent(createdUser.getEmail());
             return ResponseEntity.ok(BaseResponse.success(createdUser));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));
@@ -89,9 +91,10 @@ public class AuthController {
 
     }
 
-    public void publishRegistrationEvent(String email ) {
-        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(email));
-    }
+//    public void publishRegistrationEvent(String email ) {
+////        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(email));
+//        NotificationPublisher.eventPublisher.publishEvent(new OnRegistrationNotification( NotificationType.REGISTRATION, email));
+//    }
 
     //    @RequestMapping(method = RequestMethod.POST, path = "/testemail")
 //    public ResponseEntity<BaseResponse<String>> testEmail()  {
