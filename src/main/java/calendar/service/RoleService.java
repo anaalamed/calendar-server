@@ -73,7 +73,7 @@ public class RoleService {
             roleToPromote.setRoleType(RoleType.GUEST);
         }
 
-        roleRepository.save(roleToPromote);
+        roleRepository.updateRoleType(roleToPromote.getUser(),roleToPromote.getEvent(),roleToPromote.getRoleType());
         return true;
     }
 

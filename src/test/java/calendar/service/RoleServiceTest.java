@@ -1,8 +1,7 @@
 package calendar.service;
 
-import calendar.controller.response.BaseResponse;
+
 import calendar.entities.*;
-import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.junit.jupiter.api.*;
@@ -10,14 +9,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
