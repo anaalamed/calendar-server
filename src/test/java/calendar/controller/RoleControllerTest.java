@@ -188,9 +188,9 @@ class RoleControllerTest {
     @Test
     void Switch_Role_Successfully() {
         when(roleService.getSpecificRole(1, 1)).thenReturn(role);
-        when(roleService.switchRole(role)).thenReturn(true);
+        when(roleService.switchRole(2,2)).thenReturn(true);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(role);
+        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(2,2);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("The role type was updated successfully!", response.getBody().getMessage());
@@ -200,7 +200,7 @@ class RoleControllerTest {
     void Try_To_Switch_Role_Of_User_That_Does_Not_Exist() {
         when(roleService.getSpecificRole(999, 999)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(role);
+        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(999,999);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }

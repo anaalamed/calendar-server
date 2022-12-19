@@ -123,13 +123,14 @@ public class RoleController {
     /**
      * Promotes a guest to an admin, only an organizer can promote someone.
      *
-     * @param role - The role which holds the user id of the user we want to change his role type.
+     * @param eventId - The event id of the event we wish to switch someones role at.
+     * @param userId - The user id of the user we wish to switch his role.
      * @return -a message confirming the removal of the role.
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestBody Role role) {
+    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) {
 
-        if (roleService.switchRole(role)) {
+        if (roleService.switchRole(userId,eventId)) {
             return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
         }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
