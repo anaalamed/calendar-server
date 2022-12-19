@@ -170,7 +170,7 @@ class RoleServiceTest {
     void Switch_Role_Successfully() {
         when(roleRepository.findByUserId(1)).thenReturn(roles);
 
-        boolean response = roleService.switchRole(role);
+        boolean response = roleService.switchRole(1,1);
 
         assertTrue(response);
     }
@@ -179,7 +179,7 @@ class RoleServiceTest {
     void Try_To_Switch_Role_Of_User_That_Does_Not_Exist() {
         when(roleRepository.findByUserId(1)).thenReturn(null);
 
-        boolean response = roleService.switchRole(role);
+        boolean response = roleService.switchRole(1,1);
 
         assertFalse(response);
     }
