@@ -1,5 +1,6 @@
 package calendar.repository;
 
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.Event;
 import calendar.entities.Role;
 import calendar.entities.User;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository

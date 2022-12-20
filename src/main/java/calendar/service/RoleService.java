@@ -59,9 +59,9 @@ public class RoleService {
                 .orElse(null);
     }
 
-    public boolean switchRole(Role role) {
+    public boolean switchRole(int userId,int eventId) {
 
-        Role roleToPromote = getSpecificRole(role.getUser().getId(), role.getEvent().getId());
+        Role roleToPromote = getSpecificRole(userId, eventId);
 
         if (roleToPromote == null) {
             return false;

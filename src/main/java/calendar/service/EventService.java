@@ -81,11 +81,11 @@ public class EventService {
      * @return the Updated Event
      * @throws SQLDataException
      */
-    public Event updateEvent(Event event) throws SQLDataException {
+    public Event updateEvent(EventRequest event,int id) throws SQLDataException {
         int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getDate(), event.getTime()
-                , event.getDuration(), event.getLocation(), event.getDescription(), event.getId());
+                , event.getDuration(), event.getLocation(), event.getDescription(), id);
         if (rows > 0) {
-            return eventRepository.findById(event.getId()).get();
+            return eventRepository.findById(id).get();
         } else {
             return null;
         }
@@ -98,11 +98,11 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventTitle(Event event) throws SQLDataException {
-        int rows = eventRepository.updateEventTitle(event.getTitle(), event.getId());
+    public Event updateEventTitle(EventRequest event,int id) throws SQLDataException {
+        int rows = eventRepository.updateEventTitle(event.getTitle(), id);
         if (rows > 0)//number of updated rows in db
         {
-            return eventRepository.findById(event.getId()).get();
+            return eventRepository.findById(id).get();
         } else {
             return null;
         }
@@ -115,9 +115,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventLocation(Event event) throws SQLDataException {
-        if (eventRepository.updateEventLocation(event.getLocation(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventLocation(EventRequest event,int id) throws SQLDataException {
+        if (eventRepository.updateEventLocation(event.getLocation(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
@@ -130,9 +130,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventTime(Event event) throws SQLDataException {
-        if (eventRepository.updateEventTime(event.getTime(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventTime(EventRequest event ,int id) throws SQLDataException {
+        if (eventRepository.updateEventTime(event.getTime(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
@@ -145,9 +145,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventIsPublic(Event event) throws SQLDataException {
-        if (eventRepository.updateEventIsPublic(event.isPublic(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventIsPublic(EventRequest event,int id) throws SQLDataException {
+        if (eventRepository.updateEventIsPublic(event.isPublic(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
@@ -160,9 +160,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDuration(Event event) throws SQLDataException {
-        if (eventRepository.updateEventDuration(event.getDuration(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventDuration(EventRequest event,int id) throws SQLDataException {
+        if (eventRepository.updateEventDuration(event.getDuration(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
@@ -175,9 +175,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDescription(Event event) throws SQLDataException {
-        if (eventRepository.updateEventDescription(event.getDescription(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventDescription(EventRequest event,int id) throws SQLDataException {
+        if (eventRepository.updateEventDescription(event.getDescription(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
@@ -190,9 +190,9 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDate(Event event) throws SQLDataException {
-        if (eventRepository.updateEventDate(event.getDate(), event.getId()) > 0)
-            return eventRepository.findById(event.getId()).get();
+    public Event updateEventDate(EventRequest event,int id) throws SQLDataException {
+        if (eventRepository.updateEventDate(event.getDate(), id) > 0)
+            return eventRepository.findById(id).get();
         else {
             return null;
         }
