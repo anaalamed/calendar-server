@@ -31,11 +31,11 @@ public class AuthService {
 
     static HashMap<Integer, String> usersTokensMap = new HashMap<>();
 
-    private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
-
     public AuthService(UserRepository userRepository ) {
         this.userRepository = userRepository;
     }
+
+    private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
 
     /**
      * Create user if email isn't already exist
@@ -51,10 +51,10 @@ public class AuthService {
         }
 
         logger.debug(userRequest);
-        User user = userRepository.save(new User(userRequest.getName(), userRequest.getEmail(),
+        User createdUser = userRepository.save(new User(userRequest.getName(), userRequest.getEmail(),
                 Utils.hashPassword(userRequest.getPassword()), provider));
 
-        return new UserDTO(user);
+        return new UserDTO(createdUser);
     }
 
     /**

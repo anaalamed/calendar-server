@@ -6,6 +6,7 @@ import calendar.entities.Event;
 import calendar.entities.User;
 import calendar.entities.enums.RoleType;
 import calendar.entities.enums.StatusType;
+import calendar.event.emailNotification.NotificationPublisher;
 import calendar.service.EventService;
 import calendar.service.RoleService;
 import calendar.service.UserService;
@@ -26,6 +27,9 @@ public class EventController {
     private RoleService roleService;
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationPublisher notificationPublisher;
 
     /**
      * Create new event and save it in the DB
@@ -105,6 +109,7 @@ public class EventController {
         try {
             res = eventService.updateEvent(event,eventId);
             if (res != null){
+                notificationPublisher.publishEventChangeNotification(res);
                 return ResponseEntity.ok(BaseResponse.success(res));
             }
 

@@ -4,6 +4,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.event.emailNotification.NotificationPublisher;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class RoleController {
     UserService userService;
     @Autowired
     EventService eventService;
+
+    @Autowired
+    private NotificationPublisher notificationPublisher;
 
     /**
      * Saves one Role in the DB
@@ -183,6 +187,7 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
+        notificationPublisher.publishEventInviteNotification(event, user.get().getEmail());
         return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
