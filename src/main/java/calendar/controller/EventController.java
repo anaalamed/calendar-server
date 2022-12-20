@@ -3,6 +3,7 @@ package calendar.controller;
 import calendar.controller.request.EventRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.Event;
+import calendar.event.emailNotification.NotificationPublisher;
 import calendar.service.EventService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import java.sql.SQLDataException;
 public class EventController {
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private NotificationPublisher notificationPublisher;
 
     /**
      * Create new event and save it in the DB
@@ -90,6 +94,7 @@ public class EventController {
         try {
             res = eventService.updateEvent(event);
             if (res != null){
+                notificationPublisher.publishEventChangeNotification(res);
                 return ResponseEntity.ok(BaseResponse.success(res));
             }
 

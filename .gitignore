@@ -8,6 +8,6 @@ src/main/resources/application.properties
 src/main/resources/gmail.json
 
 
-src/main/java/calendar/entities/Notification.java
+#src/main/java/calendar/entities/Notification.java
 src/main/java/calendar/repository/NotificationRepository.java
 src/main/java/calendar/service/NotificationService.java

@@ -5,9 +5,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.ProviderType;
-import calendar.entities.enums.NotificationType;
 import calendar.event.emailNotification.NotificationPublisher;
-import calendar.event.emailNotification.OnRegistrationNotification;
 import calendar.service.AuthService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +51,7 @@ public class AuthController {
 
         try {
             UserDTO createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
-            notificationPublisher.publishRegistrationEvent(createdUser.getEmail());
+            notificationPublisher.publishRegistrationNotification(createdUser.getEmail());
             return ResponseEntity.ok(BaseResponse.success(createdUser));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));
@@ -91,21 +89,4 @@ public class AuthController {
 
     }
 
-//    public void publishRegistrationEvent(String email ) {
-////        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(email));
-//        NotificationPublisher.eventPublisher.publishEvent(new OnRegistrationNotification( NotificationType.REGISTRATION, email));
-//    }
-
-    //    @RequestMapping(method = RequestMethod.POST, path = "/testemail")
-//    public ResponseEntity<BaseResponse<String>> testEmail()  {
-//        logger.info("in testEmail()");
-//
-//        try {
-//            GMailer.sendMail("anaalamed@gmail.com", "Test Email", "testingggggg");
-//            return ResponseEntity.ok(BaseResponse.noContent(true, "mail sent"));
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(BaseResponse.failure("exception"));
-//        }
-//    }
 }

@@ -1,35 +1,38 @@
 package calendar.event.emailNotification;
 
+import calendar.service.RoleService;
 import calendar.utils.GMailer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-@Component
-public class NotificationListener implements ApplicationListener<GenericNotification<String>> {
 
+@Component
+public class NotificationListener implements ApplicationListener<Notification> {
+
+    @Autowired
+    public RoleService roleService;
     private static final Logger logger = LogManager.getLogger(NotificationListener.class.getName());
 
-    @Override
-    public void onApplicationEvent(@NonNull GenericNotification<String> event) {
-        switch (event.getEventType()) {
-            case REGISTRATION:
-                try {
-                    this.onRegistration(event.getWhat());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+    public void onApplicationEvent(Notification notification) {
+        logger.info("Received generic event - " + notification);
+
+        try {
+            this.onGenericEvent(notification);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        logger.info("Received generic event - " + event);
-        logger.info("Received generic event - " + event.getWhat());
-        logger.info("Received generic event - " + event.getEventType());
-
     }
 
-    private void onRegistration(String email) throws Exception {
-        String subject = "Welcome to Calendar App";
-        GMailer.sendMail(email, subject, "You registered to Calendar app. Welcome!");
+    private void onGenericEvent(Notification notification) throws Exception {
+        logger.info("onGenericEvent");
+        logger.info("event" + notification);
+
+        for (String email: notification.getEmailsToSend() ) {
+            GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+        }
     }
+
 }
