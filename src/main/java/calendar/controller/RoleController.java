@@ -150,9 +150,10 @@ public class RoleController {
      * @return -a message confirming the removal of the role.
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) {
+    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) throws SQLDataException {
 
         if (roleService.switchRole(userId,eventId)) {
+//            notificationPublisher.publishUserStatusChangedNotification(eventService.getEventById(eventId), userService.getById(userId).getEmail()); // Leon sorry about this and an exception!!!
             return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
         }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
@@ -187,7 +188,7 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
-        notificationPublisher.publishEventInviteNotification(event, user.get().getEmail());
+        notificationPublisher.publishInviteGuestNotification(event, user.get().getEmail());
         return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
@@ -214,6 +215,7 @@ public class RoleController {
         }
 
         if(roleService.removeGuest(user.get().getId(),eventId)){
+            notificationPublisher.publishRemoveUserFromEventNotification(event, user.get().getEmail());
             return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
         }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not part of the event!"));
