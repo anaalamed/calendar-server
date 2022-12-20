@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ public class NotificationPublisher {
     @Autowired
     public UserService userService;
 
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
     private static final Logger logger = LogManager.getLogger(NotificationPublisher.class.getName());
 
 
@@ -35,7 +39,10 @@ public class NotificationPublisher {
                 "\n Visit us at : https://lam-calendar-client.web.app ";
         ArrayList<String> emails = new ArrayList<>(List.of(email));
 
-        eventPublisher.publishEvent(  new Notification(message, title, null, emails));
+        Notification notification = new Notification(message, title, null, emails);
+
+        simpMessagingTemplate.convertAndSend("/notifications", notification);
+        eventPublisher.publishEvent( notification );
     }
 
 
