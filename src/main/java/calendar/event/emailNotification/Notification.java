@@ -1,10 +1,9 @@
 package calendar.event.emailNotification;
 
 import calendar.entities.Event;
-import calendar.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 
+import javax.persistence.Entity;
 import java.util.ArrayList;
 
 public class Notification extends ApplicationEvent {

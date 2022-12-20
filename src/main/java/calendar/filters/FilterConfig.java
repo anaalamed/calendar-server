@@ -51,9 +51,11 @@ public class FilterConfig {
         FilterRegistrationBean<TokenFilter> registrationBean = new FilterRegistrationBean<>();
         TokenFilter customURLFilter = new TokenFilter(authService);
         registrationBean.setFilter(customURLFilter);
-        registrationBean.addUrlPatterns("/user/update","/event", "/user/delete","/role/removeGuest", "/role/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+        registrationBean.addUrlPatterns("/user/update", "/user/delete",
+                "/role/removeGuest", "/role/inviteGuest",
+                "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/time", "/event/updateEvent/duration","/event/updateEvent/event", "/event/updateEvent/date", "/event/updateEvent/description",
-                "/event/updateEvent/title", "/event/updateEvent", "/event/deleteEvent","/role/switchRole");
+                "/event/updateEvent/title", "/event/updateEvent", "/event/deleteEvent","/role/switchRole", "/event/saveEvent");
         registrationBean.setOrder(2); //set precedence
         return registrationBean;
     }
