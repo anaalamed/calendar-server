@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -268,6 +269,18 @@ public class EventController {
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
+    }
+
+    /**
+     * get all events of a user by his id
+     *
+     * @param userId - the id of the user we want to get all of his events.
+     * @return a list of all the events.
+     */
+    @GetMapping(value = "/getEventsByUserId")
+    public ResponseEntity<BaseResponse<List<Event>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
+
+        return ResponseEntity.ok(BaseResponse.success(roleService.getEventsByUserId(userId)));
     }
 
 
