@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.service.*;
@@ -77,39 +78,45 @@ class RoleControllerTest {
     }
 
     @Test
-    void Save_Role_Successfully(){
+    void Save_Role_Successfully() {
         when(roleService.saveRoleInDB(role)).thenReturn(role);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
+        RoleDTO roleDTO = new RoleDTO(role);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
     }
 
     @Test
-    void Try_To_Save_Role_That_already_Exists(){
-        when(roleService.saveRoleInDB(role)).thenThrow(IllegalArgumentException.class);
+    void Try_To_Save_Role_That_already_Exists() {
+        when(roleService.saveRoleInDB(role)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () -> roleController.saveRoleInDB(role));
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Get_All_Roles_With_Same_User_Id_Successfully(){
+    void Get_All_Roles_With_Same_User_Id_Successfully() {
         when(roleService.getRoleByUserId(1)).thenReturn(roles);
         when(userService.getById(1)).thenReturn(user);
         when(userService.getAllUsers()).thenReturn(users);
 
-        ResponseEntity<BaseResponse<List<Role>>> response = roleController.getRoleByUserId(1);
+        ResponseEntity<BaseResponse<List<RoleDTO>>> response = roleController.getRoleByUserId(1);
+        RoleDTO roleDTO = new RoleDTO(roleToInvite);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData().get(0));
+        assertEquals(roleDTO.getId(), response.getBody().getData().get(0).getId());
     }
 
     @Test
-    void Try_To_Get_Roles_Of_User_That_Does_Not_Exist(){
-        when(userService.getById(1)).thenThrow(IllegalArgumentException.class);
+    void Try_To_Get_Roles_Of_User_That_Does_Not_Exist() {
+        when(userService.getById(1)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () -> roleController.getRoleByUserId(1));
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -118,48 +125,55 @@ class RoleControllerTest {
         when(eventService.getEventById(1)).thenReturn(event);
         when(eventService.getAllEvents()).thenReturn(events);
 
-        ResponseEntity<BaseResponse<List<Role>>> response = roleController.getRoleByEventId(1);
+        ResponseEntity<BaseResponse<List<RoleDTO>>> response = roleController.getRoleByEventId(1);
+        RoleDTO roleDTO = new RoleDTO(role);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData().get(0));
+        assertEquals(roleDTO.getId(), response.getBody().getData().get(0).getId());
     }
 
     @Test
     void Try_To_Get_Roles_Of_Event_That_Does_Not_Exist() throws SQLDataException {
-        when(eventService.getEventById(1)).thenThrow(IllegalArgumentException.class);
+        when(eventService.getEventById(1)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () -> roleController.getRoleByEventId(1));
-    }
-
-    @Test
-    void Get_Specific_Role_Successfully(){
-        when(roleService.getSpecificRole(1,1)).thenReturn(role);
-
-        ResponseEntity<BaseResponse<Role>> response = roleController.getSpecificRole(1,1);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData());
-    }
-
-    @Test
-    void Try_To_Get_A_Specific_Role_With_Invalid_User_Id(){
-        when(roleService.getSpecificRole(999,1)).thenThrow(IllegalArgumentException.class);
-
-        assertThrows(IllegalArgumentException.class, () -> roleController.getSpecificRole(999,1));
-    }
-
-    @Test
-    void Try_To_Get_A_Specific_Role_With_Invalid_Event_Id(){
-        when(roleService.getSpecificRole(1,999)).thenReturn(null);
-
-        ResponseEntity<BaseResponse<Role>> response = roleController.getSpecificRole(1,999);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Delete_Role_Successfully(){
-        when(roleService.getSpecificRole(1,1)).thenReturn(role);
+    void Get_Specific_Role_Successfully() {
+        when(roleService.getSpecificRole(1, 1)).thenReturn(role);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.getSpecificRole(1, 1);
+        RoleDTO roleDTO = new RoleDTO(role);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
+    }
+
+    @Test
+    void Try_To_Get_A_Specific_Role_With_Invalid_User_Id() {
+        when(roleService.getSpecificRole(999, 1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Get_A_Specific_Role_With_Invalid_Event_Id() {
+        when(roleService.getSpecificRole(1, 999)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.getSpecificRole(1, 999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Delete_Role_Successfully() {
+        when(roleService.getSpecificRole(1, 1)).thenReturn(role);
+        when(roleService.deleteRole(role)).thenReturn(true);
 
         ResponseEntity<BaseResponse<Role>> response = roleController.deleteRole(role);
 
@@ -168,8 +182,8 @@ class RoleControllerTest {
     }
 
     @Test
-    void Try_To_Delete_Role_That_Does_Not_Exist(){
-        when(roleService.getSpecificRole(999,999)).thenReturn(null);
+    void Try_To_Delete_Role_That_Does_Not_Exist() {
+        when(roleService.getSpecificRole(999, 999)).thenReturn(null);
 
         ResponseEntity<BaseResponse<Role>> response = roleController.deleteRole(role);
 
@@ -177,20 +191,21 @@ class RoleControllerTest {
     }
 
     @Test
-    void Switch_Role_Successfully(){
-        when(roleService.getSpecificRole(1,1)).thenReturn(role);
+    void Switch_Role_Successfully() {
+        when(roleService.getSpecificRole(1, 1)).thenReturn(role);
+        when(roleService.switchRole(2,2)).thenReturn(true);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(role);
+        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(2,2);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("The role type was updated successfully!", response.getBody().getMessage());
     }
 
     @Test
-    void Try_To_Switch_Role_Of_User_That_Does_Not_Exist(){
-        when(roleService.getSpecificRole(999,999)).thenReturn(null);
+    void Try_To_Switch_Role_Of_User_That_Does_Not_Exist() {
+        when(roleService.getSpecificRole(999, 999)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(role);
+        ResponseEntity<BaseResponse<Role>> response = roleController.switchRole(999,999);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -199,21 +214,22 @@ class RoleControllerTest {
     void Invite_Guest_Successfully() throws SQLDataException {
         when(userService.getByEmail("leon@invite.com")).thenReturn(Optional.of(new UserDTO(userToInvite)));
         when(eventService.getEventById(1)).thenReturn(event);
-        when(roleService.getSpecificRole(user.getId(),event.getId())).thenReturn(null);
+        when(roleService.getSpecificRole(user.getId(), event.getId())).thenReturn(null);
         when(userService.getById(123)).thenReturn(userToInvite);
-        when(roleService.inviteGuest(userToInvite,event)).thenReturn(roleToInvite);
+        when(roleService.inviteGuest(userToInvite, event)).thenReturn(roleToInvite);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@invite.com",1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@invite.com", 1);
+        RoleDTO roleDTO = new RoleDTO(roleToInvite);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(roleToInvite, response.getBody().getData());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
     }
 
     @Test
     void Try_To_Invite_Guest_Who_Is_Not_Registered() throws SQLDataException {
         when(userService.getByEmail("leon@notRegistered.com")).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@notRegistered.com",1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@notRegistered.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -222,9 +238,9 @@ class RoleControllerTest {
     void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() throws SQLDataException {
         when(userService.getByEmail("leon@invite.com")).thenReturn(Optional.of(new UserDTO(userToInvite)));
         when(eventService.getEventById(1)).thenReturn(event);
-        when(roleService.getSpecificRole(userToInvite.getId(),event.getId())).thenReturn(role);
+        when(roleService.getSpecificRole(userToInvite.getId(), event.getId())).thenReturn(role);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@invite.com",1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@invite.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -233,9 +249,10 @@ class RoleControllerTest {
     void Remove_Guest_Successfully() throws SQLDataException {
         when(userService.getByEmail("leon@remove.com")).thenReturn(Optional.of(new UserDTO(user)));
         when(eventService.getEventById(1)).thenReturn(event);
-        when(roleService.getSpecificRole(user.getId(),event.getId())).thenReturn(role);
+        when(roleService.getSpecificRole(user.getId(), event.getId())).thenReturn(role);
+        when(roleService.removeGuest(1, 1)).thenReturn(true);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.removeGuest("leon@remove.com",1);
+        ResponseEntity<BaseResponse<Role>> response = roleController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("The guest was removed successfully!", response.getBody().getMessage());
@@ -245,18 +262,18 @@ class RoleControllerTest {
     void Try_To_Remove_Guest_Who_Is_Not_Registered() throws SQLDataException {
         when(userService.getByEmail("leon@notRegistered.com")).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.removeGuest("leon@notRegistered.com",1);
+        ResponseEntity<BaseResponse<Role>> response = roleController.removeGuest("leon@notRegistered.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_Already_In_The_Event() throws SQLDataException {
+    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() throws SQLDataException {
         when(userService.getByEmail("leon@remove.com")).thenReturn(Optional.of(new UserDTO(user)));
         when(eventService.getEventById(1)).thenReturn(event);
-        when(roleService.getSpecificRole(user.getId(),event.getId())).thenReturn(role);
+        when(roleService.getSpecificRole(user.getId(), event.getId())).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@remove.com",1);
+        ResponseEntity<BaseResponse<Role>> response = roleController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }

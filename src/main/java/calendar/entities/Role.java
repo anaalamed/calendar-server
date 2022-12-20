@@ -67,4 +67,8 @@ public class Role {
     public void setRoleType(RoleType roleType) {
         this.roleType = roleType;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

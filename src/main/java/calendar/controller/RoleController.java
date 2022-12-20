@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,14 +32,16 @@ public class RoleController {
      * @param role - The role we wish to save in the DB
      * @return
      */
-    @RequestMapping(value = "/saveRole", method = RequestMethod.POST) // HERE FOR TESTING!! WILL REMOVE LATER
-    public ResponseEntity<BaseResponse<Role>> saveRoleInDB(@RequestBody Role role) {
+    @RequestMapping(value = "/saveRole", method = RequestMethod.POST)
+    public ResponseEntity<BaseResponse<RoleDTO>> saveRoleInDB(@RequestBody Role role) {
 
-        if (roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId()) != null) {
+        Role roleToSave = roleService.saveRoleInDB(role);
+
+        if(roleToSave == null){
             return ResponseEntity.badRequest().body(BaseResponse.failure("A user cant have more than one role in the same event!"));
+        }else{
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToSave)));
         }
-
-        return ResponseEntity.ok(BaseResponse.success(roleService.saveRoleInDB(role)));
     }
 
     /**
@@ -47,7 +51,7 @@ public class RoleController {
      * @return All the Roles we wanted to get from the DB with the same event id.
      */
     @RequestMapping(value = "/getRoleByEventId", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<List<Role>>> getRoleByEventId(@RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<List<RoleDTO>>> getRoleByEventId(@RequestParam int eventId) {
 
         Event event = null;
 
@@ -61,7 +65,15 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.getRoleByEventId(eventId)));
+        List<Role> roles = roleService.getRoleByEventId(eventId);
+        List<RoleDTO> rolesDTO = new ArrayList<>();
+
+        for (Role role : roles) {
+            RoleDTO roleDTO = new RoleDTO(role);
+            rolesDTO.add(roleDTO);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(rolesDTO));
     }
 
     /**
@@ -71,7 +83,7 @@ public class RoleController {
      * @return All the Roles we wanted to get from the DB with the same user ID
      */
     @RequestMapping(value = "/getRoleByUserId", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<List<Role>>> getRoleByUserId(@RequestParam int userId) {
+    public ResponseEntity<BaseResponse<List<RoleDTO>>> getRoleByUserId(@RequestParam int userId) {
 
         User user = userService.getById(userId);
 
@@ -79,7 +91,15 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.getRoleByUserId(userId)));
+        List<Role> roles = roleService.getRoleByUserId(userId);
+        List<RoleDTO> rolesDTO = new ArrayList<>();
+
+        for (Role role : roles) {
+            RoleDTO roleDTO = new RoleDTO(role);
+            rolesDTO.add(roleDTO);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(rolesDTO));
     }
 
     /**
@@ -91,7 +111,7 @@ public class RoleController {
      * @return The Role we wanted to get from the DB with the exact user ID and event id combination.
      */
     @RequestMapping(value = "/getSpecificRole", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<Role>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<RoleDTO>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
 
         Role role = roleService.getSpecificRole(userId, eventId);
 
@@ -99,7 +119,7 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(role));
+        return ResponseEntity.ok(BaseResponse.success(new RoleDTO(role)));
     }
 
     /**
@@ -111,33 +131,28 @@ public class RoleController {
     @RequestMapping(value = "/deleteRole", method = RequestMethod.DELETE)
     public ResponseEntity<BaseResponse<Role>> deleteRole(@RequestBody Role role) {
 
-        Role roleToDelete = roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId());
-
-        if (roleToDelete == null) {
+        if (roleService.deleteRole(role) ) {
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The role was deleted successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
-
-        roleService.deleteRole(roleToDelete);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The role was deleted successfully!"));
     }
 
     /**
      * Promotes a guest to an admin, only an organizer can promote someone.
      *
-     * @param role - The role which holds the user id of the user we want to change his role type.
+     * @param eventId - The event id of the event we wish to switch someones role at.
+     * @param userId - The user id of the user we wish to switch his role.
      * @return -a message confirming the removal of the role.
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestBody Role role) {
+    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) {
 
-        Role roleToPromote = roleService.getSpecificRole(role.getUser().getId(), role.getEvent().getId());
-
-        if (roleToPromote == null) {
+        if (roleService.switchRole(userId,eventId)) {
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
-
-        roleService.switchRole(roleToPromote);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
     }
 
     /**
@@ -149,7 +164,7 @@ public class RoleController {
      * @return the invited user role.
      */
     @RequestMapping(value = "/inviteGuest", method = RequestMethod.POST)
-    public ResponseEntity<BaseResponse<Role>> inviteGuest(@RequestParam String email, @RequestParam int eventId) throws SQLDataException {
+    public ResponseEntity<BaseResponse<RoleDTO>> inviteGuest(@RequestParam String email, @RequestParam int eventId) throws SQLDataException {
 
         Optional<UserDTO> user = userService.getByEmail(email);
         Event event = eventService.getEventById(eventId);
@@ -162,14 +177,13 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        Role roleToAdd = roleService.getSpecificRole(user.get().getId(), eventId);
+        Role RoleToAdd = roleService.inviteGuest(userService.getById(user.get().getId()), event);
 
-        if (roleToAdd != null) {
+        if (RoleToAdd == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.inviteGuest(userService.getById(user.get().getId()),
-                event)));
+        return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
     /**
@@ -194,13 +208,10 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        Role roleToRemove = roleService.getSpecificRole(user.get().getId(), eventId);
-
-        if (roleToRemove == null) {
+        if(roleService.removeGuest(user.get().getId(),eventId)){
+            return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not part of the event!"));
         }
-
-        roleService.deleteRole(roleToRemove);
-        return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
     }
 }

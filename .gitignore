@@ -1,6 +1,8 @@
 .idea/
 target/
+tokens
 .DS_Store
 
 logs
 src/main/resources/application.properties
+src/main/resources/gmail.json

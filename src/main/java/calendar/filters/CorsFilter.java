@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 
 public class CorsFilter implements Filter {
-    private Set<String> origins = new HashSet<>(Set.of("http://localhost:3000"));
+    private Set<String> origins = new HashSet<>(Set.of("http://localhost:9000"));
 
     public static final Logger logger = LogManager.getLogger(TokenFilter.class);
 
