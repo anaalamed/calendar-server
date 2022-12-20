@@ -6,6 +6,7 @@ import calendar.entities.DTO.UserDTO;
 import calendar.entities.Event;
 import calendar.entities.User;
 import calendar.repository.EventRepository;
+import calendar.repository.RoleRepository;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ public class EventService {
 
     @Autowired
     EventRepository eventRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    RoleRepository roleRepository;
 
     /**
      * Create new event if isn't already exist
@@ -62,13 +67,15 @@ public class EventService {
     /**
      * Delete an event from the DB if founded
      *
-     * @param event
+     * @param eventId
      * @return the number of deleted rows
      * @throws SQLDataException
      */
-    public int deleteEvent(Event event) throws SQLDataException {
-        if (eventRepository.findById(event.getId()).isPresent()) {
-            return eventRepository.deleteById(event.getId());
+    public int deleteEvent(int eventId) throws SQLDataException {
+        Event e = eventRepository.findById(eventId).get();
+        if (eventRepository.findById(eventId).isPresent()) {
+            roleRepository.deleteById(e);
+            return eventRepository.deleteById(eventId);
         } else {
             return 0;
         }

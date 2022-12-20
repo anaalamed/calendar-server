@@ -61,12 +61,12 @@ public class EventController {
      * @return BaseResponse with a message (deleted successfully or error)
      */
     @RequestMapping(value = "/deleteEvent", method = RequestMethod.DELETE)
-    public ResponseEntity<BaseResponse<String>> deleteEvent(@RequestBody Event event) {
-        //check token of the user from header
+    public ResponseEntity<BaseResponse<String>> deleteEvent(@RequestAttribute("userId") int userId,@RequestParam int eventId) {
+        System.out.println("*************"+userId);
         try {
-            if (eventService.deleteEvent(event) > 0)/* if number of deleted rows in DB > 0 */
+            if (eventService.deleteEvent(eventId) > 0)/* if number of deleted rows in DB > 0 */
                 return ResponseEntity.ok(BaseResponse.success("Event Deleted Successfully"));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Event %s not exists!", event.getId())));
+            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Event %s not exists!", eventId)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }

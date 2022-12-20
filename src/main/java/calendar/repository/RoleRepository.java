@@ -31,4 +31,9 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Role save(Role role);
 
+    @Modifying
+    @Query("delete from Role r where r.event = :id")
+    @Transactional
+    int deleteById(@Param("id") Event id);
+
 }
