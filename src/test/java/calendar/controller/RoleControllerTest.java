@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.service.*;
@@ -80,17 +81,18 @@ class RoleControllerTest {
     void Save_Role_Successfully() {
         when(roleService.saveRoleInDB(role)).thenReturn(role);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
+        RoleDTO roleDTO = new RoleDTO(role);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
     }
 
     @Test
     void Try_To_Save_Role_That_already_Exists() {
         when(roleService.saveRoleInDB(role)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -101,17 +103,18 @@ class RoleControllerTest {
         when(userService.getById(1)).thenReturn(user);
         when(userService.getAllUsers()).thenReturn(users);
 
-        ResponseEntity<BaseResponse<List<Role>>> response = roleController.getRoleByUserId(1);
+        ResponseEntity<BaseResponse<List<RoleDTO>>> response = roleController.getRoleByUserId(1);
+        RoleDTO roleDTO = new RoleDTO(roleToInvite);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData().get(0));
+        assertEquals(roleDTO.getId(), response.getBody().getData().get(0).getId());
     }
 
     @Test
     void Try_To_Get_Roles_Of_User_That_Does_Not_Exist() {
         when(userService.getById(1)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -122,17 +125,18 @@ class RoleControllerTest {
         when(eventService.getEventById(1)).thenReturn(event);
         when(eventService.getAllEvents()).thenReturn(events);
 
-        ResponseEntity<BaseResponse<List<Role>>> response = roleController.getRoleByEventId(1);
+        ResponseEntity<BaseResponse<List<RoleDTO>>> response = roleController.getRoleByEventId(1);
+        RoleDTO roleDTO = new RoleDTO(role);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData().get(0));
+        assertEquals(roleDTO.getId(), response.getBody().getData().get(0).getId());
     }
 
     @Test
     void Try_To_Get_Roles_Of_Event_That_Does_Not_Exist() throws SQLDataException {
         when(eventService.getEventById(1)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -141,17 +145,18 @@ class RoleControllerTest {
     void Get_Specific_Role_Successfully() {
         when(roleService.getSpecificRole(1, 1)).thenReturn(role);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.getSpecificRole(1, 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.getSpecificRole(1, 1);
+        RoleDTO roleDTO = new RoleDTO(role);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(role, response.getBody().getData());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
     }
 
     @Test
     void Try_To_Get_A_Specific_Role_With_Invalid_User_Id() {
         when(roleService.getSpecificRole(999, 1)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.saveRoleInDB(role);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.saveRoleInDB(role);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -160,7 +165,7 @@ class RoleControllerTest {
     void Try_To_Get_A_Specific_Role_With_Invalid_Event_Id() {
         when(roleService.getSpecificRole(1, 999)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.getSpecificRole(1, 999);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.getSpecificRole(1, 999);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -213,17 +218,18 @@ class RoleControllerTest {
         when(userService.getById(123)).thenReturn(userToInvite);
         when(roleService.inviteGuest(userToInvite, event)).thenReturn(roleToInvite);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@invite.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@invite.com", 1);
+        RoleDTO roleDTO = new RoleDTO(roleToInvite);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(roleToInvite, response.getBody().getData());
+        assertEquals(roleDTO.getId(), response.getBody().getData().getId());
     }
 
     @Test
     void Try_To_Invite_Guest_Who_Is_Not_Registered() throws SQLDataException {
         when(userService.getByEmail("leon@notRegistered.com")).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@notRegistered.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@notRegistered.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -234,7 +240,7 @@ class RoleControllerTest {
         when(eventService.getEventById(1)).thenReturn(event);
         when(roleService.getSpecificRole(userToInvite.getId(), event.getId())).thenReturn(role);
 
-        ResponseEntity<BaseResponse<Role>> response = roleController.inviteGuest("leon@invite.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = roleController.inviteGuest("leon@invite.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }

@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,14 +33,14 @@ public class RoleController {
      * @return
      */
     @RequestMapping(value = "/saveRole", method = RequestMethod.POST)
-    public ResponseEntity<BaseResponse<Role>> saveRoleInDB(@RequestBody Role role) {
+    public ResponseEntity<BaseResponse<RoleDTO>> saveRoleInDB(@RequestBody Role role) {
 
         Role roleToSave = roleService.saveRoleInDB(role);
 
         if(roleToSave == null){
             return ResponseEntity.badRequest().body(BaseResponse.failure("A user cant have more than one role in the same event!"));
         }else{
-            return ResponseEntity.ok(BaseResponse.success(roleToSave));
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToSave)));
         }
     }
 
@@ -49,7 +51,7 @@ public class RoleController {
      * @return All the Roles we wanted to get from the DB with the same event id.
      */
     @RequestMapping(value = "/getRoleByEventId", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<List<Role>>> getRoleByEventId(@RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<List<RoleDTO>>> getRoleByEventId(@RequestParam int eventId) {
 
         Event event = null;
 
@@ -63,7 +65,15 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The event does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.getRoleByEventId(eventId)));
+        List<Role> roles = roleService.getRoleByEventId(eventId);
+        List<RoleDTO> rolesDTO = new ArrayList<>();
+
+        for (Role role : roles) {
+            RoleDTO roleDTO = new RoleDTO(role);
+            rolesDTO.add(roleDTO);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(rolesDTO));
     }
 
     /**
@@ -73,7 +83,7 @@ public class RoleController {
      * @return All the Roles we wanted to get from the DB with the same user ID
      */
     @RequestMapping(value = "/getRoleByUserId", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<List<Role>>> getRoleByUserId(@RequestParam int userId) {
+    public ResponseEntity<BaseResponse<List<RoleDTO>>> getRoleByUserId(@RequestParam int userId) {
 
         User user = userService.getById(userId);
 
@@ -81,7 +91,15 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(roleService.getRoleByUserId(userId)));
+        List<Role> roles = roleService.getRoleByUserId(userId);
+        List<RoleDTO> rolesDTO = new ArrayList<>();
+
+        for (Role role : roles) {
+            RoleDTO roleDTO = new RoleDTO(role);
+            rolesDTO.add(roleDTO);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(rolesDTO));
     }
 
     /**
@@ -93,7 +111,7 @@ public class RoleController {
      * @return The Role we wanted to get from the DB with the exact user ID and event id combination.
      */
     @RequestMapping(value = "/getSpecificRole", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<Role>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<RoleDTO>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
 
         Role role = roleService.getSpecificRole(userId, eventId);
 
@@ -101,7 +119,7 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(role));
+        return ResponseEntity.ok(BaseResponse.success(new RoleDTO(role)));
     }
 
     /**
@@ -146,7 +164,7 @@ public class RoleController {
      * @return the invited user role.
      */
     @RequestMapping(value = "/inviteGuest", method = RequestMethod.POST)
-    public ResponseEntity<BaseResponse<Role>> inviteGuest(@RequestParam String email, @RequestParam int eventId) throws SQLDataException {
+    public ResponseEntity<BaseResponse<RoleDTO>> inviteGuest(@RequestParam String email, @RequestParam int eventId) throws SQLDataException {
 
         Optional<UserDTO> user = userService.getByEmail(email);
         Event event = eventService.getEventById(eventId);
@@ -165,7 +183,7 @@ public class RoleController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
-        return ResponseEntity.ok(BaseResponse.success(RoleToAdd));
+        return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
     /**
