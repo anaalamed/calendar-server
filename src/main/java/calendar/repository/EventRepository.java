@@ -31,6 +31,14 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
             , @Param("location") String location, @Param("description") String description, @Param("id") int id);
 
 
+
+    @Modifying
+    @Query("update Event e set e.isPublic =:isPublic,e.location =:location,e.description =:description where e.id =:id")
+    @Transactional
+    int updateEventRestricted(@Param("isPublic") boolean isPublic,@Param("location") String location, @Param("description") String description, @Param("id") int id);
+
+
+
     @Modifying
     @Query("update Event e set e.title =:title where e.id =:id")
     @Transactional

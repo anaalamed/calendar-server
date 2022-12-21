@@ -5,10 +5,12 @@ import calendar.controller.request.UserRequest;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.Event;
 import calendar.entities.User;
+import calendar.entities.enums.RoleType;
 import calendar.repository.EventRepository;
 import calendar.repository.RoleRepository;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
+import org.hibernate.usertype.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +35,8 @@ public class EventService {
      * @throws SQLDataException
      */
     public Event saveEvent(EventRequest eventRequest) throws SQLDataException {
-        Event eventReq = Event.getNewEvent(eventRequest.isPublic(),eventRequest.getTime(),eventRequest.getDate(),eventRequest.getDuration(),eventRequest.getLocation(),
-                eventRequest.getTitle(),eventRequest.getDescription(),eventRequest.getAttachments());
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDate(), eventRequest.getDuration(), eventRequest.getLocation(),
+                eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
         if (eventRepository.findById(eventReq.getId()).isPresent()) {
             throw new SQLDataException(String.format("Event %s already exists!", eventReq.getId()));
         }
@@ -84,12 +86,40 @@ public class EventService {
 
     /**
      * Update the event if founded in db
+     * For ORGANIZER
      *
      * @param event
      * @return the Updated Event
      * @throws SQLDataException
      */
-    public Event updateEvent(EventRequest event,int id) throws SQLDataException {
+    public Event updateEvent(EventRequest event, int id) throws SQLDataException {
+
+        Event eventDB = eventRepository.findById(id).get();
+
+        if (!event.isPublic())
+            event.setPublic(eventDB.isPublic());
+
+        if (event.getDate() == null)
+            event.setDate(eventDB.getDate());
+
+        if (event.getTime() == null)
+            event.setTime(eventDB.getTime());
+
+        if (event.getTitle() == null)
+            event.setTitle(eventDB.getTitle());
+
+        if (event.getDuration() == 0)
+            event.setDuration(eventDB.getDuration());
+
+        if (event.getDescription() == null)
+            event.setDescription(eventDB.getDescription());
+
+        if (event.getAttachments() == null)
+            event.setAttachments(eventDB.getAttachments());
+
+        if (event.getLocation() == null)
+            event.setLocation(eventDB.getLocation());
+
         int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getDate(), event.getTime()
                 , event.getDuration(), event.getLocation(), event.getDescription(), id);
         if (rows > 0) {
@@ -99,6 +129,42 @@ public class EventService {
         }
     }
 
+
+    /**
+     * Update the event if founded in db
+     * For ADMIN
+     *
+     * @param event
+     * @return the Updated Event
+     * @throws SQLDataException
+     */
+    public Event updateEventRestricted(EventRequest event, int id) throws SQLDataException {
+
+        Event eventDB = eventRepository.findById(id).get();
+
+        if (!event.isPublic())
+            event.setPublic(eventDB.isPublic());
+
+        if (event.getDescription() == null)
+            event.setDescription(eventDB.getDescription());
+
+        if (event.getAttachments() == null)
+            event.setAttachments(eventDB.getAttachments());
+
+        if (event.getLocation() == null)
+            event.setLocation(eventDB.getLocation());
+
+
+
+        int rows = eventRepository.updateEventRestricted(event.isPublic(), event.getLocation(), event.getDescription(), id);
+        if (rows > 0) {
+            return eventRepository.findById(id).get();
+        } else {
+            return null;
+        }
+    }
+
+
     /**
      * Update Title of the event
      *
@@ -106,7 +172,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventTitle(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventTitle(EventRequest event, int id) throws SQLDataException {
         int rows = eventRepository.updateEventTitle(event.getTitle(), id);
         if (rows > 0)//number of updated rows in db
         {
@@ -123,7 +189,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventLocation(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventLocation(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventLocation(event.getLocation(), id) > 0)
             return eventRepository.findById(id).get();
         else {
@@ -138,7 +204,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventTime(EventRequest event ,int id) throws SQLDataException {
+    public Event updateEventTime(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventTime(event.getTime(), id) > 0)
             return eventRepository.findById(id).get();
         else {
@@ -153,7 +219,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventIsPublic(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventIsPublic(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventIsPublic(event.isPublic(), id) > 0)
             return eventRepository.findById(id).get();
         else {
@@ -168,7 +234,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDuration(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventDuration(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventDuration(event.getDuration(), id) > 0)
             return eventRepository.findById(id).get();
         else {
@@ -183,7 +249,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDescription(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventDescription(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventDescription(event.getDescription(), id) > 0)
             return eventRepository.findById(id).get();
         else {
@@ -198,7 +264,7 @@ public class EventService {
      * @return updated event
      * @throws SQLDataException
      */
-    public Event updateEventDate(EventRequest event,int id) throws SQLDataException {
+    public Event updateEventDate(EventRequest event, int id) throws SQLDataException {
         if (eventRepository.updateEventDate(event.getDate(), id) > 0)
             return eventRepository.findById(id).get();
         else {
