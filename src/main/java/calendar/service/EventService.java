@@ -33,7 +33,8 @@ public class EventService {
      * @throws SQLDataException
      */
     public Event saveEvent(EventRequest eventRequest) throws SQLDataException {
-        Event eventReq = new Event.Builder(eventRequest.getTime(), eventRequest.getDate(), eventRequest.getTitle()).build();
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(),eventRequest.getTime(),eventRequest.getDate(),eventRequest.getDuration(),eventRequest.getLocation(),
+                eventRequest.getTitle(),eventRequest.getDescription(),eventRequest.getAttachments());
         if (eventRepository.findById(eventReq.getId()).isPresent()) {
             throw new SQLDataException(String.format("Event %s already exists!", eventReq.getId()));
         }

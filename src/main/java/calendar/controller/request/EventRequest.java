@@ -2,9 +2,11 @@ package calendar.controller.request;
 
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EventRequest {
@@ -15,7 +17,7 @@ public class EventRequest {
     private String location;
     private String title;
     private String description;
-    private List<File> attachments;
+    private ArrayList<File> attachments;
 
     public boolean isPublic() {
         return isPublic;
@@ -73,11 +75,11 @@ public class EventRequest {
         this.description = description;
     }
 
-    public List<File> getAttachments() {
+    public ArrayList<File> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List<File> attachments) {
+    public void setAttachments(ArrayList<File> attachments) {
         this.attachments = attachments;
     }
 
