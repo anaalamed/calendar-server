@@ -58,7 +58,7 @@ public class EventController {
     /**
      * Delete an event by id from the DB
      *
-     * @param event
+     * @param eventId
      * @return BaseResponse with a message (deleted successfully or error)
      */
     @RequestMapping(value = "/deleteEvent", method = RequestMethod.DELETE)
