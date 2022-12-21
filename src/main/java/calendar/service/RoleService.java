@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -100,5 +101,17 @@ public class RoleService {
             roleRepository.delete(roleToRemove);
             return true;
         }
+    }
+
+    public List<Event> getEventsByUserId(int userId){
+       List<Role> roles = getRoleByUserId(userId);
+
+       List<Event> events = new ArrayList<>();
+
+        for (Role role: roles) {
+            events.add(role.getEvent());
+        }
+
+       return events;
     }
 }
