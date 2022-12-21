@@ -3,6 +3,7 @@ package calendar.event.emailNotification;
 import calendar.entities.Event;
 import calendar.entities.Role;
 import calendar.entities.enums.RoleType;
+import calendar.service.EventService;
 import calendar.service.RoleService;
 import calendar.service.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +13,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,9 @@ public class NotificationPublisher {
 
     @Autowired
     public UserService userService;
+
+    @Autowired
+    public EventService eventService;
 
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
@@ -80,12 +85,16 @@ public class NotificationPublisher {
         eventPublisher.publishEvent(new Notification(message, title, event, emails));
     }
 
-    public void publishUserStatusChangedNotification(Event event, String email) {
-//        check the possibility get id not event
+    public void publishUserStatusChangedNotification(int eventId, int userId)  {
         String title = "User status";
 
-        Integer userId = userService.getUserIdByEmail(email);
-        RoleType roleType = roleService.getSpecificRole(userId, event.getId()).getRoleType();
+        Event event = null;
+        try {
+            event = eventService.getEventById(eventId);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+        RoleType roleType = roleService.getSpecificRole(userId, eventId).getRoleType();
         logger.info(roleType);
 
         String message = "";
@@ -95,7 +104,7 @@ public class NotificationPublisher {
             message = "You are now guest at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
         }
 
-        ArrayList<String> emails = new ArrayList<>(List.of(email));
+        ArrayList<String> emails = new ArrayList<>(List.of(userService.getById(userId).getEmail()));
 
         eventPublisher.publishEvent(new Notification(message, title, event, emails));
     }

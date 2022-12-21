@@ -150,10 +150,10 @@ public class RoleController {
      * @return -a message confirming the removal of the role.
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) throws SQLDataException {
+    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId,@RequestBody int userId) {
 
         if (roleService.switchRole(userId,eventId)) {
-//            notificationPublisher.publishUserStatusChangedNotification(eventService.getEventById(eventId), userService.getById(userId).getEmail()); // Leon sorry about this and an exception!!!
+            notificationPublisher.publishUserStatusChangedNotification(eventId, userId);
             return ResponseEntity.ok(BaseResponse.noContent(true, "The role type was updated successfully!"));
         }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!"));
