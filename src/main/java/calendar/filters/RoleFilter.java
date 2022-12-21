@@ -61,7 +61,7 @@ public class RoleFilter implements Filter {
         logger.info("Role filter is working on the following request: " + servletRequest);
 
         String[] listOfAdminPermissions = {"/role/removeGuest", "/role/inviteGuest", "/event/updateEvent/isPublic",
-                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent", "/event/deleteEvent"};
+                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event", "/event/deleteEvent"};
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
         HttpServletResponse res = (HttpServletResponse) servletResponse;
