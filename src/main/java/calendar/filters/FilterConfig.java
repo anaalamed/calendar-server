@@ -53,7 +53,7 @@ public class FilterConfig {
         registrationBean.setFilter(customURLFilter);
 
         registrationBean.addUrlPatterns("/user/update", "/user/delete",
-                "/role/removeGuest", "/role/inviteGuest", "/role/switchRole",
+                "/event/removeGuest", "/event/inviteGuest", "/event/switchRole",
                 "/event/saveEvent", "/event/updateEvent", "/event/deleteEvent", "/event/getEventsByUserId",
                 "/event/updateEvent/isPublic", "/event/updateEvent/location", "/event/updateEvent/title", "/event/updateEvent/description",
                 "/event/updateEvent/time", "/event/updateEvent/duration","/event/updateEvent/event", "/event/updateEvent/date",
