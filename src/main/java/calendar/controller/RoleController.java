@@ -4,7 +4,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
-import calendar.event.emailNotification.NotificationPublisher;
+import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,6 @@
 package calendar.entities;
 
+import calendar.entities.enums.NotificationGetType;
 import calendar.entities.enums.ProviderType;
 
 import javax.persistence.*;
@@ -20,14 +21,18 @@ public class User {
     @Enumerated(EnumType.STRING)
     private ProviderType provider;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private NotificationSettings notificationSettings;
+
     public User() {
     }
 
-    public User(String name, String email, String password, ProviderType provider) {
+    public User(String name, String email, String password, ProviderType provider, NotificationSettings notificationSettings) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.provider = provider;
+        this.notificationSettings = notificationSettings;
     }
 
     public int getId() {
@@ -68,6 +73,14 @@ public class User {
 
     public void setProvider(ProviderType provider) {
         this.provider = provider;
+    }
+
+    public NotificationSettings getNotificationSettings() {
+        return notificationSettings;
+    }
+
+    public void setNotificationSettings(NotificationSettings notificationSettings) {
+        this.notificationSettings = notificationSettings;
     }
 
     @Override

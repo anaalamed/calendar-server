@@ -1,8 +1,9 @@
-package calendar.event.emailNotification;
+package calendar.eventNotifications;
 
 import calendar.entities.Event;
 import calendar.entities.Role;
 import calendar.entities.enums.RoleType;
+import calendar.eventNotifications.entity.Notification;
 import calendar.service.EventService;
 import calendar.service.RoleService;
 import calendar.service.UserService;

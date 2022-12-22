@@ -6,6 +6,7 @@ import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.UserRepository;
@@ -52,7 +53,7 @@ public class AuthService {
 
         logger.debug(userRequest);
         User createdUser = userRepository.save(new User(userRequest.getName(), userRequest.getEmail(),
-                Utils.hashPassword(userRequest.getPassword()), provider));
+                Utils.hashPassword(userRequest.getPassword()), provider, new NotificationSettings()));
 
         return new UserDTO(createdUser);
     }

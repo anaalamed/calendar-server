@@ -2,6 +2,8 @@ package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.NotificationSettings;
+import calendar.repository.NotificationRepository;
 import calendar.service.UserService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +22,9 @@ import java.util.Optional;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     private static final Logger logger = LogManager.getLogger(UserController.class.getName());
 
@@ -117,4 +122,18 @@ public class UserController {
         return updatedUser.map(user -> ResponseEntity.ok(BaseResponse.success(user)))
                 .orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("User not found")));
     }
+
+
+    @PutMapping(value = "/update", params = "notifications")
+    public ResponseEntity<BaseResponse<UserDTO>> updateNotifications(@RequestAttribute("userId") int userId,
+                                                                @RequestHeader String token, @RequestBody NotificationSettings notificationSettings) {
+        logger.debug("in updateNotifications");
+        logger.info(notificationSettings);
+        notificationSettings.setUser(userService.getById(userId));
+        logger.info(notificationSettings);
+
+        notificationRepository.save(notificationSettings);
+        return ResponseEntity.badRequest().body(BaseResponse.failure("Booom booom!"));
+    }
+
 }
