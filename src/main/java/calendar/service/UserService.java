@@ -46,10 +46,10 @@ public class UserService {
     /**
      * Get UserDTO by email
      *
-     * @param email
+     * @param email - The email of the user we want to retrieve.
      * @return the User if exists
      */
-    public Optional<UserDTO> getByEmail(String email) {
+    public Optional<UserDTO> getDTOByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (!user.isPresent()) {
             return Optional.empty();
@@ -57,6 +57,22 @@ public class UserService {
 
         return Optional.of(new UserDTO(user.get()));
     }
+
+    /**
+     * Get User by email
+     *
+     * @param email - The email of the user we want to retrieve.
+     * @return the User if exists
+     */
+    public Optional<User> getByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(user.get());
+    }
+
 
     /**
      * Get User id by Email

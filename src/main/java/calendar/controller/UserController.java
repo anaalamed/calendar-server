@@ -32,7 +32,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<UserDTO>> getUserByEmail(@RequestParam String email) {
         logger.info("in getUserByEmail");
 
-        Optional<UserDTO> user = userService.getByEmail(email);
+        Optional<UserDTO> user = userService.getDTOByEmail(email);
         return user.map(value -> ResponseEntity.ok(BaseResponse.success(value)))
                 .orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("User not found!")));
     }

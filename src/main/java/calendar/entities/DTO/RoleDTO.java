@@ -9,8 +9,6 @@ public class RoleDTO {
 
     private UserDTO user;
 
-    private Event event;
-
     private StatusType statusType;
 
     private RoleType roleType;
@@ -21,7 +19,6 @@ public class RoleDTO {
     public RoleDTO(Role role) {
         this.id = role.getId();
         this.user = new UserDTO(role.getUser());
-        this.event = role.getEvent();
         this.statusType = role.getStatusType();
         this.roleType = role.getRoleType();
     }
@@ -30,12 +27,9 @@ public class RoleDTO {
         return id;
     }
 
+
     public UserDTO getUser() {
         return user;
-    }
-
-    public Event getEvent() {
-        return event;
     }
 
     public StatusType getStatusType() {
@@ -51,7 +45,6 @@ public class RoleDTO {
         return "RoleDTO{" +
                 "id=" + id +
                 ", user=" + user +
-                ", event=" + event +
                 ", statusType=" + statusType +
                 ", roleType=" + roleType +
                 '}';

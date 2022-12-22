@@ -1,7 +1,7 @@
 package calendar.filters;
 
 import calendar.service.AuthService;
-import calendar.service.RoleService;
+import calendar.service.EventService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfig {
     public static final Logger logger = LogManager.getLogger(FilterConfig.class);
     private final AuthService authService;
-    private final RoleService roleService;
+    private final EventService eventService;
 
     @Autowired
-    public FilterConfig(AuthService authService, RoleService roleService) {
+    public FilterConfig(AuthService authService , EventService eventService) {
         System.out.println("AppConfig is created");
         this.authService = authService;
-        this.roleService = roleService;
+        this.eventService = eventService;
     }
 
     /**
@@ -53,7 +53,7 @@ public class FilterConfig {
         registrationBean.setFilter(customURLFilter);
 
         registrationBean.addUrlPatterns("/user/update", "/user/delete",
-                "/role/removeGuest", "/role/inviteGuest", "/role/switchRole",
+                "/event/removeGuest", "/event/inviteGuest", "/event/switchRole",
                 "/event/saveEvent", "/event/updateEvent", "/event/deleteEvent", "/event/getEventsByUserId",
                 "/event/updateEvent/isPublic", "/event/updateEvent/location", "/event/updateEvent/title", "/event/updateEvent/description",
                 "/event/updateEvent/time", "/event/updateEvent/duration","/event/updateEvent/event", "/event/updateEvent/date",
@@ -74,11 +74,11 @@ public class FilterConfig {
     public FilterRegistrationBean<RoleFilter> RoleFilterBean() {
         logger.info("Filter Role Bean has been created");
         FilterRegistrationBean<RoleFilter> registrationBean = new FilterRegistrationBean<>();
-        RoleFilter customURLFilter = new RoleFilter(roleService);
+        RoleFilter customURLFilter = new RoleFilter(eventService);
         registrationBean.setFilter(customURLFilter);
-        registrationBean.addUrlPatterns("/role/removeGuest", "/role/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+        registrationBean.addUrlPatterns("/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",
-                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent","/role/switchRole");
+                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent","/event/switchRole");
         registrationBean.setOrder(3); //set precedence
         return registrationBean;
     }

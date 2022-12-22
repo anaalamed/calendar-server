@@ -5,7 +5,9 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "event")
@@ -22,6 +24,9 @@ public class Event {
     private String description;
     private ArrayList<File> attachments;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Role> roles;
+
     public Event() {
 
     }
@@ -35,6 +40,7 @@ public class Event {
         this.title = title;
         this.description = description;
         this.attachments = attachments;
+        this.roles = new ArrayList<>();
     }
 
     public static Event getNewEvent(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
@@ -112,6 +118,27 @@ public class Event {
 
     public void setAttachments(ArrayList<File> attachments) {
         this.attachments = attachments;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Role getUserRole(int userId) {
+
+        return  this.roles.stream().filter((r) -> r.getUser().getId() == userId).findFirst().orElse(null);
+    }
+
+    public void AddRole(Role userRole) {
+        this.roles.add(userRole);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 
     @Override
