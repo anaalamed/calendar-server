@@ -3,8 +3,8 @@ package calendar.controller;
 import calendar.controller.request.EventRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
-import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -32,14 +33,14 @@ public class EventController {
      * @return BaseResponse with the created event on success or error message on fail.
      */
     @PostMapping(value = "/saveEvent")
-    public ResponseEntity<BaseResponse<Event>> saveEvent(@RequestAttribute("userId") int userId, @RequestBody EventRequest eventRequest) {
+    public ResponseEntity<BaseResponse<EventDTO>> saveEvent(@RequestAttribute("userId") int userId, @RequestBody EventRequest eventRequest) {
         //check token of the user from header
         try {
             User userOfEvent = userService.getById(userId);
 
             Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
 
-            return ResponseEntity.ok(BaseResponse.success(createdEvent));
+            return ResponseEntity.ok(BaseResponse.success(new EventDTO(createdEvent)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Failed To Create Event"));
         }
@@ -71,13 +72,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/getEventById", method = RequestMethod.GET)
-    public ResponseEntity<BaseResponse<Event>> getEventById(@RequestParam int id) {
+    public ResponseEntity<BaseResponse<EventDTO>> getEventById(@RequestParam int id) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.getEventById(id);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("The event %s does not exist!", id)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
@@ -92,7 +93,7 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/event", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEvent(@RequestAttribute("roleType") RoleType roleType, @RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEvent(@RequestAttribute("roleType") RoleType roleType, @RequestParam int eventId, @RequestBody EventRequest event) {
         Event res = null;
         try {
             if (roleType.equals(RoleType.ORGANIZER))
@@ -103,7 +104,7 @@ public class EventController {
 
             if (res != null) {
                 // notificationPublisher.publishEventChangeNotification(res); ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             }
 
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update the Event %s !", eventId)));
@@ -121,13 +122,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/title", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventTitle(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventTitle(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventTitle(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Title of Event %s !", eventId)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
@@ -141,13 +142,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/description", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventDescription(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventDescription(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventDescription(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Description of Event %s !", eventId)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
@@ -163,13 +164,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/date", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventDate(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventDate(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventDate(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Date of Event %s !", eventId)));
 
         } catch (SQLDataException e) {
@@ -185,13 +186,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/duration", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventDuration(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventDuration(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventDuration(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Duration of Event %s !", eventId)));
 
         } catch (SQLDataException e) {
@@ -206,13 +207,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/time", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventTime(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventTime(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventTime(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Time of Event %s !", eventId)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
@@ -228,13 +229,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/location", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventLocation(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventLocation(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventLocation(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Location of Event %s !", eventId)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
@@ -249,13 +250,13 @@ public class EventController {
      * @return BaseResponse with a data of the Updated Event
      */
     @RequestMapping(value = "/updateEvent/isPublic", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<Event>> updateEventIsPublic(@RequestParam int eventId, @RequestBody EventRequest event) {
+    public ResponseEntity<BaseResponse<EventDTO>> updateEventIsPublic(@RequestParam int eventId, @RequestBody EventRequest event) {
         //check token of the user from header
         Event res;
         try {
             res = eventService.updateEventIsPublic(event, eventId);
             if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(res));
+                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update accessibility of Event %s !", eventId)));
 
         } catch (SQLDataException e) {
@@ -270,9 +271,18 @@ public class EventController {
      * @return a list of all the events.
      */
     @GetMapping(value = "/getEventsByUserId")
-    public ResponseEntity<BaseResponse<List<Event>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
+    public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
 
-        return ResponseEntity.ok(BaseResponse.success(eventService.getEventsByUserId(userId)));
+        List<Event> events = eventService.getEventsByUserId(userId);
+
+        List<EventDTO> eventsDTO = new ArrayList<>();
+
+        for (Event event:events) {
+            EventDTO eventDTO = new EventDTO(event);
+            eventsDTO.add(eventDTO);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
 
     /**
