@@ -73,6 +73,16 @@ public class UserService {
         return Optional.of(user.get());
     }
 
+    /**
+     * Get User by email
+     *
+     * @param email - The email of the user we want to retrieve.
+     * @return the User if exists
+     */
+    public User getByEmailNotOptional(String email) {
+        return userRepository.findByEmail(email).get();
+    }
+
 
     /**
      * Get User id by Email

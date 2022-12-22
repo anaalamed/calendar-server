@@ -28,7 +28,7 @@ public class Event {
     private List<Role> roles;
 
     public Event() {
-
+        this.roles = new ArrayList<>();
     }
     private  Event(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
                    String location,String title,String description,ArrayList<File> attachments) {

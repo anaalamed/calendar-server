@@ -338,7 +338,7 @@ public class EventController {
     @RequestMapping(value = "/inviteGuest", method = RequestMethod.POST)
     public ResponseEntity<BaseResponse<RoleDTO>> inviteGuest(@RequestParam String email, @RequestParam int eventId) {
 
-        User user = userService.getByEmail(email).get();
+        User user = userService.getByEmailNotOptional(email);
 
         if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
@@ -365,7 +365,7 @@ public class EventController {
     @RequestMapping(value = "/removeGuest", method = RequestMethod.DELETE)
     public ResponseEntity<BaseResponse<Role>> removeGuest(@RequestParam String email, @RequestParam int eventId){
 
-        User user = userService.getByEmail(email).get();
+        User user = userService.getByEmailNotOptional(email);
 
         if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
