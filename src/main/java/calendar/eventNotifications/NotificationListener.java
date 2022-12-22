@@ -6,7 +6,6 @@ import calendar.entities.enums.NotificationGetType;
 import calendar.entities.enums.NotificationType;
 import calendar.eventNotifications.entity.Notification;
 //import calendar.repository.NotificationRepository;
-import calendar.service.RoleService;
 import calendar.service.UserService;
 import calendar.utils.GMailer;
 import org.apache.logging.log4j.LogManager;
