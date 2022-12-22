@@ -5,7 +5,9 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "event")
@@ -22,72 +24,29 @@ public class Event {
     private String description;
     private ArrayList<File> attachments;
 
-    public static class Builder {
-        private int id;
-
-        private final LocalDateTime time;
-        private final LocalDate date;
-        private final String title;
-
-        private boolean isPublic = true;
-        private float duration = 1;
-        private String location = "location";
-        private String description = "description";
-        private ArrayList<File> attachments = null;
-
-
-        public Builder(LocalDateTime time, LocalDate date, String title) {
-            this.time = time;
-            this.date = date;
-            this.title = title;
-        }
-
-        public Builder isPublic(boolean isPublic) {
-            this.isPublic = isPublic;
-            return this;
-        }
-
-        public Builder duration(float duration) {
-            this.duration = duration;
-            return this;
-        }
-
-        public Builder location(String location) {
-            this.location = location;
-            return this;
-        }
-
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder attachments(ArrayList<File> attachments) {
-            this.attachments = attachments;
-            return this;
-        }
-
-        public Event build() {
-            return new Event(this);
-        }
-    }
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Role> roles;
 
     public Event() {
-
+        this.roles = new ArrayList<>();
+    }
+    private  Event(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
+                   String location,String title,String description,ArrayList<File> attachments) {
+        this.isPublic = isPublic;
+        this.time = time;
+        this.date = date;
+        this.duration = duration;
+        this.location = location;
+        this.title = title;
+        this.description = description;
+        this.attachments = attachments;
+        this.roles = new ArrayList<>();
     }
 
-    Event(Builder builder) {
-        this.id = builder.id;
-        this.date = builder.date;
-        this.time = builder.time;
-        this.title = builder.title;
-        this.isPublic = builder.isPublic;
-        this.attachments = builder.attachments;
-        this.description = builder.description;
-        this.duration = builder.duration;
-        this.location = builder.location;
+    public static Event getNewEvent(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
+                                 String location,String title,String description,ArrayList<File> attachments) {
+        return new Event(isPublic,time,date,duration,location,title,description,attachments);
     }
-
     public int getId() {
         return id;
     }
@@ -161,6 +120,27 @@ public class Event {
         this.attachments = attachments;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Role getUserRole(int userId) {
+
+        return  this.roles.stream().filter((r) -> r.getUser().getId() == userId).findFirst().orElse(null);
+    }
+
+    public void AddRole(Role userRole) {
+        this.roles.add(userRole);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -188,4 +168,5 @@ public class Event {
                 ", attachments=" + attachments +
                 '}';
     }
+
 }

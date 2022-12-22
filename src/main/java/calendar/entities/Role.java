@@ -14,10 +14,6 @@ public class Role {
     @ManyToOne
     private User user;
 
-    @JoinColumn(nullable = false)
-    @ManyToOne
-    private Event event;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusType statusType;
@@ -29,9 +25,8 @@ public class Role {
     public Role() {
     }
 
-    public Role(User user, Event event, StatusType statusType, RoleType roleType) {
+    public Role(User user, StatusType statusType, RoleType roleType) {
         this.user = user;
-        this.event = event;
         this.statusType = statusType;
         this.roleType = roleType;
     }
@@ -44,13 +39,6 @@ public class Role {
         this.user = user;
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
 
     public StatusType getStatusType() {
         return statusType;

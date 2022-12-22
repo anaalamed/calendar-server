@@ -3,28 +3,24 @@ package calendar.filters;
 import calendar.entities.Role;
 import calendar.entities.enums.RoleType;
 import calendar.filters.entity.MutableHttpServletRequest;
-import calendar.service.RoleService;
+import calendar.service.EventService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import javax.servlet.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Arrays;
-import java.util.Optional;
+
 
 public class RoleFilter implements Filter {
 
-    private final RoleService roleService;
+    private final EventService eventService;
     public static final Logger logger = LogManager.getLogger(TokenFilter.class);
 
-    public RoleFilter(RoleService roleService) {
-        this.roleService = roleService;
+    public RoleFilter(EventService eventService) {
+        this.eventService = eventService;
     }
 
 
@@ -60,8 +56,8 @@ public class RoleFilter implements Filter {
 
         logger.info("Role filter is working on the following request: " + servletRequest);
 
-        String[] listOfAdminPermissions = {"/role/removeGuest", "/role/inviteGuest", "/event/updateEvent/isPublic",
-                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent", "/event/deleteEvent"};
+        String[] listOfAdminPermissions = {"/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic",
+                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event"};
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
         HttpServletResponse res = (HttpServletResponse) servletResponse;
@@ -76,7 +72,7 @@ public class RoleFilter implements Filter {
             eventId = Integer.parseInt(tempEventId);
         }
 
-        Role role = roleService.getSpecificRole(userId, eventId);
+        Role role = eventService.getSpecificRole(userId, eventId);
 
         if (role != null) {
 

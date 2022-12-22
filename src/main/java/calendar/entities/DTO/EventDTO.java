@@ -1,15 +1,18 @@
-package calendar.controller.request;
+package calendar.entities.DTO;
 
+import calendar.entities.Event;
+import calendar.entities.Role;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventRequest {
+public class EventDTO {
+
+
+    private int id;
     private boolean isPublic;
     private LocalDateTime time;
     private LocalDate date;
@@ -18,6 +21,42 @@ public class EventRequest {
     private String title;
     private String description;
     private ArrayList<File> attachments;
+    private List<RoleDTO> roles;
+
+    public EventDTO() {
+    }
+
+    public EventDTO(Event event) {
+        this.id = event.getId();
+        this.isPublic = event.isPublic();
+        this.time = event.getTime();
+        this.date = event.getDate();
+        this.duration = event.getDuration();
+        this.location = event.getLocation();
+        this.title = event.getTitle();
+        this.description = event.getDescription();
+        this.attachments = event.getAttachments();
+        this.roles = convertRolesToRolesDTO(event.getRoles());
+    }
+
+    private List<RoleDTO> convertRolesToRolesDTO(List<Role> roles) {
+
+        List<RoleDTO> rolesDTO = new ArrayList<>();
+
+        for (Role role:roles) {
+            RoleDTO roleDTO = new RoleDTO(role);
+            rolesDTO.add(roleDTO);
+        }
+        return rolesDTO;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public boolean isPublic() {
         return isPublic;
@@ -83,10 +122,19 @@ public class EventRequest {
         this.attachments = attachments;
     }
 
+    public List<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleDTO> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
-        return "EventRequest{" +
-                "isPublic=" + isPublic +
+        return "EventDTO{" +
+                "id=" + id +
+                ", isPublic=" + isPublic +
                 ", time=" + time +
                 ", date=" + date +
                 ", duration=" + duration +
@@ -94,6 +142,7 @@ public class EventRequest {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", attachments=" + attachments +
+                ", roles=" + roles +
                 '}';
     }
 }
