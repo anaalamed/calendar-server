@@ -44,7 +44,7 @@ public class AuthService {
      * @return the created User
      * @throws SQLDataException
      */
-    public UserDTO createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
+    public User createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
         logger.info("in createUser()");
 
         if(userRepository.findByEmail(userRequest.getEmail()).isPresent()){
@@ -59,7 +59,7 @@ public class AuthService {
         createdUser.setNotificationSettings(notificationSettings);
 
         User savedUser = userRepository.save(createdUser);
-        return new UserDTO(savedUser);
+        return savedUser;
     }
 
     /**
@@ -106,10 +106,10 @@ public class AuthService {
         if (githubUser != null) {
             if ( !userRepository.findByEmail(githubUser.getEmail()).isPresent() ) {
                 if (githubUser.getName() != "" && githubUser.getName() != null) {
-                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
+                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 } else {
-                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
+                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 }
             }

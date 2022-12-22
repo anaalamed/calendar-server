@@ -4,6 +4,7 @@ import calendar.controller.request.UserRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.AuthService;
@@ -50,9 +51,9 @@ public class AuthController {
         }
 
         try {
-            UserDTO createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
+            User createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
 //            notificationPublisher.publishRegistrationNotification(createdUser.getEmail()); // automaticly send email
-            return ResponseEntity.ok(BaseResponse.success(createdUser));
+            return ResponseEntity.ok(BaseResponse.success(new UserDTO(createdUser)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));
         }

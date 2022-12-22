@@ -22,9 +22,6 @@ import java.util.Optional;
 @Component
 public class NotificationListener implements ApplicationListener<Notification> {
 
-//    @Autowired
-//    public NotificationRepository notificationRepository;
-
     @Autowired
     public UserService userService;
     private static final Logger logger = LogManager.getLogger(NotificationListener.class.getName());
@@ -43,13 +40,15 @@ public class NotificationListener implements ApplicationListener<Notification> {
         logger.info("event" + notification);
 
         ArrayList<String> emails = notification.getEmailsToSend();
+        logger.info(emails);
 
 //        for (String email : emails) {
 //            Optional<UserDTO> user = userService.getByEmail(email);
-//            logger.info("user -" + user.get().getId());
-//            NotificationSettings notificationSettings = notificationRepository.findByUserId(user.get().getId());
-//            logger.info("set - " + notificationSettings);
-//            logger.info(notificationSettings.getEvent_changed());
+//            logger.info("user - " + user.get());
+////            NotificationSettings notificationSettings = notificationRepository.findByUserId(user.get().getId());
+////            NotificationSettings notificationSettings = user.get().getNotificationSettings();
+//            logger.info("settings - " + notificationSettings);
+////            logger.info(notificationSettings.getEvent_changed());
 //
 //            NotificationType notificationType = notification.getNotificationType();
 //
@@ -74,7 +73,7 @@ public class NotificationListener implements ApplicationListener<Notification> {
 //        }
 
 
-//                GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+//        GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
 
     }
 
