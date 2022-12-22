@@ -1,17 +1,16 @@
 package calendar.eventNotifications;
 
-import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
-import calendar.entities.enums.NotificationGetType;
+import calendar.entities.User;
 import calendar.entities.enums.NotificationType;
 import calendar.eventNotifications.entity.Notification;
-//import calendar.repository.NotificationRepository;
 import calendar.service.UserService;
 import calendar.utils.GMailer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,6 +22,10 @@ public class NotificationListener implements ApplicationListener<Notification> {
 
     @Autowired
     public UserService userService;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
     private static final Logger logger = LogManager.getLogger(NotificationListener.class.getName());
 
     public void onApplicationEvent(Notification notification) {
@@ -41,38 +44,45 @@ public class NotificationListener implements ApplicationListener<Notification> {
         ArrayList<String> emails = notification.getEmailsToSend();
         logger.info(emails);
 
-//        for (String email : emails) {
-//            Optional<UserDTO> user = userService.getByEmail(email);
-//            logger.info("user - " + user.get());
-////            NotificationSettings notificationSettings = notificationRepository.findByUserId(user.get().getId());
-////            NotificationSettings notificationSettings = user.get().getNotificationSettings();
-//            logger.info("settings - " + notificationSettings);
-////            logger.info(notificationSettings.getEvent_changed());
-//
-//            NotificationType notificationType = notification.getNotificationType();
-//
-//            switch (notificationSettings.getEvent_changed()) {
-//                case EMAIL:
-//                    logger.info("email");
-//                    break;
-//                case POPUP:
-//                    logger.info("popup");
-//                    break;
-//                case NONE:
-//                    logger.info("none");
-//                    break;
-//                case ALL:
-//                    logger.info("all");
-//                    break;
-//                default:
-//                    logger.info("default");
-//                    break;
-//
-//            }
-//        }
+        for (String email : emails) {
+            Optional<User> user = userService.getByEmail(email);
 
+            if ( !user.isPresent()) {
+                return;
+            }
 
-//        GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+            logger.info("user - " + user.get());
+            logger.info("settings - " + user.get().getNotificationSettings());
+
+            NotificationSettings notificationSettings = user.get().getNotificationSettings();
+            NotificationType notificationType = notification.getNotificationType();
+            logger.info(notificationType);
+
+            logger.info("value - " + notificationSettings.getValue(notificationType));
+            logger.info("notification - " + notification);
+
+            switch (notificationSettings.getValue(notificationType)) {
+                case EMAIL:
+                    logger.info("------ send email");
+                    GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+                    break;
+                case POPUP:
+                    logger.info("------- send socket popup");
+                    simpMessagingTemplate.convertAndSend("/notifications", notification);
+                    break;
+                case ALL:
+                    logger.info("-------- send email and popup");
+                    GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+                    simpMessagingTemplate.convertAndSend("/notifications", notification);
+                    break;
+                case NONE:
+                    logger.info("--------- no notifications ");
+                    break;
+                default:
+                    logger.info("default");
+                    break;
+            }
+        }
 
     }
 

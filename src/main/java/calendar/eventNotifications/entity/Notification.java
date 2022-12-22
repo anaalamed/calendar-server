@@ -66,12 +66,14 @@ public class Notification extends ApplicationEvent {
         this.notificationType = notificationType;
     }
 
-    public Notification(String message, String title, Event event, ArrayList<String> emails ){
+
+    public Notification(String message, String title, ArrayList<String> emails, NotificationType notificationType  ){
         super(message);
         this.title = title;
         this.message = message;
-        this.event = event;
+//        this.event = event;
         this.emailsToSend = emails;
+        this.notificationType = notificationType;
     }
 
 

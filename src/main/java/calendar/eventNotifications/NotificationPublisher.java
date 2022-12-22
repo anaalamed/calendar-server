@@ -2,6 +2,7 @@ package calendar.eventNotifications;
 
 import calendar.entities.Event;
 import calendar.entities.Role;
+import calendar.entities.enums.NotificationType;
 import calendar.entities.enums.RoleType;
 import calendar.eventNotifications.entity.Notification;
 import calendar.service.EventService;
@@ -10,64 +11,45 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class NotificationPublisher {
-//    @Autowired
-//    public ApplicationEventPublisher eventPublisher;
-//
-//    @Autowired
-//    public RoleService roleService;
-//
-//    @Autowired
-//    public UserService userService;
-//
-//    @Autowired
-//    public EventService eventService;
-//
-//    @Autowired
-//    SimpMessagingTemplate simpMessagingTemplate;
-//
-//    private static final Logger logger = LogManager.getLogger(NotificationPublisher.class.getName());
-//
-//
-//    public void publishRegistrationNotification(String email) {
-//        String title = "Welcome to Calendar App";
-//        String message = "You registered to Calendar App \n" +
-//                "\n Welcome! " +
-//                "\n Visit us at : https://lam-calendar-client.web.app ";
-//        ArrayList<String> emails = new ArrayList<>(List.of(email));
-//
-//        Notification notification = new Notification(message, title, null, emails);
-//
-//        simpMessagingTemplate.convertAndSend("/notifications", notification);
-//        eventPublisher.publishEvent( notification );
-//    }
-//
-//
-//    public void publishEventChangeNotification(Event event) {
-//        // get the changed event for now !
-//
-//        String title = "Event Changed";
-//        String message = "Event '"+ event.getTitle() +"' at "+ event.getDate() +" was changed!";
-//
-//        List<Role> roles = roleService.getRoleByEventId(event.getId());
-//
-//        ArrayList<String> emails = new ArrayList<>();
-//        for (Role role: roles ) {
-//            String email = role.getUser().getEmail();
-//            emails.add(email);
-//        }
-//
-//        logger.info(emails);
-//        eventPublisher.publishEvent(new Notification(message, title, event, emails));
-//    }
+    @Autowired
+    public ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    public UserService userService;
+
+    @Autowired
+    public EventService eventService;
+
+    private static final Logger logger = LogManager.getLogger(NotificationPublisher.class.getName());
+
+
+    public void publishEventChangeNotification(Event event) {
+        // get the changed event for now !
+
+        String title = "Event Changed";
+        String message = "Event '"+ event.getTitle() +"' at "+ event.getDate() +" was changed!";
+
+        List<Role> roles = event.getRoles();
+
+        ArrayList<String> emails = new ArrayList<>();
+        for (Role role: roles ) {
+            String email = role.getUser().getEmail();
+            emails.add(email);
+        }
+
+        logger.info(emails);
+        eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.EVENT_CHANGED));
+    }
+
+
+
 //
 //    public void publishInviteGuestNotification(Event event, String email) {
 //        String title = "New Event Invitation";
@@ -107,6 +89,22 @@ public class NotificationPublisher {
 //        ArrayList<String> emails = new ArrayList<>(List.of(userService.getById(userId).getEmail()));
 //
 //        eventPublisher.publishEvent(new Notification(message, title, event, emails));
+//    }
+
+
+
+
+//        public void publishRegistrationNotification(String email) {
+//        String title = "Welcome to Calendar App";
+//        String message = "You registered to Calendar App \n" +
+//                "\n Welcome! " +
+//                "\n Visit us at : https://lam-calendar-client.web.app ";
+//        ArrayList<String> emails = new ArrayList<>(List.of(email));
+//
+//        Notification notification = new Notification(message, title, null, emails, NotificationType.EVENT_CHANGED);
+//
+//        simpMessagingTemplate.convertAndSend("/notifications", notification);
+//        eventPublisher.publishEvent( notification );
 //    }
 
 }

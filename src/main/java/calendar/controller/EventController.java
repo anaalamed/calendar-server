@@ -6,6 +6,7 @@ import calendar.entities.*;
 import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.enums.*;
+import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class EventController {
     private EventService eventService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private NotificationPublisher notificationPublisher;
+    @Autowired
+    private NotificationPublisher notificationPublisher;
 
     /**
      * Create new event and save it in the DB
@@ -103,7 +104,7 @@ public class EventController {
                 res = eventService.updateEventRestricted(event, eventId);
 
             if (res != null) {
-                // notificationPublisher.publishEventChangeNotification(res); ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 notificationPublisher.publishEventChangeNotification(res);
                 return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             }
 

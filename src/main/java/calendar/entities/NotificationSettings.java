@@ -119,36 +119,37 @@ public class NotificationSettings {
         this.upcoming_event = upcoming_event;
     }
 
-    public void getValue(NotificationType notificationType) {
+    public NotificationGetType getValue(NotificationType notificationType) {
         switch (notificationType) {
-            case REGISTER:
-                logger.info("REGISTER");
-                break;
+//            case REGISTER:
+//                logger.info("REGISTER");
+//                return ;
             case EVENT_CHANGED:
                 logger.info("EVENT_CHANGED");
-                break;
+                return getEvent_changed();
             case INVITE_GUEST:
                 logger.info("INVITE_GUEST");
-                break;
+                return getInvite_guest();
             case UNINVITE_GUEST:
                 logger.info("UNINVITE_GUEST");
-                break;
+                return getUninvite_guest();
             case USER_STATUS_CHANGED:
                 logger.info("USER_STATUS_CHANGED");
-                break;
+                return getUser_status();
             case USER_ROLE_CHANGED:
                 logger.info("USER_ROLE_CHANGED");
-                break;
+                return getUser_role();
             case CANCEL_EVENT:
                 logger.info("CANCEL_EVENT");
-                break;
+                return getCancel_event();
             case UPCOMING_EVENT:
                 logger.info("UPCOMING_EVENT");
-                break;
+                return getUpcoming_event();
             default:
                 logger.info("default notification type");
                 break;
         }
+        return null;
     }
 
     public NotificationSettings() {
