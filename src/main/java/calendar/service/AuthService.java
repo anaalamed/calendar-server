@@ -52,10 +52,14 @@ public class AuthService {
         }
 
         logger.debug(userRequest);
-        User createdUser = userRepository.save(new User(userRequest.getName(), userRequest.getEmail(),
-                Utils.hashPassword(userRequest.getPassword()), provider, new NotificationSettings()));
 
-        return new UserDTO(createdUser);
+        User createdUser = new User(userRequest.getName(), userRequest.getEmail(), Utils.hashPassword(userRequest.getPassword()), provider);
+
+        NotificationSettings notificationSettings = new NotificationSettings(createdUser);
+        createdUser.setNotificationSettings(notificationSettings);
+
+        User savedUser = userRepository.save(createdUser);
+        return new UserDTO(savedUser);
     }
 
     /**

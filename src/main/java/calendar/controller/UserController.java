@@ -1,9 +1,9 @@
 package calendar.controller;
 
+import calendar.controller.request.NotificationSettingsRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
-import calendar.repository.NotificationRepository;
 import calendar.service.UserService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
@@ -23,8 +23,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+//    @Autowired
+//    private NotificationRepository notificationRepository;
 
     private static final Logger logger = LogManager.getLogger(UserController.class.getName());
 
@@ -125,15 +125,16 @@ public class UserController {
 
 
     @PutMapping(value = "/update", params = "notifications")
-    public ResponseEntity<BaseResponse<UserDTO>> updateNotifications(@RequestAttribute("userId") int userId,
-                                                                @RequestHeader String token, @RequestBody NotificationSettings notificationSettings) {
+    public ResponseEntity<BaseResponse<UserDTO>> updateNotifications(@RequestAttribute("userId") int userId, @RequestBody NotificationSettings notificationSettingsRequest) {
         logger.debug("in updateNotifications");
-        logger.info(notificationSettings);
-        notificationSettings.setUser(userService.getById(userId));
-        logger.info(notificationSettings);
+        UserDTO updatedUser = userService.updateNotificationsSettings(userId, notificationSettingsRequest);
+        logger.info(updatedUser);
 
-        notificationRepository.save(notificationSettings);
-        return ResponseEntity.badRequest().body(BaseResponse.failure("Booom booom!"));
+        if (updatedUser != null) {
+            return ResponseEntity.ok(BaseResponse.success(updatedUser));
+        }
+
+        return ResponseEntity.badRequest().body(BaseResponse.failure("failed to update!"));
     }
 
 }

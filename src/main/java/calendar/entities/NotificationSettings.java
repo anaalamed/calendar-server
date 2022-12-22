@@ -4,10 +4,11 @@ import calendar.entities.enums.NotificationGetType;
 import calendar.entities.enums.NotificationType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.List;
 
+@DynamicUpdate
 @Entity
 @Table(name = "notificationSettings")
 public class NotificationSettings {
@@ -15,8 +16,8 @@ public class NotificationSettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -54,12 +55,12 @@ public class NotificationSettings {
         return id;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public NotificationGetType getEvent_changed() {
@@ -150,11 +151,38 @@ public class NotificationSettings {
         }
     }
 
+    public NotificationSettings() {
+    }
+
+    //create
+    public NotificationSettings(User user) {
+        this.user = user;
+        this.event_changed = NotificationGetType.NONE;
+        this.invite_guest = NotificationGetType.NONE;
+        this.uninvite_guest = NotificationGetType.NONE;
+        this.user_status = NotificationGetType.NONE;
+        this.user_role = NotificationGetType.NONE;
+        this.cancel_event = NotificationGetType.NONE;
+        this.upcoming_event = NotificationGetType.NONE;
+    }
+
+    // update
+    public NotificationSettings(User user, NotificationGetType event_changed, NotificationGetType invite_guest, NotificationGetType uninvite_guest, NotificationGetType user_status, NotificationGetType user_role, NotificationGetType cancel_event, NotificationGetType upcoming_event) {
+        this.user = user;
+        this.event_changed = event_changed;
+        this.invite_guest = invite_guest;
+        this.uninvite_guest = uninvite_guest;
+        this.user_status = user_status;
+        this.user_role = user_role;
+        this.cancel_event = cancel_event;
+        this.upcoming_event = upcoming_event;
+    }
+
     @Override
     public String toString() {
         return "NotificationSettings{" +
                 "id=" + id +
-                ", user=" + user +
+//                ", user=" + user +
                 ", event_changed=" + event_changed +
                 ", invite_guest=" + invite_guest +
                 ", uninvite_guest=" + uninvite_guest +
