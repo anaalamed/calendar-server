@@ -128,10 +128,9 @@ public class Event {
         this.roles = roles;
     }
 
-    public Optional<Role> getUserRole(int userId) {
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println(this.roles);
-        return this.roles.stream().filter((role) -> role.getUser().getId() == userId).findFirst();
+    public Role getUserRole(int userId) {
+
+        return  this.roles.stream().filter((r) -> r.getUser().getId() == userId).findFirst().orElse(null);
     }
 
     public void AddRole(Role userRole) {

@@ -328,20 +328,13 @@ public class EventController {
     @RequestMapping(value = "/inviteGuest", method = RequestMethod.POST)
     public ResponseEntity<BaseResponse<RoleDTO>> inviteGuest(@RequestParam String email, @RequestParam int eventId) {
 
-        UserDTO user = userService.getByEmail(email).get();
-
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            throw new IllegalArgumentException("The event does not exist!");
-        }
+        User user = userService.getByEmail(email).get();
 
         if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
         }
 
-        Role RoleToAdd = eventService.inviteGuest(userService.getById(user.getId()), event);
+        Role RoleToAdd = eventService.inviteGuest(user, eventId);
 
         if (RoleToAdd == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
@@ -362,14 +355,7 @@ public class EventController {
     @RequestMapping(value = "/removeGuest", method = RequestMethod.DELETE)
     public ResponseEntity<BaseResponse<Role>> removeGuest(@RequestParam String email, @RequestParam int eventId){
 
-        UserDTO user = userService.getByEmail(email).get();
-
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            throw new RuntimeException("The event does not exist!");
-        }
+        User user = userService.getByEmail(email).get();
 
         if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));

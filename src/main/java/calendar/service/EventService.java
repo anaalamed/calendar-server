@@ -307,10 +307,10 @@ public class EventService {
             throw new IllegalArgumentException("The event does not exist!");
         }
 
-        Role role = event.getUserRole(userId).get();
+        Role role = event.getUserRole(userId);
 
         if (role == null) {
-            throw new IllegalArgumentException("User not in guest list");
+            return null;
         }
         return role;
     }
@@ -353,19 +353,26 @@ public class EventService {
      * A role will be created with a GUEST type and TENTATIVE status.
      *
      * @param user   - The user we wish to invite to the event.
-     * @param event - The event to which we want to invite the user.
+     * @param eventId - The id of the event to which we want to invite the user.
      * @return the invited user role.
      */
-    public Role inviteGuest(User user, Event event) {
+    public Role inviteGuest(User user, int eventId) {
 
-        Role roleToAdd = getSpecificRole(user.getId(), event.getId());
+        Role roleToAdd = getSpecificRole(user.getId(), eventId);
 
         if (roleToAdd != null) {
-            throw new IllegalArgumentException("The user is already part of this event1");
+            throw new IllegalArgumentException("The user is already part of this event!");
+        }
+
+        Event event = eventRepository.findById(eventId).get();
+
+        if (event == null) {
+            throw new IllegalArgumentException("The event does not exist!");
         }
 
         Role role = new Role(user, StatusType.TENTATIVE, RoleType.GUEST);
-        event.getRoles().add(roleToAdd);
+
+        event.getRoles().add(role);
         eventRepository.save(event);
 
         return role;
