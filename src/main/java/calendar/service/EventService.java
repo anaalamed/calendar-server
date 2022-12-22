@@ -301,13 +301,13 @@ public class EventService {
      */
     public Role getSpecificRole(int userId, int eventId) {
 
-        Event event = eventRepository.findById(eventId).get();
+        Event event;
+        Role role = null;
 
-        if (event == null) {
-            throw new IllegalArgumentException("The event does not exist!");
+        if (eventRepository.findById(eventId).isPresent()) {
+            event = eventRepository.findById(eventId).get();
+            role = event.getUserRole(userId);
         }
-
-        Role role = event.getUserRole(userId);
 
         if (role == null) {
             return null;
@@ -319,7 +319,7 @@ public class EventService {
      * Removes a user from an event, only admins and organizers can remove people.
      * The role that represent the combination of the user id and event id will be removed from the DB
      *
-     * @param userId   - The id of the user we want to remove.
+     * @param userId  - The id of the user we want to remove.
      * @param eventId -The id of the event we wish to remove the guest from.
      * @return a message confirming the removal of the guest.
      */
@@ -352,7 +352,7 @@ public class EventService {
      * Invites a user to be a guest in an event, only admins and organizers can invite people.
      * A role will be created with a GUEST type and TENTATIVE status.
      *
-     * @param user   - The user we wish to invite to the event.
+     * @param user    - The user we wish to invite to the event.
      * @param eventId - The id of the event to which we want to invite the user.
      * @return the invited user role.
      */
