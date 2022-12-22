@@ -25,7 +25,20 @@ public class RoleService {
         if (getSpecificRole(role.getUser().getId(), role.getEvent().getId()) != null) {
             return null;
         }
-        return roleRepository.save(role);
+
+        List<Role> roles = getRoleByEventId(role.getEvent().getId());
+
+        boolean checkIfEventHasAnOrganizer = roles.stream().anyMatch(r -> r.getRoleType().equals(RoleType.ORGANIZER));
+
+        if(role.getRoleType() == RoleType.ORGANIZER){
+            if(!checkIfEventHasAnOrganizer){
+                return roleRepository.save(role);
+            }else{
+                return null;
+            }
+        }else{
+            return roleRepository.save(role);
+        }
     }
 
     public boolean deleteRole(Role role) {
