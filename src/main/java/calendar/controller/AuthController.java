@@ -5,7 +5,6 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.ProviderType;
-import calendar.event.emailNotification.NotificationPublisher;
 import calendar.service.AuthService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
@@ -24,8 +23,8 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @Autowired
-    public NotificationPublisher notificationPublisher;
+//    @Autowired
+//    public NotificationPublisher notificationPublisher;
 
     @Autowired
     private static final Logger logger = LogManager.getLogger(AuthController.class.getName());
@@ -51,7 +50,7 @@ public class AuthController {
 
         try {
             UserDTO createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
-            notificationPublisher.publishRegistrationNotification(createdUser.getEmail());
+            //notificationPublisher.publishRegistrationNotification(createdUser.getEmail());~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             return ResponseEntity.ok(BaseResponse.success(createdUser));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));

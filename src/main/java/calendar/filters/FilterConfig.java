@@ -1,7 +1,7 @@
 package calendar.filters;
 
 import calendar.service.AuthService;
-import calendar.service.RoleService;
+import calendar.service.EventService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfig {
     public static final Logger logger = LogManager.getLogger(FilterConfig.class);
     private final AuthService authService;
-    private final RoleService roleService;
+    private final EventService eventService;
 
     @Autowired
-    public FilterConfig(AuthService authService, RoleService roleService) {
+    public FilterConfig(AuthService authService , EventService eventService) {
         System.out.println("AppConfig is created");
         this.authService = authService;
-        this.roleService = roleService;
+        this.eventService = eventService;
     }
 
     /**
@@ -74,7 +74,7 @@ public class FilterConfig {
     public FilterRegistrationBean<RoleFilter> RoleFilterBean() {
         logger.info("Filter Role Bean has been created");
         FilterRegistrationBean<RoleFilter> registrationBean = new FilterRegistrationBean<>();
-        RoleFilter customURLFilter = new RoleFilter(roleService);
+        RoleFilter customURLFilter = new RoleFilter(eventService);
         registrationBean.setFilter(customURLFilter);
         registrationBean.addUrlPatterns("/role/removeGuest", "/role/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",

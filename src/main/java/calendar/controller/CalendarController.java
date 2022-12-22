@@ -1,23 +1,13 @@
 package calendar.controller;
 
-
-import calendar.controller.request.EventRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.CalendarShare;
-import calendar.entities.Event;
-import calendar.entities.Role;
 import calendar.entities.User;
-import calendar.entities.enums.RoleType;
-import calendar.entities.enums.StatusType;
 import calendar.service.CalendarService;
-import calendar.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLDataException;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @CrossOrigin
