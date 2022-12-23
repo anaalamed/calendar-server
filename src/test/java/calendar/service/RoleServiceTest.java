@@ -132,6 +132,39 @@ class RoleServiceTest {
         assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(123,1));
     }
 
+    @Test
+    void Switch_Status_Successfully() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(1)).thenReturn(user);
+
+        Role response = eventService.switchStatus(1,1,false);
+
+        assertEquals(response.getStatusType(), StatusType.REJECTED);
+    }
+
+    @Test
+    void Try_To_Switch_Status_Of_User_That_Does_Not_Exist() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(1)).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(1,1,false));
+    }
+
+    @Test
+    void Try_To_Switch_Status_Of_User_In_Event_That_Does_Not_Exist() {
+        when(eventRepository.findById(1)).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> eventService.switchStatus(1,1,false));
+    }
+
+    @Test
+    void Try_To_Switch_Status_Of_User_Who_Is_Not_Part_Of_The_Event() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(123)).thenReturn(userToInvite);
+
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(123,1,false));
+    }
+
 
     @Test
     void Invite_Guest_Successfully() {

@@ -70,6 +70,7 @@ class EventControllerTest {
         switchedRole = new Role();
         switchedRole.setRoleType(RoleType.ADMIN);
         switchedRole.setUser(user);
+        switchedRole.setStatusType(StatusType.REJECTED);
 
         event = new Event();
         event.setId(1);
@@ -131,6 +132,34 @@ class EventControllerTest {
         when(eventService.switchRole(1, 999)).thenThrow(IllegalArgumentException.class);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(999, 1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Switch_Status_Successfully() {
+        when(eventService.switchStatus(1, 1,false)).thenReturn(switchedRole);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchStatus(false,1, 1);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getStatusType(), StatusType.REJECTED);
+    }
+
+    @Test
+    void Try_To_Switch_Status_Of_User_That_Does_Not_Exist() {
+        when(eventService.switchStatus(999, 1,false)).thenThrow(IllegalArgumentException.class);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchStatus(false,1, 999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Switch_Status_Of_User_In_Event_That_Does_Not_Exist() {
+        when(eventService.switchStatus(1, 999,false)).thenThrow(IllegalArgumentException.class);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchStatus(false,999, 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
