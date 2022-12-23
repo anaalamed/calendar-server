@@ -351,7 +351,7 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
         }
 
-        //notificationPublisher.publishInviteGuestNotification(event, user.get().getEmail());
+        notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
         return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
@@ -375,7 +375,7 @@ public class EventController {
         Role roleToRemove = eventService.removeGuest(user.getId(),eventId);
 
         if(roleToRemove != null){
-            //notificationPublisher.publishRemoveUserFromEventNotification(event, user.get().getEmail()); ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            notificationPublisher.publishRemoveUserFromEventNotification(eventId, user.getEmail());
             return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
         }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not part of the event!"));

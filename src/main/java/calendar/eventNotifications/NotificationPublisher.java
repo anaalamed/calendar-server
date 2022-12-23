@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,24 +49,37 @@ public class NotificationPublisher {
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.EVENT_CHANGED));
     }
 
+    public void publishInviteGuestNotification(int eventId, String email)  {
+        String title = "New Event Invitation";
 
+        Event event = null;
+        try {
+            event = eventService.getEventById(eventId);
+        } catch (SQLDataException e) {
+            logger.error("event was not found");
+            return;
+        }
+        String message = "You were invited to Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        ArrayList<String> emails = new ArrayList<>(List.of(email));
 
-//
-//    public void publishInviteGuestNotification(Event event, String email) {
-//        String title = "New Event Invitation";
-//        String message = "You were invited to Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
-//        ArrayList<String> emails = new ArrayList<>(List.of(email));
-//
-//        eventPublisher.publishEvent(new Notification(message, title, event, emails));
-//    }
-//
-//    public void publishRemoveUserFromEventNotification(Event event, String email) {
-//        String title = "UnInvitation from Event";
-//        String message = "You were uninvited from Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
-//        ArrayList<String> emails = new ArrayList<>(List.of(email));
-//
-//        eventPublisher.publishEvent(new Notification(message, title, event, emails));
-//    }
+        eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.INVITE_GUEST));
+    }
+
+    public void publishRemoveUserFromEventNotification(int eventId, String email) {
+        String title = "UnInvitation from Event";
+
+        Event event = null;
+        try {
+            event = eventService.getEventById(eventId);
+        } catch (SQLDataException e) {
+            logger.error("event was not found");
+            return;
+        }
+        String message = "You were uninvited from Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        ArrayList<String> emails = new ArrayList<>(List.of(email));
+
+        eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.UNINVITE_GUEST));
+    }
 //
 //    public void publishUserStatusChangedNotification(int eventId, int userId)  {
 //        String title = "User status";
