@@ -307,6 +307,8 @@ public class EventService {
         if (eventRepository.findById(eventId).isPresent()) {
             event = eventRepository.findById(eventId).get();
             role = event.getUserRole(userId);
+        }else{ //Event does not exist!
+            return null;
         }
 
         if (role == null) {
@@ -358,16 +360,16 @@ public class EventService {
      */
     public Role inviteGuest(User user, int eventId) {
 
-        Role roleToAdd = getSpecificRole(user.getId(), eventId);
-
-        if (roleToAdd != null) {
-            throw new IllegalArgumentException("The user is already part of this event!");
-        }
-
         Event event = eventRepository.findById(eventId).get();
 
         if (event == null) {
             throw new IllegalArgumentException("The event does not exist!");
+        }
+
+        Role roleToAdd = getSpecificRole(user.getId(), eventId);
+
+        if (roleToAdd != null) {
+            throw new IllegalArgumentException("The user is already part of this event!");
         }
 
         Role role = new Role(user, StatusType.TENTATIVE, RoleType.GUEST);

@@ -14,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
@@ -30,7 +31,6 @@ class RoleServiceTest {
     UserRepository userRepository;
     @MockBean
     EventRepository eventRepository;
-
 
     static Role role;
     static Role roleToInvite;
@@ -82,15 +82,17 @@ class RoleServiceTest {
     }
 
     @Test
-    void Try_To_Get_A_Specific_Role_With_Invalid_User_Id() {
-        when(eventRepository.findById(1)).thenThrow(NullPointerException.class);
+    void Try_To_Get_A_Specific_Role_That_Does_Not_Exist() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
-        assertThrows(NullPointerException.class, () -> eventService.getSpecificRole(1, 1));
+        Role response = eventService.getSpecificRole(123, 1);
+
+        assertNull(response);
     }
 
     @Test
-    void Try_To_Get_A_Specific_Role_With_Invalid_Event_Id() {
-        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+    void Try_To_Get_A_Specific_Role_Of_Event_That_Does_Not_Exist() {
+        when(eventRepository.findById(987)).thenReturn(Optional.ofNullable(null));
 
         Role response = eventService.getSpecificRole(1, 987);
 
@@ -109,16 +111,33 @@ class RoleServiceTest {
 
     @Test
     void Try_To_Switch_Role_Of_User_That_Does_Not_Exist() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(1)).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(1,1));
+    }
+
+    @Test
+    void Try_To_Switch_Role_Of_User_In_Event_That_Does_Not_Exist() {
         when(eventRepository.findById(1)).thenReturn(null);
 
         assertThrows(NullPointerException.class, () -> eventService.switchRole(1,1));
     }
 
     @Test
-    void Invite_Guest_Successfully() throws SQLDataException {
-        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(event));
+    void Try_To_Switch_Role_Of_User_Who_Is_Not_Part_Of_The_Event() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(123)).thenReturn(userToInvite);
 
-        Role response = eventService.inviteGuest(userToInvite, event.getId());
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(123,1));
+    }
+
+
+    @Test
+    void Invite_Guest_Successfully() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+
+        Role response = eventService.inviteGuest(userToInvite, 1);
 
         assertNotNull(response);
         assertEquals(response.getUser().getId(), userToInvite.getId());
@@ -126,14 +145,21 @@ class RoleServiceTest {
 
 
     @Test
-    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() throws SQLDataException {
-        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(event));
+    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
-        assertThrows(IllegalArgumentException.class, ()-> eventService.inviteGuest(user, event.getId()));
+        assertThrows(IllegalArgumentException.class, ()-> eventService.inviteGuest(user, 1));
     }
 
     @Test
-    void Remove_Guest_Successfully() throws SQLDataException {
+    void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
+
+        assertThrows(NoSuchElementException.class, ()-> eventService.inviteGuest(user, 1));
+    }
+
+    @Test
+    void Remove_Guest_Successfully() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
         Role response = eventService.removeGuest(1, 1);
@@ -143,10 +169,25 @@ class RoleServiceTest {
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() throws SQLDataException {
+    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event(){
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
         assertThrows(IllegalArgumentException.class, () -> eventService.removeGuest(21, 1));
+    }
+
+    @Test
+    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist(){
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
+
+        assertThrows(NoSuchElementException.class, () -> eventService.removeGuest(1, 1));
+    }
+
+    @Test
+    void Try_To_Remove_Guest_Who_Is_An_Organizer(){
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        role.setRoleType(RoleType.ORGANIZER);
+
+        assertThrows(IllegalArgumentException.class, () -> eventService.removeGuest(1, 1));
     }
 
 }
