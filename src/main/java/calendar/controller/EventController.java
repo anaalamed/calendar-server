@@ -283,6 +283,12 @@ public class EventController {
     @GetMapping(value = "/getEventsByUserId")
     public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
 
+        User userOfEvent = userService.getById(userId);
+
+        if(userOfEvent == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
         List<Event> events = eventService.getEventsByUserId(userId);
 
         List<EventDTO> eventsDTO = new ArrayList<>();

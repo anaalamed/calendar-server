@@ -1,6 +1,5 @@
 package calendar.service;
 
-
 import calendar.controller.request.EventRequest;
 import calendar.entities.*;
 import calendar.entities.enums.*;
@@ -11,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -38,16 +39,12 @@ class EventServiceTest {
     static EventRequest updateEventRequest;
     static User user;
     static User userToInvite;
-    static List<Role> roles;
-    static List<User> users;
     static List<Event> events;
 
     @BeforeEach
-     void setup() {
+    void setup() {
         user = new User();
         user.setId(1);
-        users = new ArrayList<>();
-        users.add(user);
 
         userToInvite = new User();
         userToInvite.setId(123);
@@ -56,9 +53,6 @@ class EventServiceTest {
         role.setRoleType(RoleType.GUEST);
         role.setUser(user);
         role.setStatusType(StatusType.APPROVED);
-
-        roles = new ArrayList<>();
-        roles.add(role);
 
         roleToInvite = new Role();
         roleToInvite.setRoleType(RoleType.GUEST);
@@ -118,7 +112,7 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(1)).thenReturn(user);
 
-        Role response = eventService.switchRole(1,1);
+        Role response = eventService.switchRole(1, 1);
 
         assertEquals(response.getRoleType(), RoleType.ADMIN);
     }
@@ -128,14 +122,14 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(1)).thenThrow(IllegalArgumentException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(1,1));
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(1, 1));
     }
 
     @Test
     void Try_To_Switch_Role_Of_User_In_Event_That_Does_Not_Exist() {
         when(eventRepository.findById(1)).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> eventService.switchRole(1,1));
+        assertThrows(NullPointerException.class, () -> eventService.switchRole(1, 1));
     }
 
     @Test
@@ -143,7 +137,7 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(123)).thenReturn(userToInvite);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(123,1));
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchRole(123, 1));
     }
 
     @Test
@@ -151,7 +145,7 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(1)).thenReturn(user);
 
-        Role response = eventService.switchStatus(1,1,false);
+        Role response = eventService.switchStatus(1, 1, false);
 
         assertEquals(response.getStatusType(), StatusType.REJECTED);
     }
@@ -161,14 +155,14 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(1)).thenThrow(IllegalArgumentException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(1,1,false));
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(1, 1, false));
     }
 
     @Test
     void Try_To_Switch_Status_Of_User_In_Event_That_Does_Not_Exist() {
         when(eventRepository.findById(1)).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> eventService.switchStatus(1,1,false));
+        assertThrows(NullPointerException.class, () -> eventService.switchStatus(1, 1, false));
     }
 
     @Test
@@ -176,7 +170,7 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(userRepository.findById(123)).thenReturn(userToInvite);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(123,1,false));
+        assertThrows(IllegalArgumentException.class, () -> eventService.switchStatus(123, 1, false));
     }
 
 
@@ -195,14 +189,14 @@ class EventServiceTest {
     void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
-        assertThrows(IllegalArgumentException.class, ()-> eventService.inviteGuest(user, 1));
+        assertThrows(IllegalArgumentException.class, () -> eventService.inviteGuest(user, 1));
     }
 
     @Test
     void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
 
-        assertThrows(NoSuchElementException.class, ()-> eventService.inviteGuest(user, 1));
+        assertThrows(NoSuchElementException.class, () -> eventService.inviteGuest(user, 1));
     }
 
     @Test
@@ -216,21 +210,21 @@ class EventServiceTest {
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event(){
+    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
 
         assertThrows(IllegalArgumentException.class, () -> eventService.removeGuest(21, 1));
     }
 
     @Test
-    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist(){
+    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
 
         assertThrows(NoSuchElementException.class, () -> eventService.removeGuest(1, 1));
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_An_Organizer(){
+    void Try_To_Remove_Guest_Who_Is_An_Organizer() {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         role.setRoleType(RoleType.ORGANIZER);
 
@@ -245,9 +239,9 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(null);
         when(eventRepository.save(eventReq)).thenReturn(eventReq);
 
-        Event response = eventService.saveEvent(eventRequest,user);
+        Event response = eventService.saveEvent(eventRequest, user);
 
-        assertEquals(response.getTitle(),"EventTest");
+        assertEquals(response.getTitle(), "EventTest");
     }
 
     @Test
@@ -256,7 +250,7 @@ class EventServiceTest {
 
         int response = eventService.deleteEvent(1);
 
-        assertEquals(response,1);
+        assertEquals(response, 1);
     }
 
     @Test
@@ -265,7 +259,7 @@ class EventServiceTest {
 
         int response = eventService.deleteEvent(1);
 
-        assertEquals(response,0);
+        assertEquals(response, 0);
     }
 
     @Test
@@ -274,7 +268,7 @@ class EventServiceTest {
 
         Event response = eventService.getEventById(1);
 
-        assertEquals(response.getId(),1);
+        assertEquals(response.getId(), 1);
     }
 
     @Test
@@ -289,18 +283,18 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(eventRepository.updateEvent(updateEventRequest.isPublic(), updateEventRequest.getTitle(), updateEventRequest.getDate(),
                 updateEventRequest.getTime(), updateEventRequest.getDuration(), updateEventRequest.getLocation(),
-                updateEventRequest.getDescription(),1)).thenReturn(1);
+                updateEventRequest.getDescription(), 1)).thenReturn(1);
 
-        Event response = eventService.updateEvent(updateEventRequest,1);
+        Event response = eventService.updateEvent(updateEventRequest, 1);
 
-        assertEquals(response.getTitle(),"UpdatedEvent");
+        assertEquals(response.getTitle(), "UpdatedEvent");
     }
 
     @Test
     void Try_To_Update_Event_ThaT_Does_Not_Exist() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
 
-        assertThrows(NoSuchElementException.class,()-> eventService.updateEvent(updateEventRequest,1));
+        assertThrows(NoSuchElementException.class, () -> eventService.updateEvent(updateEventRequest, 1));
     }
 
     @Test
@@ -308,38 +302,55 @@ class EventServiceTest {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(eventRepository.updateEvent(eventRequest.isPublic(), eventRequest.getTitle(), eventRequest.getDate(),
                 eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
-                eventRequest.getDescription(),1)).thenReturn(1);
+                eventRequest.getDescription(), 1)).thenReturn(1);
 
-        assertNull(eventService.updateEvent(eventRequest,1));
+        assertNull(eventService.updateEvent(eventRequest, 1));
     }
 
     @Test
     void Update_Restricted_Event_Successfully() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(eventRepository.updateEventRestricted(updateEventRequest.isPublic(), updateEventRequest.getLocation(),
-                updateEventRequest.getDescription(),1)).thenReturn(1);
+                updateEventRequest.getDescription(), 1)).thenReturn(1);
 
-        Event response = eventService.updateEventRestricted(updateEventRequest,1);
+        Event response = eventService.updateEventRestricted(updateEventRequest, 1);
 
-        assertEquals(response.getDescription(),"UpdatedEvent");
+        assertEquals(response.getDescription(), "UpdatedEvent");
     }
 
     @Test
     void Try_To_Update_Restricted_Event_ThaT_Does_Not_Exist() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
 
-        assertThrows(NoSuchElementException.class,()-> eventService.updateEventRestricted(updateEventRequest,1));
+        assertThrows(NoSuchElementException.class, () -> eventService.updateEventRestricted(updateEventRequest, 1));
     }
 
     @Test
     void Update_Event_Restricted_Nothing_Changed() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
         when(eventRepository.updateEventRestricted(eventRequest.isPublic(), eventRequest.getLocation(),
-                eventRequest.getDescription(),1)).thenReturn(1);
+                eventRequest.getDescription(), 1)).thenReturn(1);
 
-        assertNull(eventService.updateEventRestricted(eventRequest,1));
+        assertNull(eventService.updateEventRestricted(eventRequest, 1));
     }
 
+    @Test
+    void Get_Events_By_User_Id() {
+        when(eventRepository.findAll()).thenReturn(events);
 
+        List<Event> response = eventService.getEventsByUserId(1);
+
+        assertEquals(response.size(), 1);
+    }
+
+    @Test
+    void Try_To_Get_Events_By_User_Has_None() {
+        List<Event> emptyList = new ArrayList<>();
+        when(eventRepository.findAll()).thenReturn(emptyList);
+
+        List<Event> response = eventService.getEventsByUserId(1);
+
+        assertEquals(response.size(), 0);
+    }
 
 }
