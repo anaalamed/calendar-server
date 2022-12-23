@@ -271,7 +271,6 @@ class EventControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().getId(),1);
-
     }
 
     @Test
@@ -279,6 +278,36 @@ class EventControllerTest {
         when(userService.getById(1)).thenReturn(null);
 
         ResponseEntity<BaseResponse<EventDTO>> response = eventController.saveEvent(1,eventRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Delete_Event_Successfully() throws SQLDataException {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.deleteEvent(1)).thenReturn(1);
+
+        ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1,1);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData(),"Event Deleted Successfully");
+    }
+
+    @Test
+    void Try_To_Delete_Event_User_Does_Not_Exist() {
+        when(userService.getById(1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1,1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Delete_Event_failed() throws SQLDataException {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.deleteEvent(1)).thenReturn(0);
+
+        ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1,1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }

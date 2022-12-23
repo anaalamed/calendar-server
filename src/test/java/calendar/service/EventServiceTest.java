@@ -247,5 +247,22 @@ class EventServiceTest {
         assertEquals(response.getTitle(),"EventTest");
     }
 
+    @Test
+    void Delete_Event_Successfully() throws SQLDataException {
+        when(eventRepository.deleteById(1)).thenReturn(1);
+
+        int response = eventService.deleteEvent(1);
+
+        assertEquals(response,1);
+    }
+
+    @Test
+    void Delete_Event_That_Does_Not_Exist() throws SQLDataException {
+        when(eventRepository.deleteById(1)).thenReturn(0);
+
+        int response = eventService.deleteEvent(1);
+
+        assertEquals(response,0);
+    }
 
 }
