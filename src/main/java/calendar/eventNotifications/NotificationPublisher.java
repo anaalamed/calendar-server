@@ -80,45 +80,45 @@ public class NotificationPublisher {
 
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.UNINVITE_GUEST));
     }
-//
-//    public void publishUserStatusChangedNotification(int eventId, int userId)  {
-//        String title = "User status";
-//
-//        Event event = null;
-//        try {
-//            event = eventService.getEventById(eventId);
-//        } catch (SQLDataException e) {
-//            throw new RuntimeException(e);
-//        }
-//        RoleType roleType = roleService.getSpecificRole(userId, eventId).getRoleType();
-//        logger.info(roleType);
-//
-//        String message = "";
-//        if (roleType == RoleType.ADMIN) {
-//            message = "You are now admin at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
-//        } else if (roleType == RoleType.GUEST){
-//            message = "You are now guest at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
-//        }
-//
-//        ArrayList<String> emails = new ArrayList<>(List.of(userService.getById(userId).getEmail()));
-//
-//        eventPublisher.publishEvent(new Notification(message, title, event, emails));
-//    }
 
 
+    // optional - not in requirements
+    public void publishUserRoleChangedNotification(int eventId, int userId)  {
+        String title = "User status";
+
+        Event event = null;
+        try {
+            event = eventService.getEventById(eventId);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+        RoleType roleType = eventService.getSpecificRole(userId, eventId).getRoleType();
+        logger.info(roleType);
+
+        String message = "";
+        if (roleType == RoleType.ADMIN) {
+            message = "You are now admin at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        } else if (roleType == RoleType.GUEST){
+            message = "You are now guest at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        }
+
+        ArrayList<String> emails = new ArrayList<>(List.of(userService.getById(userId).getEmail()));
+
+        eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.USER_ROLE_CHANGED));
+    }
 
 
-//        public void publishRegistrationNotification(String email) {
-//        String title = "Welcome to Calendar App";
-//        String message = "You registered to Calendar App \n" +
-//                "\n Welcome! " +
-//                "\n Visit us at : https://lam-calendar-client.web.app ";
-//        ArrayList<String> emails = new ArrayList<>(List.of(email));
-//
-//        Notification notification = new Notification(message, title, null, emails, NotificationType.EVENT_CHANGED);
-//
-//        simpMessagingTemplate.convertAndSend("/notifications", notification);
-//        eventPublisher.publishEvent( notification );
-//    }
+    // optional - not in requirements
+    public void publishRegistrationNotification(String email) {
+    String title = "Welcome to Calendar App";
+    String message = "You registered to Calendar App \n" +
+            "\n Welcome! " +
+            "\n Visit us at : https://lam-calendar-client.web.app ";
+    ArrayList<String> emails = new ArrayList<>(List.of(email));
+
+    Notification notification = new Notification(message, title, emails, NotificationType.REGISTER);
+
+    eventPublisher.publishEvent( notification );
+}
 
 }

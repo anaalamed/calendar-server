@@ -318,7 +318,7 @@ public class EventController {
     public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-
+            //notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
             return ResponseEntity.ok(BaseResponse.success(eventService.switchRole(userId, eventId)));
 
         } catch (Exception e) {

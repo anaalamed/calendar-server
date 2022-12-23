@@ -58,6 +58,11 @@ public class NotificationListener implements ApplicationListener<Notification> {
             NotificationType notificationType = notification.getNotificationType();
             logger.info(notificationType);
 
+            if ( notificationType == NotificationType.REGISTER) {
+                GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
+                return;
+            }
+
             logger.info("value - " + notificationSettings.getValue(notificationType));
             logger.info("notification - " + notification);
 

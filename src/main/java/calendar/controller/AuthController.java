@@ -52,7 +52,7 @@ public class AuthController {
 
         try {
             User createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
-//            notificationPublisher.publishRegistrationNotification(createdUser.getEmail()); // automaticly send email
+            notificationPublisher.publishRegistrationNotification(createdUser.getEmail());
             return ResponseEntity.ok(BaseResponse.success(new UserDTO(createdUser)));
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));
