@@ -283,11 +283,4 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
-    @Test
-    void Try_To_Save_Event_That_Already_Exists() throws SQLDataException {
-        when(userService.getById(1)).thenReturn(user);
-        when(eventService.saveEvent(eventRequest, user)).thenThrow(IllegalArgumentException.class);
-
-        assertThrows(IllegalArgumentException.class, ()-> eventController.saveEvent(1,eventRequest));
-    }
 }

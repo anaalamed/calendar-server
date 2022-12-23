@@ -39,10 +39,6 @@ public class EventService {
 
         eventReq.getRoles().add(organizer);
 
-        if (eventRepository.findById(eventReq.getId()).isPresent()) {
-            throw new SQLDataException(String.format("Event %s already exists!", eventReq.getId()));
-        }
-
         return eventRepository.save(eventReq);
     }
 

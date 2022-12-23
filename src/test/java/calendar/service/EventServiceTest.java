@@ -1,6 +1,7 @@
 package calendar.service;
 
 
+import calendar.controller.request.EventRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.DTO.EventDTO;
@@ -40,6 +41,7 @@ class EventServiceTest {
     static Role role;
     static Role roleToInvite;
     static Event event;
+    static EventRequest eventRequest;
     static User user;
     static User userToInvite;
     static List<Role> roles;
@@ -71,9 +73,13 @@ class EventServiceTest {
 
         event = new Event();
         event.setId(1);
+        event.setTitle("EventTest");
         event.getRoles().add(role);
         events = new ArrayList<>();
         events.add(event);
+
+        eventRequest = new EventRequest();
+        eventRequest.setTitle("EventTest");
     }
 
 
@@ -227,4 +233,19 @@ class EventServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> eventService.removeGuest(1, 1));
     }
+
+    @Test
+    void Save_Event_Successfully() throws SQLDataException {
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDate(), eventRequest.getDuration(), eventRequest.getLocation(),
+                eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
+
+        when(eventRepository.findById(1)).thenReturn(null);
+        when(eventRepository.save(eventReq)).thenReturn(eventReq);
+
+        Event response = eventService.saveEvent(eventRequest,user);
+
+        assertEquals(response.getTitle(),"EventTest");
+    }
+
+
 }
