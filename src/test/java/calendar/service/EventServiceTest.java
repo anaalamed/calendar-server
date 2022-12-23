@@ -2,9 +2,7 @@ package calendar.service;
 
 
 import calendar.controller.request.EventRequest;
-import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
-import calendar.entities.DTO.EventDTO;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.junit.jupiter.api.*;
@@ -12,18 +10,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +33,9 @@ class EventServiceTest {
     static Role role;
     static Role roleToInvite;
     static Event event;
+    static Event updatedEvent;
     static EventRequest eventRequest;
+    static EventRequest updateEventRequest;
     static User user;
     static User userToInvite;
     static List<Role> roles;
@@ -78,8 +72,17 @@ class EventServiceTest {
         events = new ArrayList<>();
         events.add(event);
 
+        updatedEvent = new Event();
+        updatedEvent.setId(1);
+        event.setTitle("UpdatedEvent");
+        event.setDescription("UpdatedEvent");
+
         eventRequest = new EventRequest();
         eventRequest.setTitle("EventTest");
+
+        updateEventRequest = new EventRequest();
+        updateEventRequest.setTitle("UpdatedEvent");
+        updateEventRequest.setDescription("UpdatedEvent");
     }
 
 
@@ -280,5 +283,36 @@ class EventServiceTest {
 
         assertNull(eventService.getEventById(1));
     }
+
+    @Test
+    void Update_Event_Successfully() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(eventRepository.updateEvent(updateEventRequest.isPublic(), updateEventRequest.getTitle(), updateEventRequest.getDate(),
+                updateEventRequest.getTime(), updateEventRequest.getDuration(), updateEventRequest.getLocation(),
+                updateEventRequest.getDescription(),1)).thenReturn(1);
+
+        Event response = eventService.updateEvent(updateEventRequest,1);
+
+        assertEquals(response.getTitle(),"UpdatedEvent");
+    }
+
+    @Test
+    void Try_To_Update_Event_ThaT_Does_Not_Exist() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
+
+        assertThrows(NoSuchElementException.class,()-> eventService.updateEvent(updateEventRequest,1));
+    }
+
+    @Test
+    void Update_Event_Nothing_Changed() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(eventRepository.updateEvent(eventRequest.isPublic(), eventRequest.getTitle(), eventRequest.getDate(),
+                eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
+                eventRequest.getDescription(),1)).thenReturn(1);
+
+        assertNull(eventService.updateEvent(eventRequest,1));
+    }
+
+
 
 }

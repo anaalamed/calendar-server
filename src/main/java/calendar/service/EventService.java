@@ -80,6 +80,10 @@ public class EventService {
 
         Event eventDB = eventRepository.findById(id).get();
 
+        if(eventDB == null){
+            throw new SQLDataException("Event does not exist!");
+        }
+
         if (!event.isPublic())
             event.setPublic(eventDB.isPublic());
 

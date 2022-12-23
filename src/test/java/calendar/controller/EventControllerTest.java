@@ -42,6 +42,7 @@ class EventControllerTest {
     static Role roleToInvite;
     static Role switchedRole;
     static Event event;
+    static Event updatedEvent;
     static EventRequest eventRequest;
     static User user;
     static User userToInvite;
@@ -82,7 +83,10 @@ class EventControllerTest {
         events = new ArrayList<>();
         events.add(event);
 
+        updatedEvent = Event.getNewEvent(true,null,null,2.0f,"UpdatedEvent","UpdatedEvent","UpdatedEvent",null);
+
         eventRequest = new EventRequest();
+        eventRequest.setTitle("UpdatedEvent");
     }
 
 
@@ -331,6 +335,42 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    void Update_Event_Successfully_Organizer() throws SQLDataException {
+        when(eventService.updateEvent(eventRequest, 1)).thenReturn(updatedEvent);
 
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.updateEvent(RoleType.ORGANIZER,1,eventRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getTitle(),"UpdatedEvent");
+    }
+
+    @Test
+    void Update_Event_Successfully_Admin() throws SQLDataException {
+        when(eventService.updateEventRestricted(eventRequest, 1)).thenReturn(updatedEvent);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.updateEvent(RoleType.ADMIN,1,eventRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getDescription(),"UpdatedEvent");
+    }
+
+    @Test
+    void Update_Event_Failed_Organizer() throws SQLDataException {
+        when(eventService.updateEvent(eventRequest, 1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.updateEvent(RoleType.ORGANIZER,1,eventRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Update_Event_Failed_Admin() throws SQLDataException {
+        when(eventService.updateEventRestricted(eventRequest, 1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.updateEvent(RoleType.ADMIN,1,eventRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
 }
