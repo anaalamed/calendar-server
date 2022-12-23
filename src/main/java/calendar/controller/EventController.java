@@ -314,10 +314,10 @@ public class EventController {
      * @return -The role after the changes
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
+    public ResponseEntity<BaseResponse<RoleDTO>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(eventService.switchRole(userId, eventId)));
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchRole(userId, eventId))));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
@@ -332,11 +332,11 @@ public class EventController {
      * @return -the role after the changes.
      */
     @RequestMapping(value = "/switchStatus", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
+    public ResponseEntity<BaseResponse<RoleDTO>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
                                                            @RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(eventService.switchStatus(userId, eventId,approveOrReject)));
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchStatus(userId, eventId,approveOrReject))));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
