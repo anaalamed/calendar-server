@@ -58,15 +58,6 @@ public class EventService {
     }
 
     /**
-     * Returns all the events in the user repo , this is used for server side only so no need to use DTO.
-     *
-     * @return a list of all the events inside the DB.
-     */
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
-    }
-
-    /**
      * Delete an event from the DB if founded
      *
      * @param eventId

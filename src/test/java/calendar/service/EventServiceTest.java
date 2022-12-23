@@ -265,4 +265,20 @@ class EventServiceTest {
         assertEquals(response,0);
     }
 
+    @Test
+    void Get_Event_By_Id_Successfully() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+
+        Event response = eventService.getEventById(1);
+
+        assertEquals(response.getId(),1);
+    }
+
+    @Test
+    void Try_To_Get_Event_By_Id_That_Does_Not_Exist() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
+
+        assertNull(eventService.getEventById(1));
+    }
+
 }

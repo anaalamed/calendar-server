@@ -312,4 +312,25 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    void Get_Event_By_Id_Successfully() throws SQLDataException {
+        when(eventService.getEventById(1)).thenReturn(event);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.getEventById(1);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getId(),1);
+    }
+
+    @Test
+    void Try_To_Get_Event_By_Id_That_Does_Not_Exist() throws SQLDataException {
+        when(eventService.getEventById(1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.getEventById(1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+
 }
