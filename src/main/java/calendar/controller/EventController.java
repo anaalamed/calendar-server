@@ -308,21 +308,38 @@ public class EventController {
 
 
     /**
-     * Promotes a guest to an admin, only an organizer can promote someone.
+     * Switches the role of a guest to an admin or an admin to a guest.
      *
      * @param eventId - The event id of the event we wish to switch someones role at.
      * @param userId  - The user id of the user we wish to switch his role.
-     * @return -a message confirming the removal of the role.
+     * @return -The role after the changes
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
-    public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
+    public ResponseEntity<BaseResponse<RoleDTO>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
             //notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
-            return ResponseEntity.ok(BaseResponse.success(eventService.switchRole(userId, eventId)));
-
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchRole(userId, eventId))));
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
+        }
+    }
 
+    /**
+     * Changed the status of a guest can be APPROVED or REJECTED.
+     *
+     * @param eventId - The event id of the event we wish to switch someones role at.
+     * @param userId  - The user id of the user we wish to switch his role.
+     * @param approveOrReject - A boolean value true if approved false if rejected.
+     * @return -the role after the changes.
+     */
+    @RequestMapping(value = "/switchStatus", method = RequestMethod.PATCH)
+    public ResponseEntity<BaseResponse<RoleDTO>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
+                                                           @RequestParam("eventId") int eventId, @RequestBody int userId) {
+
+        try {
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchStatus(userId, eventId,approveOrReject))));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
@@ -345,14 +362,16 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
         }
 
-        Role RoleToAdd = eventService.inviteGuest(user, eventId);
-
-        if (RoleToAdd == null) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure("The user is already part of the event!"));
+        try{
+            Role roleToAdd = eventService.inviteGuest(user, eventId);
+            notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
+            if(roleToAdd != null){
+                return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToAdd)));
+            }
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!")); // Here for Controller tests only!
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
-
-        notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
-        return ResponseEntity.ok(BaseResponse.success(new RoleDTO(RoleToAdd)));
     }
 
     /**
@@ -364,7 +383,7 @@ public class EventController {
      * @return a message confirming the removal of the guest.
      */
     @RequestMapping(value = "/removeGuest", method = RequestMethod.DELETE)
-    public ResponseEntity<BaseResponse<Role>> removeGuest(@RequestParam String email, @RequestParam int eventId){
+    public ResponseEntity<BaseResponse<Role>> removeGuest(@RequestParam String email, @RequestParam int eventId) {
 
         User user = userService.getByEmailNotOptional(email);
 
@@ -372,13 +391,12 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
         }
 
-        Role roleToRemove = eventService.removeGuest(user.getId(),eventId);
-
-        if(roleToRemove != null){
+        try {
+            Role roleToRemove = eventService.removeGuest(user.getId(), eventId);
             notificationPublisher.publishRemoveUserFromEventNotification(eventId, user.getEmail());
             return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
-        }else{
-            return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not part of the event!"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
 }

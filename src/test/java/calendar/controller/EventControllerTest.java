@@ -69,6 +69,7 @@ class EventControllerTest {
 
         switchedRole = new Role();
         switchedRole.setRoleType(RoleType.ADMIN);
+        switchedRole.setUser(user);
 
         event = new Event();
         event.setId(1);
@@ -106,12 +107,11 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
-
     @Test
     void Switch_Role_Successfully() {
-        when(eventService.switchRole(1,1)).thenReturn(switchedRole);
+        when(eventService.switchRole(1, 1)).thenReturn(switchedRole);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.switchRole(1,1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(1, 1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().getRoleType(), RoleType.ADMIN);
@@ -119,19 +119,25 @@ class EventControllerTest {
 
     @Test
     void Try_To_Switch_Role_Of_User_That_Does_Not_Exist() {
-        when(eventService.switchRole(999, 999)).thenThrow(IllegalArgumentException.class);
+        when(eventService.switchRole(999, 1)).thenThrow(IllegalArgumentException.class);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.switchRole(999, 999);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(1, 999);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Invite_Guest_Successfully() throws SQLDataException {
+    void Try_To_Switch_Role_Of_User_In_Event_That_Does_Not_Exist() {
+        when(eventService.switchRole(1, 999)).thenThrow(IllegalArgumentException.class);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(999, 1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Invite_Guest_Successfully() {
         when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
-        when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(user.getId(), event.getId())).thenReturn(null);
-        when(userService.getById(123)).thenReturn(userToInvite);
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(roleToInvite);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
@@ -142,7 +148,7 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Invite_Guest_Who_Is_Not_Registered() throws SQLDataException {
+    void Try_To_Invite_Guest_Who_Is_Not_Registered(){
         when(userService.getByEmailNotOptional("leon@notRegistered.com")).thenReturn(null);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@notRegistered.com", 1);
@@ -151,10 +157,9 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() throws SQLDataException {
-        when(userService.getDTOByEmail("leon@invite.com")).thenReturn(Optional.of(new UserDTO(userToInvite)));
-        when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(userToInvite.getId(), event.getId())).thenReturn(role);
+    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() {
+        when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
+        when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
 
@@ -162,10 +167,18 @@ class EventControllerTest {
     }
 
     @Test
-    void Remove_Guest_Successfully() throws SQLDataException {
+    void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() {
+        when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
+        when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Remove_Guest_Successfully(){
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
-        when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(user.getId(), event.getId())).thenReturn(role);
         when(eventService.removeGuest(1, 1)).thenReturn(role);
 
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
@@ -175,7 +188,7 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_Not_Registered() throws SQLDataException {
+    void Try_To_Remove_Guest_Who_Is_Not_Registered(){
         when(userService.getByEmailNotOptional("leon@notRegistered.com")).thenReturn(null);
 
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@notRegistered.com", 1);
@@ -186,12 +199,30 @@ class EventControllerTest {
     @Test
     void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
-        when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(user.getId(), event.getId())).thenReturn(null);
+        when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
 
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist() throws SQLDataException {
+        when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
+        when(eventService.removeGuest(1, 999)).thenThrow(IllegalArgumentException.class);
+
+        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+    @Test
+    void Try_To_Remove_Guest_Who_Is_An_Organizer() throws SQLDataException {
+        when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
+        role.setRoleType(RoleType.ORGANIZER);
+        when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
+
+        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 }
