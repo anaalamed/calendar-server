@@ -38,6 +38,10 @@ public class EventController {
         try {
             User userOfEvent = userService.getById(userId);
 
+            if(userOfEvent == null){
+               return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+            }
+
             Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
 
             return ResponseEntity.ok(BaseResponse.success(new EventDTO(createdEvent)));
@@ -54,6 +58,12 @@ public class EventController {
      */
     @RequestMapping(value = "/deleteEvent", method = RequestMethod.DELETE)
     public ResponseEntity<BaseResponse<String>> deleteEvent(@RequestAttribute("userId") int userId, @RequestParam int eventId) {
+
+        User userOfEvent = userService.getById(userId);
+
+        if(userOfEvent == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
 
         try {
             if (eventService.deleteEvent(eventId) > 0)/* if number of deleted rows in DB > 0 */
@@ -272,6 +282,12 @@ public class EventController {
      */
     @GetMapping(value = "/getEventsByUserId")
     public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
+
+        User userOfEvent = userService.getById(userId);
+
+        if(userOfEvent == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
 
         List<Event> events = eventService.getEventsByUserId(userId);
 
