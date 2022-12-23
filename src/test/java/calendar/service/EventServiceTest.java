@@ -313,6 +313,33 @@ class EventServiceTest {
         assertNull(eventService.updateEvent(eventRequest,1));
     }
 
+    @Test
+    void Update_Restricted_Event_Successfully() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(eventRepository.updateEventRestricted(updateEventRequest.isPublic(), updateEventRequest.getLocation(),
+                updateEventRequest.getDescription(),1)).thenReturn(1);
+
+        Event response = eventService.updateEventRestricted(updateEventRequest,1);
+
+        assertEquals(response.getDescription(),"UpdatedEvent");
+    }
+
+    @Test
+    void Try_To_Update_Restricted_Event_ThaT_Does_Not_Exist() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(null));
+
+        assertThrows(NoSuchElementException.class,()-> eventService.updateEventRestricted(updateEventRequest,1));
+    }
+
+    @Test
+    void Update_Event_Restricted_Nothing_Changed() throws SQLDataException {
+        when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
+        when(eventRepository.updateEventRestricted(eventRequest.isPublic(), eventRequest.getLocation(),
+                eventRequest.getDescription(),1)).thenReturn(1);
+
+        assertNull(eventService.updateEventRestricted(eventRequest,1));
+    }
+
 
 
 }
