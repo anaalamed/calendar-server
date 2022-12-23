@@ -38,6 +38,10 @@ public class EventController {
         try {
             User userOfEvent = userService.getById(userId);
 
+            if(userOfEvent == null){
+               return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+            }
+
             Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
 
             return ResponseEntity.ok(BaseResponse.success(new EventDTO(createdEvent)));

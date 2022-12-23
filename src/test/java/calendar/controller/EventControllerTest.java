@@ -1,7 +1,9 @@
 package calendar.controller;
 
+import calendar.controller.request.EventRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
@@ -15,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.File;
 import java.sql.SQLDataException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,7 @@ class EventControllerTest {
     static Role roleToInvite;
     static Role switchedRole;
     static Event event;
+    static EventRequest eventRequest;
     static User user;
     static User userToInvite;
     static List<Role> roles;
@@ -72,10 +77,12 @@ class EventControllerTest {
         switchedRole.setUser(user);
         switchedRole.setStatusType(StatusType.REJECTED);
 
-        event = new Event();
+        event = Event.getNewEvent(true,null,null,3.0f,"location1","title1","description1",null);
         event.setId(1);
         events = new ArrayList<>();
         events.add(event);
+
+        eventRequest = new EventRequest();
     }
 
 
@@ -226,7 +233,7 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() throws SQLDataException {
+    void Try_To_Remove_Guest_Who_Is_Not_In_The_Event() {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
 
@@ -236,7 +243,7 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist() throws SQLDataException {
+    void Try_To_Remove_Guest_From_Event_That_Does_Not_Exist() {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         when(eventService.removeGuest(1, 999)).thenThrow(IllegalArgumentException.class);
 
@@ -245,7 +252,7 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
     @Test
-    void Try_To_Remove_Guest_Who_Is_An_Organizer() throws SQLDataException {
+    void Try_To_Remove_Guest_Who_Is_An_Organizer(){
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         role.setRoleType(RoleType.ORGANIZER);
         when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
@@ -253,5 +260,34 @@ class EventControllerTest {
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Save_Event_Successfully() throws SQLDataException {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.saveEvent(eventRequest, user)).thenReturn(event);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.saveEvent(1,eventRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getId(),1);
+
+    }
+
+    @Test
+    void Try_To_Save_Event_User_Does_Not_Exist() {
+        when(userService.getById(1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<EventDTO>> response = eventController.saveEvent(1,eventRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Save_Event_That_Already_Exists() throws SQLDataException {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.saveEvent(eventRequest, user)).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class, ()-> eventController.saveEvent(1,eventRequest));
     }
 }
