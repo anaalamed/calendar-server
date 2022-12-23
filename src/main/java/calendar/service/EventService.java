@@ -417,4 +417,43 @@ public class EventService {
 
         return roleToPromote;
     }
+
+    /**
+     * Changed the status of a guest can be APPROVED or REJECTED.
+     *
+     * @param eventId - The event id of the event we wish to switch someones role at.
+     * @param userId  - The user id of the user we wish to switch his role.
+     * @param approveOrReject - A boolean value true if approved false if rejected.
+     * @return -the role after the changes.
+     */
+    public Role switchStatus(int userId, int eventId, boolean approveOrReject) {
+
+        Event event = eventRepository.findById(eventId).get();
+
+        if (event == null) {
+            throw new IllegalArgumentException("Event does not exist!");
+        }
+
+        User user = userRepository.findById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException("User does not exist!");
+        }
+
+        Role roleToUpdate = getSpecificRole(userId, eventId);
+
+        if (roleToUpdate == null) {
+            throw new IllegalArgumentException("The user is not part of the event!");
+        }
+
+        if (approveOrReject) {
+            roleToUpdate.setStatusType(StatusType.APPROVED);
+        } else {
+            roleToUpdate.setStatusType(StatusType.REJECTED);
+        }
+
+        eventRepository.save(event);
+
+        return roleToUpdate;
+    }
 }

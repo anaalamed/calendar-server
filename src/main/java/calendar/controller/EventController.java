@@ -307,17 +307,36 @@ public class EventController {
 
 
     /**
-     * Promotes a guest to an admin, only an organizer can promote someone.
+     * Switches the role of a guest to an admin or an admin to a guest.
      *
      * @param eventId - The event id of the event we wish to switch someones role at.
      * @param userId  - The user id of the user we wish to switch his role.
-     * @return -a message confirming the removal of the role.
+     * @return -The role after the changes
      */
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<Role>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
             return ResponseEntity.ok(BaseResponse.success(eventService.switchRole(userId, eventId)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
+        }
+    }
+
+    /**
+     * Changed the status of a guest can be APPROVED or REJECTED.
+     *
+     * @param eventId - The event id of the event we wish to switch someones role at.
+     * @param userId  - The user id of the user we wish to switch his role.
+     * @param approveOrReject - A boolean value true if approved false if rejected.
+     * @return -the role after the changes.
+     */
+    @RequestMapping(value = "/switchStatus", method = RequestMethod.PATCH)
+    public ResponseEntity<BaseResponse<Role>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
+                                                           @RequestParam("eventId") int eventId, @RequestBody int userId) {
+
+        try {
+            return ResponseEntity.ok(BaseResponse.success(eventService.switchStatus(userId, eventId,approveOrReject)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
