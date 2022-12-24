@@ -44,11 +44,11 @@ public class AuthService {
      * @return the created User
      * @throws SQLDataException - If the user is already registered in our DB.
      */
-    public User createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
+    public User createUser(UserRequest userRequest, ProviderType provider) throws IllegalArgumentException {
         logger.info("in createUser()");
 
         if(userRepository.findByEmail(userRequest.getEmail()).isPresent()){
-            throw new SQLDataException(String.format("Email %s already exists!", userRequest.getEmail()));
+            throw new IllegalArgumentException(String.format("Email %s already exists!", userRequest.getEmail()));
         }
 
         logger.debug(userRequest);
@@ -96,7 +96,7 @@ public class AuthService {
                 .findFirst();
     }
 
-    public Optional<LoginDataDTO> loginGithub(String code) throws SQLDataException {
+    public Optional<LoginDataDTO> loginGithub(String code) throws IllegalArgumentException {
         logger.info("in loginGithub()");
 
         GitUser githubUser = getGithubUser(code);

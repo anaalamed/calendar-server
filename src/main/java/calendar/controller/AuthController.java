@@ -49,7 +49,7 @@ public class AuthController {
             User createdUser = authService.createUser(userRequest, ProviderType.LOCAL);
             notificationPublisher.publishRegistrationNotification(createdUser.getEmail());
             return ResponseEntity.ok(BaseResponse.success(new UserDTO(createdUser)));
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Email already exists"));
         }
     }

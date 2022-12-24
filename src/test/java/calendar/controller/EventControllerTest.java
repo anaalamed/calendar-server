@@ -48,8 +48,8 @@ class EventControllerTest {
     static User userToInvite;
     static List<Event> events;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         user = new User();
         user.setId(1);
 
