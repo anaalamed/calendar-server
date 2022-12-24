@@ -7,6 +7,7 @@ import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
+import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,8 @@ class EventControllerTest {
     UserService userService;
     @MockBean
     EventService eventService;
+    @MockBean
+    NotificationPublisher notificationPublisher;
 
     static Role role;
     static Role roleToInvite;
@@ -48,13 +51,15 @@ class EventControllerTest {
     static User userToInvite;
     static List<Event> events;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         user = new User();
         user.setId(1);
+        user.setNotificationSettings(new NotificationSettings());
 
         userToInvite = new User();
         userToInvite.setId(123);
+        userToInvite.setNotificationSettings(new NotificationSettings());
 
         role = new Role();
         role.setRoleType(RoleType.GUEST);
@@ -113,8 +118,12 @@ class EventControllerTest {
     }
 
     @Test
-    void Switch_Role_Successfully() {
+    void Switch_Role_Successfully() throws SQLDataException {
         when(eventService.switchRole(1, 1)).thenReturn(switchedRole);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(1, 1);
 
@@ -141,8 +150,12 @@ class EventControllerTest {
     }
 
     @Test
-    void Switch_Status_Successfully() {
+    void Switch_Status_Successfully() throws SQLDataException {
         when(eventService.switchStatus(1, 1, false)).thenReturn(switchedRole);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchStatus(false, 1, 1);
 
@@ -169,9 +182,13 @@ class EventControllerTest {
     }
 
     @Test
-    void Invite_Guest_Successfully() {
+    void Invite_Guest_Successfully() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(roleToInvite);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
         RoleDTO roleDTO = new RoleDTO(roleToInvite);
@@ -190,9 +207,13 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() {
+    void Try_To_Invite_Guest_Who_Is_Already_In_The_Event() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
 
@@ -200,9 +221,13 @@ class EventControllerTest {
     }
 
     @Test
-    void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() {
+    void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
 
@@ -210,9 +235,13 @@ class EventControllerTest {
     }
 
     @Test
-    void Remove_Guest_Successfully() {
+    void Remove_Guest_Successfully() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         when(eventService.removeGuest(1, 1)).thenReturn(role);
+        //Here because of notifications, cant mock because its void so doing inner mocks
+        when(eventService.getEventById(1)).thenReturn(event);
+        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
 
