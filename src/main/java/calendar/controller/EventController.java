@@ -318,8 +318,9 @@ public class EventController {
     public ResponseEntity<BaseResponse<RoleDTO>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            //notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
-            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchRole(userId, eventId))));
+            RoleDTO roleDTO = new RoleDTO(eventService.switchRole(userId, eventId));
+            notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
+            return ResponseEntity.ok(BaseResponse.success(roleDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
@@ -338,7 +339,9 @@ public class EventController {
                                                            @RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchStatus(userId, eventId,approveOrReject))));
+            Role role = eventService.switchStatus(userId, eventId, approveOrReject);
+            notificationPublisher.publishUserStatusChangedNotification(eventId, userId);
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(role)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }

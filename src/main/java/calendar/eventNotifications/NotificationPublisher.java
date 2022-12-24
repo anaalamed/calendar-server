@@ -4,6 +4,7 @@ import calendar.entities.Event;
 import calendar.entities.Role;
 import calendar.entities.enums.NotificationType;
 import calendar.entities.enums.RoleType;
+import calendar.entities.enums.StatusType;
 import calendar.eventNotifications.entity.Notification;
 import calendar.service.EventService;
 import calendar.service.UserService;
@@ -81,10 +82,39 @@ public class NotificationPublisher {
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.UNINVITE_GUEST));
     }
 
+    public void publishUserStatusChangedNotification(int eventId, int userId)  {
+        String title = "User status";
+
+        Event event = null;
+        try {
+            event = eventService.getEventById(eventId);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+        StatusType statusType = eventService.getSpecificRole(userId, eventId).getStatusType();
+        logger.info(statusType);
+
+        String message = "";
+        if (statusType == StatusType.APPROVED) {
+            message = "User "+userService.getById(userId).getName()+" approved event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        } else if (statusType == StatusType.REJECTED){
+            message = "User "+userService.getById(userId).getName()+" rejected event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        }
+
+        List<Role> roles = event.getRoles();
+        ArrayList<String> emails = new ArrayList<>();
+        for (Role role : roles ) {
+            if (role.getRoleType() == RoleType.ADMIN || role.getRoleType() == RoleType.ORGANIZER)
+                emails.add(role.getUser().getEmail());
+        }
+
+        eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.USER_STATUS_CHANGED));
+    }
+
 
     // optional - not in requirements
     public void publishUserRoleChangedNotification(int eventId, int userId)  {
-        String title = "User status";
+        String title = "User role";
 
         Event event = null;
         try {
