@@ -35,9 +35,6 @@ public class Utils {
     }
 
     public static boolean verifyPassword(String passwordFromUser, String passwordFromDB) {
-        if (passwordFromUser == null || passwordFromUser == "" || passwordFromDB == null || passwordFromDB == "") {
-            return true; // github registration without password
-        }
         BCrypt.Result result = BCrypt.verifyer().verify(passwordFromUser.toCharArray(),
                 passwordFromDB.toCharArray());
 
@@ -45,12 +42,11 @@ public class Utils {
     }
 
 
-    // refactoring to generic function ???
     public static ResponseEntity<GitToken> reqGitGetToken(String link) {
-        logger.info("in sendRequest()");
+        logger.info("in reqGitGetToken()");
         logger.debug(link);
 
-        ResponseEntity<GitToken> response = null;
+//        ResponseEntity<GitToken> response = null;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
@@ -60,16 +56,16 @@ public class Utils {
             return restTemplate.exchange(link, HttpMethod.POST, entity, GitToken.class);
         } catch (Exception e) {
             logger.error("git get token  exception" + e);
+            return null;
         }
-        return null;
     }
 
     public static ResponseEntity<GitUser> reqGitGetUser(String link, String bearerToken) {
-        logger.info("in getUser()");
+        logger.info("in reqGitGetUser()");
         logger.info(link);
         logger.info(bearerToken);
 
-        ResponseEntity<GitUser> response = null;
+//        ResponseEntity<GitUser> response = null;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + bearerToken);
@@ -79,8 +75,8 @@ public class Utils {
             return restTemplate.exchange(link, HttpMethod.GET, entity, GitUser.class);
         } catch (Exception e) {
             logger.error("git get token  exception" + e);
+            return null;
         }
-        return null;
     }
 
 

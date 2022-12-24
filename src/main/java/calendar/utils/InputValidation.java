@@ -25,7 +25,7 @@ public class InputValidation {
     public static boolean isValidPassword(String password) {
         // Minimum eight characters, at least one letter and one number:
         String regexPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
-        if (password != null && patternMatches(password, regexPattern)) {
+        if (password != null && !password.equals("") && patternMatches(password, regexPattern)) {
             return true;
         }
         return false;
