@@ -1,20 +1,25 @@
 package calendar.service;
 
 import calendar.controller.request.UserRequest;
+import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
+import com.mysql.cj.log.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.sql.SQLDataException;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -37,6 +42,8 @@ class AuthServiceTest {
 
     static LoginDataDTO loginDataDTO;
 
+    String code;
+
     @BeforeEach
     void setup() {
         user = new User("Leon", "Leon@test.com", "leon1234", ProviderType.LOCAL);
@@ -48,6 +55,8 @@ class AuthServiceTest {
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 
         authService.getUsersTokensMap().put(loginDataDTO.getUserId(),loginDataDTO.getToken());
+
+        code = "GitHubCode";
     }
 
     @Test
@@ -110,4 +119,5 @@ class AuthServiceTest {
 
         assertEquals(userId,Optional.empty());
     }
+
 }
