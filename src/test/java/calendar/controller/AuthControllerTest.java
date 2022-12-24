@@ -41,7 +41,7 @@ class AuthControllerTest {
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
 
-        loginDataDTO = new LoginDataDTO(1,"testToken");
+        loginDataDTO = new LoginDataDTO(1,"testToken","Leon");
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
     }
