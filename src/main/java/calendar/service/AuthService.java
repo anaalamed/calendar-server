@@ -6,6 +6,7 @@ import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.UserRepository;
@@ -43,7 +44,7 @@ public class AuthService {
      * @return the created User
      * @throws SQLDataException
      */
-    public UserDTO createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
+    public User createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
         logger.info("in createUser()");
 
         if(userRepository.findByEmail(userRequest.getEmail()).isPresent()){
@@ -51,10 +52,14 @@ public class AuthService {
         }
 
         logger.debug(userRequest);
-        User createdUser = userRepository.save(new User(userRequest.getName(), userRequest.getEmail(),
-                Utils.hashPassword(userRequest.getPassword()), provider));
 
-        return new UserDTO(createdUser);
+        User createdUser = new User(userRequest.getName(), userRequest.getEmail(), Utils.hashPassword(userRequest.getPassword()), provider);
+
+        NotificationSettings notificationSettings = new NotificationSettings(createdUser);
+        createdUser.setNotificationSettings(notificationSettings);
+
+        User savedUser = userRepository.save(createdUser);
+        return savedUser;
     }
 
     /**
@@ -101,10 +106,10 @@ public class AuthService {
         if (githubUser != null) {
             if ( !userRepository.findByEmail(githubUser.getEmail()).isPresent() ) {
                 if (githubUser.getName() != "" && githubUser.getName() != null) {
-                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
+                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 } else {
-                    UserDTO userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
+                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 }
             }

@@ -3,15 +3,17 @@ package calendar.entities;
 import calendar.entities.enums.ProviderType;
 
 import javax.persistence.*;
-import java.security.Provider;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private NotificationSettings notificationSettings;
+
     private String name;
     @Column(unique = true)
     private String email;
@@ -70,6 +72,14 @@ public class User {
         this.provider = provider;
     }
 
+    public NotificationSettings getNotificationSettings() {
+        return notificationSettings;
+    }
+
+    public void setNotificationSettings(NotificationSettings notificationSettings) {
+        this.notificationSettings = notificationSettings;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -96,11 +106,12 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", notificationSettings=" + notificationSettings +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", provider=" + provider +
                 '}';
     }
-
 }
 

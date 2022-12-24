@@ -6,6 +6,7 @@ import calendar.entities.*;
 import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.enums.*;
+import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class EventController {
     private EventService eventService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private NotificationPublisher notificationPublisher;
+    @Autowired
+    private NotificationPublisher notificationPublisher;
 
     /**
      * Create new event and save it in the DB
@@ -113,7 +114,7 @@ public class EventController {
                 res = eventService.updateEventRestricted(event, eventId);
 
             if (res != null) {
-                // notificationPublisher.publishEventChangeNotification(res); ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 notificationPublisher.publishEventChangeNotification(res);
                 return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             }
 
@@ -333,7 +334,9 @@ public class EventController {
     public ResponseEntity<BaseResponse<RoleDTO>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchRole(userId, eventId))));
+            RoleDTO roleDTO = new RoleDTO(eventService.switchRole(userId, eventId));
+            notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
+            return ResponseEntity.ok(BaseResponse.success(roleDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
@@ -352,7 +355,9 @@ public class EventController {
                                                            @RequestParam("eventId") int eventId, @RequestBody int userId) {
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(eventService.switchStatus(userId, eventId,approveOrReject))));
+            Role role = eventService.switchStatus(userId, eventId, approveOrReject);
+            notificationPublisher.publishUserStatusChangedNotification(eventId, userId);
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(role)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
@@ -378,7 +383,7 @@ public class EventController {
 
         try{
             Role roleToAdd = eventService.inviteGuest(user, eventId);
-            //notificationPublisher.publishInviteGuestNotification(event, user.get().getEmail());~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
             if(roleToAdd != null){
                 return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToAdd)));
             }
@@ -407,7 +412,7 @@ public class EventController {
 
         try {
             Role roleToRemove = eventService.removeGuest(user.getId(), eventId);
-            //notificationPublisher.publishRemoveUserFromEventNotification(event, user.get().getEmail()); ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            notificationPublisher.publishRemoveUserFromEventNotification(eventId, user.getEmail());
             return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));

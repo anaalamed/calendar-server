@@ -1,11 +1,14 @@
 package calendar.service;
 
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +17,9 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
+
 
     private static final Logger logger = LogManager.getLogger(UserService.class.getName());
 
@@ -157,6 +162,20 @@ public class UserService {
         logger.debug("lines updated: " + lines);
 
         return getUpdatedUser(id, lines);
+    }
+
+    public UserDTO updateNotificationsSettings( int userId, NotificationSettings notificationSettingsRequest) {
+
+        User user = userRepository.findById(userId);
+        logger.info(user);
+
+        notificationSettingsRequest.setUser(user);
+        NotificationSettings notificationSettingsUser = user.getNotificationSettings();
+        BeanUtils.copyProperties(notificationSettingsRequest, notificationSettingsUser);
+        user.setNotificationSettings(notificationSettingsUser);
+
+        User savedUser = userRepository.save(user);
+        return new UserDTO(savedUser);
     }
 
     /**

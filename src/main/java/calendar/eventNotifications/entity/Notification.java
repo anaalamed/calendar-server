@@ -1,6 +1,7 @@
-package calendar.event.emailNotification;
+package calendar.eventNotifications.entity;
 
 import calendar.entities.Event;
+import calendar.entities.enums.NotificationType;
 import org.springframework.context.ApplicationEvent;
 
 import javax.persistence.Entity;
@@ -18,6 +19,8 @@ public class Notification extends ApplicationEvent {
 
     private ArrayList<String> emailsToSend;
 
+    private NotificationType notificationType;
+
     public Event getEvent() {
         return event;
     }
@@ -25,7 +28,6 @@ public class Notification extends ApplicationEvent {
     public void setEvent(Event event) {
         this.event = event;
     }
-
 
     public Integer getNotificationId() {
         return id;
@@ -56,12 +58,22 @@ public class Notification extends ApplicationEvent {
         this.emailsToSend = emailsToSend;
     }
 
-    public Notification(String message, String title, Event event, ArrayList<String> emails ){
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
+
+    public Notification(String message, String title, ArrayList<String> emails, NotificationType notificationType  ){
         super(message);
         this.title = title;
         this.message = message;
-        this.event = event;
+//        this.event = event;
         this.emailsToSend = emails;
+        this.notificationType = notificationType;
     }
 
 
