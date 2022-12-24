@@ -343,16 +343,17 @@ public class EventController {
     }
 
     /**
-     * Changed the status of a guest can be APPROVED or REJECTED.
+     * Switches the status of a guest,  can be APPROVED or REJECTED.
      *
      * @param eventId - The event id of the event we wish to switch someones role at.
-     * @param userId  - The user id of the user we wish to switch his role.
+     * @param userId  - The user id of the user we wish to switch his status.
      * @param approveOrReject - A boolean value true if approved false if rejected.
      * @return -the role after the changes.
      */
     @RequestMapping(value = "/switchStatus", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<RoleDTO>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
-                                                           @RequestParam("eventId") int eventId, @RequestBody int userId) {
+                                                           @RequestParam("eventId") int eventId,
+                                                              @RequestAttribute("userId") int userId) {
 
         try {
             Role role = eventService.switchStatus(userId, eventId, approveOrReject);
