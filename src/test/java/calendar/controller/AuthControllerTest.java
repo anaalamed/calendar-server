@@ -8,6 +8,7 @@ import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.service.AuthService;
+import com.mysql.cj.log.Log;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.sql.SQLDataException;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -35,6 +38,8 @@ class AuthControllerTest {
 
     static LoginDataDTO loginDataDTO;
 
+    static String code;
+
     @BeforeEach
     void setup() {
         user = new User("Leon", "Leon@test.com", "leon1234", ProviderType.LOCAL);
@@ -44,6 +49,8 @@ class AuthControllerTest {
         loginDataDTO = new LoginDataDTO(1,"testToken","Leon");
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
+
+        code = "GitHubCode";
     }
 
 
@@ -119,6 +126,34 @@ class AuthControllerTest {
         userRequest.setPassword("invalidEmail");
 
         ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.login(userRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Log_In_With_Git_Hub_Successfully() throws SQLDataException {
+        when(authService.loginGithub(code)).thenReturn(Optional.ofNullable(loginDataDTO));
+
+        ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().getData().getUserId());
+    }
+
+    @Test
+    void Try_To_Log_In_With_Git_Hub_User_Does_Not_Exist() throws SQLDataException {
+        when(authService.loginGithub(code)).thenReturn(Optional.empty());
+
+        ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Log_In_With_Git_Hub_Failed() throws SQLDataException {
+        when(authService.loginGithub(code)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
