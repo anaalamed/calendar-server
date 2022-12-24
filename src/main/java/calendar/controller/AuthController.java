@@ -70,7 +70,12 @@ public class AuthController {
 
         Optional<LoginDataDTO> loginData = authService.login(userRequest);
 
-        logger.info("User with email " + userRequest.getEmail() + " has logged in");
+        if (!InputValidation.isValidEmail(userRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("Invalid email address!"));
+        }
+        if (!InputValidation.isValidPassword(userRequest.getPassword())) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("Invalid password!"));
+        }
 
         return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
                 orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: Wrong Email or Password")));
@@ -79,15 +84,15 @@ public class AuthController {
     @RequestMapping(method = RequestMethod.POST, path = "/loginGithub")
     public ResponseEntity<BaseResponse<LoginDataDTO>> loginGithub(@RequestParam String code) throws SQLDataException {
         logger.info("in loginGithub()");
-
         Optional<LoginDataDTO> loginData = authService.loginGithub(code);
+
+        if (loginData == null || !loginData.isPresent()) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in github"));
+        }
 
         logger.info("User github has logged in");
         logger.info("login data: " + loginData);
-
-        return loginData.map(value -> ResponseEntity.ok(BaseResponse.success(value))).
-                orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in: github")));
-
+        return ResponseEntity.ok(BaseResponse.success(loginData.get()));
     }
 
 }

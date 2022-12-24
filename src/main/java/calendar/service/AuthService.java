@@ -72,10 +72,13 @@ public class AuthService {
 
         Optional<User> user = userRepository.findByEmail(userRequest.getEmail());
 
-        if (user.isPresent() && Utils.verifyPassword(userRequest.getPassword(), user.get().getPassword())) {
-            Optional<String> token = Optional.of(Utils.generateUniqueToken());
-            usersTokensMap.put(user.get().getId(), token.get());
-            return Optional.of(new LoginDataDTO(user.get().getId(), token.get()));
+        if (user.isPresent()) {
+            if ( (user.get().getProvider() == ProviderType.LOCAL && Utils.verifyPassword(userRequest.getPassword(), user.get().getPassword()))
+                || user.get().getProvider() == ProviderType.GITHUB && userRequest.getPassword().equals("")) {
+
+                    String token = executeLogin(user.get().getId());
+                    return Optional.of(new LoginDataDTO(user.get().getId(), token, user.get().getName()));
+            }
         }
 
         return Optional.empty();
@@ -104,22 +107,23 @@ public class AuthService {
         logger.info("user: " + githubUser);
 
         if (githubUser != null) {
-            if ( !userRepository.findByEmail(githubUser.getEmail()).isPresent() ) {
-                if (githubUser.getName() != "" && githubUser.getName() != null) {
-                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
+            Optional<User> userFromDB = userRepository.findByEmail(githubUser.getEmail());
+            if ( !userFromDB.isPresent()) {
+                User userCreated = null;
+                if (!githubUser.getName().equals("") && githubUser.getName() != null) {
+                    userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 } else {
-                    User userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
+                    userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
                 }
+            } else if (userFromDB.get().getProvider() == ProviderType.LOCAL) {
+                return null;
             }
 
-            // if user with email created and has password ??
-            Optional<LoginDataDTO> login = login(new UserRequest(githubUser.getEmail(), ""));
-            logger.info(login);
-            return login;
+            return login(new UserRequest(githubUser.getEmail(), ""));
         }
-        return null;
+        return Optional.empty();
     }
 
     public ResponseEntity<GitToken> getGithubToken(String code) {
@@ -140,10 +144,20 @@ public class AuthService {
             logger.info("token: " + token);
 
             String linkGetUser = "https://api.github.com/user";
-            return Utils.reqGitGetUser(linkGetUser, token).getBody();
+            ResponseEntity<GitUser> gitUserResponseEntity = Utils.reqGitGetUser(linkGetUser, token);
+
+            if (gitUserResponseEntity != null) {
+                return gitUserResponseEntity.getBody();
+            }
         }
 
         return null;
+    }
+
+    public String executeLogin (int userId) {
+        Optional<String> token = Optional.of(Utils.generateUniqueToken());
+        usersTokensMap.put(userId, token.get());
+        return token.get();
     }
 
 }
