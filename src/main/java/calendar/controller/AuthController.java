@@ -87,7 +87,7 @@ public class AuthController {
         Optional<LoginDataDTO> loginData = authService.loginGithub(code);
 
         if (loginData == null || !loginData.isPresent()) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in github"));
+            return ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in with github"));
         }
 
         logger.info("User github has logged in");
