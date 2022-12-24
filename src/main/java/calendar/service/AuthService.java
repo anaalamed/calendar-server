@@ -145,4 +145,7 @@ public class AuthService {
         return null;
     }
 
+    public static HashMap<Integer, String> getUsersTokensMap() {
+        return usersTokensMap;
+    }
 }
