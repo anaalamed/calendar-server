@@ -39,10 +39,10 @@ public class AuthService {
     private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
 
     /**
-     * Create user if email isn't already exist
-     * @param userRequest
+     * Create a user if he is not already part of our system.
+     * @param userRequest - All the information of the user we wish to register.
      * @return the created User
-     * @throws SQLDataException
+     * @throws SQLDataException - If the user is already registered in our DB.
      */
     public User createUser(UserRequest userRequest, ProviderType provider) throws SQLDataException {
         logger.info("in createUser()");
@@ -61,11 +61,10 @@ public class AuthService {
         User savedUser = userRepository.save(createdUser);
         return savedUser;
     }
-
     /**
-     * Log In user to the system
-     * @param userRequest
-     * @return LoginData (user id, token) if successes
+     * User logs in into our system with his email and password.
+     * @param userRequest -  All the information of the user we wish to log in.
+     * @return LoginData: user id and token (if log in is successful)
      */
     public Optional<LoginDataDTO> login(UserRequest userRequest) {
         logger.info("in login()");
@@ -85,7 +84,7 @@ public class AuthService {
     /**
      * Check if user is authenticated
      *
-     * @param token
+     * @param token - The token we wish to compare with our local token storage.
      * @return userId if is present in usersTokensMap
      */
     public Optional<Integer> getUserIdByToken(String token) {
