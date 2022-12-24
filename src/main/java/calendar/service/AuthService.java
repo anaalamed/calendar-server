@@ -106,7 +106,7 @@ public class AuthService {
         GitUser githubUser = getGithubUser(code);
         logger.info("user: " + githubUser);
 
-        if (githubUser != null) {
+        if (githubUser != null && githubUser.getEmail() != null && !githubUser.getEmail().equals("")) {
             Optional<User> userFromDB = userRepository.findByEmail(githubUser.getEmail());
             if ( !userFromDB.isPresent()) {
                 User userCreated = null;
