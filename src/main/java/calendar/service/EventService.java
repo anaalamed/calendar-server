@@ -39,10 +39,6 @@ public class EventService {
 
         eventReq.getRoles().add(organizer);
 
-        if (eventRepository.findById(eventReq.getId()).isPresent()) {
-            throw new SQLDataException(String.format("Event %s already exists!", eventReq.getId()));
-        }
-
         return eventRepository.save(eventReq);
     }
 
@@ -59,15 +55,6 @@ public class EventService {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Returns all the events in the user repo , this is used for server side only so no need to use DTO.
-     *
-     * @return a list of all the events inside the DB.
-     */
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
     }
 
     /**
@@ -92,6 +79,10 @@ public class EventService {
     public Event updateEvent(EventRequest event, int id) throws SQLDataException {
 
         Event eventDB = eventRepository.findById(id).get();
+
+        if(eventDB == null){
+            throw new SQLDataException("Event does not exist!");
+        }
 
         if (!event.isPublic())
             event.setPublic(eventDB.isPublic());
