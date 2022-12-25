@@ -24,9 +24,9 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
 
     @Modifying
-    @Query("update Event e set e.isPublic =:isPublic,e.title =:title,e.date =:date,e.time =:time,e.duration =:duration,e.location =:location,e.description =:description where e.id =:id")
+    @Query("update Event e set e.isPublic =:isPublic,e.title =:title,e.time =:time,e.duration =:duration,e.location =:location,e.description =:description where e.id =:id")
     @Transactional
-    int updateEvent(@Param("isPublic") boolean isPublic, @Param("title") String title, @Param("date") LocalDate date
+    int updateEvent(@Param("isPublic") boolean isPublic, @Param("title") String title
             , @Param("time") LocalDateTime time, @Param("duration") float duration
             , @Param("location") String location, @Param("description") String description, @Param("id") int id);
 
@@ -45,11 +45,11 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     int updateEventTitle(@Param("title") String title,
                          @Param("id") int id);
 
-    @Modifying
-    @Query("update Event e set e.date =:date where e.id =:id")
-    @Transactional
-    int updateEventDate(@Param("date") LocalDate date,
-                        @Param("id") int id);
+//    @Modifying
+//    @Query("update Event e set e.date =:date where e.id =:id")
+//    @Transactional
+//    int updateEventDate(@Param("date") LocalDate date,
+//                        @Param("id") int id);
 
     @Modifying
     @Query("update Event e set e.time =:time where e.id =:id")

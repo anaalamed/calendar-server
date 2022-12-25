@@ -79,7 +79,7 @@ class EventControllerTest {
         switchedRole.setUser(user);
         switchedRole.setStatusType(StatusType.REJECTED);
 
-        event = Event.getNewEvent(true, null, null, 3.0f, "location1", "title1", "description1", null);
+        event = Event.getNewEvent(true, null,  3.0f, "location1", "title1", "description1", null);
         event.setId(1);
         event.getRoles().add(role);
 
@@ -89,7 +89,7 @@ class EventControllerTest {
         events = new ArrayList<>();
         events.add(event);
 
-        updatedEvent = Event.getNewEvent(true, null, null, 2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
+        updatedEvent = Event.getNewEvent(true, null,  2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
 
         eventRequest = new EventRequest();
         eventRequest.setTitle("UpdatedEvent");

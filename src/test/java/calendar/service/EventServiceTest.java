@@ -235,7 +235,7 @@ class EventServiceTest {
 
     @Test
     void Save_Event_Successfully() throws SQLDataException {
-        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDate(), eventRequest.getDuration(), eventRequest.getLocation(),
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
 
         when(eventRepository.findById(1)).thenReturn(null);
@@ -283,7 +283,7 @@ class EventServiceTest {
     @Test
     void Update_Event_Successfully() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
-        when(eventRepository.updateEvent(updateEventRequest.isPublic(), updateEventRequest.getTitle(), updateEventRequest.getDate(),
+        when(eventRepository.updateEvent(updateEventRequest.isPublic(), updateEventRequest.getTitle(),
                 updateEventRequest.getTime(), updateEventRequest.getDuration(), updateEventRequest.getLocation(),
                 updateEventRequest.getDescription(), 1)).thenReturn(1);
 
@@ -302,7 +302,7 @@ class EventServiceTest {
     @Test
     void Update_Event_Nothing_Changed() throws SQLDataException {
         when(eventRepository.findById(1)).thenReturn(Optional.ofNullable(event));
-        when(eventRepository.updateEvent(eventRequest.isPublic(), eventRequest.getTitle(), eventRequest.getDate(),
+        when(eventRepository.updateEvent(eventRequest.isPublic(), eventRequest.getTitle(),
                 eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getDescription(), 1)).thenReturn(1);
 

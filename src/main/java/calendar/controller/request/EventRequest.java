@@ -6,13 +6,15 @@ import java.lang.reflect.Array;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventRequest {
     private boolean isPublic;
     private LocalDateTime time;
-    private LocalDate date;
+//    private ZonedDateTime time;
+
     private float duration;//in hours
     private String location;
     private String title;
@@ -35,13 +37,14 @@ public class EventRequest {
         this.time = time;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+//    public ZonedDateTime getTime() {
+//        return time;
+//    }
+//
+//    public void setTime(ZonedDateTime time) {
+//        this.time = time;
+//    }
 
     public float getDuration() {
         return duration;
@@ -88,7 +91,6 @@ public class EventRequest {
         return "EventRequest{" +
                 "isPublic=" + isPublic +
                 ", time=" + time +
-                ", date=" + date +
                 ", duration=" + duration +
                 ", location='" + location + '\'' +
                 ", title='" + title + '\'' +

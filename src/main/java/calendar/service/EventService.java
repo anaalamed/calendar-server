@@ -31,7 +31,7 @@ public class EventService {
      */
     public Event saveEvent(EventRequest eventRequest, User userOfEvent) throws SQLDataException {
 
-        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDate(), eventRequest.getDuration(), eventRequest.getLocation(),
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(),  eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
 
 
@@ -87,8 +87,8 @@ public class EventService {
         if (!event.isPublic())
             event.setPublic(eventDB.isPublic());
 
-        if (event.getDate() == null)
-            event.setDate(eventDB.getDate());
+//        if (event.getDate() == null)
+//            event.setDate(eventDB.getDate());
 
         if (event.getTime() == null)
             event.setTime(eventDB.getTime());
@@ -108,7 +108,7 @@ public class EventService {
         if (event.getLocation() == null)
             event.setLocation(eventDB.getLocation());
 
-        int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getDate(), event.getTime()
+        int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getTime()
                 , event.getDuration(), event.getLocation(), event.getDescription(), id);
         if (rows > 0) {
             return eventRepository.findById(id).get();
@@ -252,11 +252,12 @@ public class EventService {
      * @throws SQLDataException
      */
     public Event updateEventDate(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventDate(event.getDate(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
+//        if (eventRepository.updateEventDate(event.getDate(), id) > 0)
+//            return eventRepository.findById(id).get();
+//        else {
+//            return null;
+//        }
+        return null;
     }
 
     /**

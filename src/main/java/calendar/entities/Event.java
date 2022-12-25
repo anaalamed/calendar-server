@@ -2,12 +2,10 @@ package calendar.entities;
 
 import javax.persistence.*;
 import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Entity
 @Table(name = "event")
@@ -17,7 +15,6 @@ public class Event {
     private int id;
     private boolean isPublic;
     private LocalDateTime time;
-    private LocalDate date;
     private float duration;//in hours
     private String location;
     private String title;
@@ -30,11 +27,10 @@ public class Event {
     public Event() {
         this.roles = new ArrayList<>();
     }
-    private  Event(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
+    private  Event(boolean isPublic,LocalDateTime time, float duration,
                    String location,String title,String description,ArrayList<File> attachments) {
         this.isPublic = isPublic;
         this.time = time;
-        this.date = date;
         this.duration = duration;
         this.location = location;
         this.title = title;
@@ -43,9 +39,9 @@ public class Event {
         this.roles = new ArrayList<>();
     }
 
-    public static Event getNewEvent(boolean isPublic,LocalDateTime time,LocalDate date, float duration,
+    public static Event getNewEvent(boolean isPublic,LocalDateTime time, float duration,
                                  String location,String title,String description,ArrayList<File> attachments) {
-        return new Event(isPublic,time,date,duration,location,title,description,attachments);
+        return new Event(isPublic,time,duration,location,title,description,attachments);
     }
     public int getId() {
         return id;
@@ -72,13 +68,6 @@ public class Event {
         this.time = time;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
 
     public float getDuration() {
         return duration;
@@ -160,7 +149,6 @@ public class Event {
                 "id=" + id +
                 ", isPublic=" + isPublic +
                 ", time=" + time +
-                ", date=" + date +
                 ", duration=" + duration +
                 ", location='" + location + '\'' +
                 ", title='" + title + '\'' +
