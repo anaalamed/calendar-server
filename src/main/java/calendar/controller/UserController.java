@@ -2,8 +2,10 @@ package calendar.controller;
 
 import calendar.controller.request.NotificationSettingsRequest;
 import calendar.controller.response.BaseResponse;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
+import calendar.entities.User;
 import calendar.service.UserService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +49,21 @@ public class UserController {
 
         if (updatedUser != null) {
             return ResponseEntity.ok(BaseResponse.success(updatedUser));
+        }
+
+        return ResponseEntity.badRequest().body(BaseResponse.failure("failed to update!"));
+    }
+
+    @RequestMapping(value = "/updateCity", method = RequestMethod.PATCH)
+    public ResponseEntity<BaseResponse<UserDTO>> updateCity(@RequestAttribute("userId") int userId, @RequestParam String newCity) {
+        logger.debug("in update city");
+
+        User updatedUser = userService.updateCity(userId, newCity);
+
+        logger.info(updatedUser);
+
+        if (updatedUser != null) {
+            return ResponseEntity.ok(BaseResponse.success(new UserDTO(updatedUser)));
         }
 
         return ResponseEntity.badRequest().body(BaseResponse.failure("failed to update!"));
