@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -115,6 +118,7 @@ public class UserService {
         NotificationSettings notificationSettingsUser = user.getNotificationSettings();
         BeanUtils.copyProperties(notificationSettingsRequest, notificationSettingsUser);
         user.setNotificationSettings(notificationSettingsUser);
+
 
         User savedUser = userRepository.save(user);
         return new UserDTO(savedUser);

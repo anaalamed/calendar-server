@@ -44,6 +44,7 @@ public class UserController {
     @PutMapping(value = "/update", params = "notifications")
     public ResponseEntity<BaseResponse<UserDTO>> updateNotifications(@RequestAttribute("userId") int userId, @RequestBody NotificationSettings notificationSettingsRequest) {
         logger.debug("in updateNotifications");
+
         UserDTO updatedUser = userService.updateNotificationsSettings(userId, notificationSettingsRequest);
         logger.info(updatedUser);
 
