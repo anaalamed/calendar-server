@@ -46,6 +46,7 @@ class EventControllerTest {
     static Role roleToInvite;
     static Role switchedRole;
     static Event event;
+    static Event eventNoShow;
     static Event updatedEvent;
     static EventRequest eventRequest;
     static User user;
@@ -80,6 +81,11 @@ class EventControllerTest {
 
         event = Event.getNewEvent(true, null, null, 3.0f, "location1", "title1", "description1", null);
         event.setId(1);
+        event.getRoles().add(role);
+
+        eventNoShow = Event.getNewEvent(true, null, null, 2.0f, "location2", "title2", "description2", null);
+        event.setId(2);
+
         events = new ArrayList<>();
         events.add(event);
 
@@ -460,4 +466,55 @@ class EventControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    void Get_Events_By_User_Id_Only_Show() {
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(eventService.getEventsByUserId(1)).thenReturn(events);
+
+        //Adding new role that we dont dont want to show
+        Role roleDontShow = new Role();
+        roleDontShow.setUser(user);
+        roleDontShow.setShownInMyCalendar(false);
+        eventNoShow.getRoles().add(roleDontShow);
+        events.add(eventNoShow);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(user.getId());
+
+        System.out.println(events.size());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 1);
+    }
+
+    @Test
+    void Try_To_Get_Events_Only_Show_By_User_Id_That_Does_Not_Exist() {
+        when(userService.getById(1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(1);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Get_Events_Only_Show_By_User_Has_None_That_He_Wants_To_Not_Show() {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.getEventsByUserId(1)).thenReturn(events);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(1);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 1);
+    }
+
+    @Test
+    void Try_To_Get_Events_Only_Show_By_User_Has_None_That_He_Wants_To_Show() {
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.getEventsByUserId(1)).thenReturn(events);
+
+        events.get(0).getRoles().get(0).setShownInMyCalendar(false);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(1);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 0);
+    }
 }
