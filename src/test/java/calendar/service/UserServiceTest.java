@@ -7,6 +7,7 @@ import calendar.entities.Event;
 import calendar.entities.NotificationSettings;
 import calendar.entities.Role;
 import calendar.entities.User;
+import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.EventRepository;
 import calendar.repository.UserRepository;
@@ -164,6 +165,36 @@ class UserServiceTest {
         UserDTO response = userService.updateNotificationsSettings(user.getId(),user.getNotificationSettings());
 
         assertEquals(response.getId(),user.getId());
+    }
+
+    @Test
+    void Update_City_Successfully() {
+
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        User response = userService.updateCity(user.getId(),"LONDON");
+
+        assertEquals(City.LONDON, response.getCity());
+    }
+
+    @Test
+    void Try_To_Update_City_For_None_Existent_User() {
+
+        when(userRepository.findById(user.getId())).thenReturn(null);
+
+        User response = userService.updateCity(user.getId(),"LONDON");
+
+        assertNull(response);
+    }
+
+    @Test
+    void Update_City_Default_Value() {
+
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        User response = userService.updateCity(user.getId(),"Random String");
+
+        assertEquals(City.JERUSALEM, response.getCity());
     }
 
 }

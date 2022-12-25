@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +59,7 @@ class EventControllerTest {
         user = new User();
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
+        user.setCity(City.JERUSALEM);
 
         userToInvite = new User();
         userToInvite.setId(123);
@@ -79,7 +81,7 @@ class EventControllerTest {
         switchedRole.setUser(user);
         switchedRole.setStatusType(StatusType.REJECTED);
 
-        event = Event.getNewEvent(true, null,  3.0f, "location1", "title1", "description1", null);
+        event = Event.getNewEvent(true, ZonedDateTime.now(),  3.0f, "location1", "title1", "description1", null);
         event.setId(1);
         event.getRoles().add(role);
 
@@ -471,7 +473,7 @@ class EventControllerTest {
         when(userService.getById(user.getId())).thenReturn(user);
         when(eventService.getEventsByUserId(1)).thenReturn(events);
 
-        //Adding new role that we dont dont want to show
+        //Adding new role that we dont want to show
         Role roleDontShow = new Role();
         roleDontShow.setUser(user);
         roleDontShow.setShownInMyCalendar(false);

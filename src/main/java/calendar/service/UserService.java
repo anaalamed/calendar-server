@@ -3,6 +3,7 @@ package calendar.service;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
+import calendar.entities.enums.City;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,5 +118,31 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
         return new UserDTO(savedUser);
+    }
+
+    public User updateCity(int userId, String newCity) {
+
+        User user = userRepository.findById(userId);
+
+        if(user == null){
+            return null;
+        }
+
+        switch (newCity) {
+            case "PARIS":
+                user.setCity(City.PARIS);
+                break;
+            case "LONDON":
+                user.setCity(City.LONDON);
+                break;
+            case "NEW_YORK":
+                user.setCity(City.NEW_YORK);
+                break;
+            default:
+                user.setCity(City.JERUSALEM);
+        }
+
+        userRepository.save(user);
+        return user;
     }
 }
