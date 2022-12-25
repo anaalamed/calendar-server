@@ -115,13 +115,14 @@ public class NotificationPublisher {
 
     int fixedSchedule = 1000 * 60; // 1min
     @Scheduled(fixedRate = 1000 * 60) // minute
-    public void scheduleCheckComingEvents(String[] args) {
+//    public void scheduleCheckComingEvents(String[] args) {   // debug from main
+    public void scheduleCheckComingEvents() {
         logger.info("---------- in scheduleCheckComingEvents-------------");
         ZonedDateTime now  = ZonedDateTime.now();
         String title = "Upcoming event";
 
         try {
-            Event event = eventService.getEventById(5);
+            Event event = eventService.getEventById(3);
             String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
 
             List<Role> roles = event.getRoles();
