@@ -2,9 +2,8 @@ package calendar.eventNotifications;
 
 import calendar.entities.Event;
 import calendar.entities.Role;
-import calendar.entities.enums.NotificationType;
-import calendar.entities.enums.RoleType;
-import calendar.entities.enums.StatusType;
+import calendar.entities.User;
+import calendar.entities.enums.*;
 import calendar.eventNotifications.entity.Notification;
 import calendar.service.EventService;
 import calendar.service.UserService;
@@ -118,82 +117,85 @@ public class NotificationPublisher {
 //    public void scheduleCheckComingEvents(String[] args) {   // debug from main
     public void scheduleCheckComingEvents() {
         logger.info("---------- in scheduleCheckComingEvents-------------");
-        ZonedDateTime now  = ZonedDateTime.now();
-        String title = "Upcoming event";
 
         try {
+            //        for (Event event: events) {
             Event event = eventService.getEventById(3);
-            String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
-
+            ZonedDateTime eventTime = event.getTime();
             List<Role> roles = event.getRoles();
             logger.info("event roles: " + roles);
 
-            logger.info("now: " + now);
-
-            LocalDateTime eventTime = event.getTime();
-            logger.info("event date: " + eventTime);
-
-            ZonedDateTime zonedEventTime = eventTime.atZone(ZoneId.of("Asia/Jerusalem"));
-            logger.info("event date: " + zonedEventTime);
-
             for (Role role :roles) {
-                int userId = role.getUser().getId();
-                int seconds =  600;     // 10min - 10*60
-                int seconds2 =  1800;   // 30min - 30*60
-                int seconds3 =  3600;   // 60min - 60*60
-                Duration duration = Duration.between(now, zonedEventTime);
-                logger.info("duration sec : " + duration.getSeconds());
-                logger.info("duration min : " + duration.getSeconds() / 60);
-//                logger.info("duration hours : " + duration.getSeconds() / 60 / 60);
-
-                int notSet = seconds;
-                int range = (fixedSchedule / 1000) / 2 ; // 3000
-                int start = notSet-range;
-                int end = notSet+range;
-
-                logger.info("range : " + start + ", " + end);
-
-                if (duration.getSeconds() < notSet + range && duration.getSeconds() > notSet - range ) {
-
-                    ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
-                    logger.info("senddddd not");
-                    eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
+                User user = role.getUser();
+                NotificationGetType notificationGetType = user.getNotificationSettings().getValue(NotificationType.UPCOMING_EVENT);
+                if (notificationGetType == NotificationGetType.NONE) {
+                    return;
                 }
 
+                NotificationRange notificationRange = user.getNotificationSettings().getNotificationRange();
+                int secondsRange = getNotificationRangeInSeconds(notificationRange);
 
+                if (isEventInNotificationRange(eventTime, secondsRange)) {
+                    String title = "Upcoming event";
+                    String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
+                    ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
 
-
-
+                    logger.info("senddddd notification");
+                    eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
+                }
             }
         } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
-
-//        List<Event> events = new ArrayList<>();
-//        events.add(new Event());
-//        events.add(new Event());
-//        logger.info(events);
-//
-//
-//        for (Event event: events) {
-//            List<Role> roles = event.getRoles();
-//
-//            for (Role role :roles) {
-//                int userId = role.getUser().getId();
-//                int minutes =  5;
-//
-//                LocalDate date = event.getDate();
-//                logger.info(date);
-//
-//
-//            }
-////            deleteVerificationToken(token.getToken());
-////            userRepository.deleteById(token.getUser().getId());
-////            logger.debug("Verification token for user_id#" + token.getUser().getId() + " and non activated user was deleted");
-//        }
     }
 
+    private int getNotificationRangeInSeconds(NotificationRange notificationRange) {
+        int secondsRange;
+        switch (notificationRange) {
+            case TEN_MINUTES:
+                logger.info("------ 10 min");
+                secondsRange = 600;    // 10min - 10*60
+                break;
+            case THIRTY_MINUTES:
+                logger.info("------ 30 min");
+                secondsRange = 1800;   // 30min - 30*60
+                break;
+            case ONE_HOUR:
+                logger.info("------ 1 hour");
+                secondsRange = 3600;   // 60min - 60*60
+                break;
+            case ONE_DAY:
+                logger.info("------ 1 day");
+                secondsRange = 86400;   // 60min - 60*60*24
+                break;
+            default:
+                logger.info("default");
+                secondsRange = 0;
+                break;
+        }
+        return secondsRange;
+    }
 
+    private boolean isEventInNotificationRange(ZonedDateTime eventTime, int secondsRange) {
+        ZonedDateTime now  = ZonedDateTime.now();
+        logger.info("now: " + now);
+        logger.info("event date: " + eventTime);
+
+        Duration duration = Duration.between(now, eventTime);
+        logger.info("duration sec : " + duration.getSeconds());
+        logger.info("duration min : " + duration.getSeconds() / 60);
+
+        int range = (fixedSchedule / 1000) / 2 ; // 3000
+        int startRange = secondsRange-range;
+        int endRange = secondsRange+range;
+        logger.info("range : " + startRange + ", " + endRange);
+
+        if (duration.getSeconds() > startRange && duration.getSeconds() < endRange ) {
+            logger.info("in the range!");
+            return true;
+        }
+        return false;
+    }
 
 //    ------------------------ optional - not in requirements ------------------------
     public void publishUserRoleChangedNotification(int eventId, int userId)  {
