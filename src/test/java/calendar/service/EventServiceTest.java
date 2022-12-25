@@ -78,6 +78,7 @@ class EventServiceTest {
         updateEventRequest = new EventRequest();
         updateEventRequest.setTitle("UpdatedEvent");
         updateEventRequest.setDescription("UpdatedEvent");
+        updateEventRequest.setTime(ZonedDateTime.now());
     }
 
 
