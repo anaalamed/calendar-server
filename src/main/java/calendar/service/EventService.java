@@ -9,9 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -31,7 +36,7 @@ public class EventService {
      */
     public Event saveEvent(EventRequest eventRequest, User userOfEvent) throws SQLDataException {
 
-        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(),  eventRequest.getDuration(), eventRequest.getLocation(),
+        Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
 
 
@@ -469,7 +474,7 @@ public class EventService {
             throw new IllegalArgumentException("The user is not part of the event!");
         }
 
-        if(roleToHide.getRoleType() == RoleType.ORGANIZER){
+        if (roleToHide.getRoleType() == RoleType.ORGANIZER) {
             throw new IllegalArgumentException("Organizer cant use this function, use delete event instead!");
         }
 
@@ -479,5 +484,16 @@ public class EventService {
         eventRepository.save(event);
 
         return roleToHide;
+    }
+
+    public List<Event> getEventsTillNextDay() {
+
+        List<Event> eventsNext24Hours = eventRepository.findAll();
+
+        ZonedDateTime now = ZonedDateTime.now();
+
+        return eventsNext24Hours.stream()
+                .filter(event -> event.getTime().isAfter(now) && event.getTime().isBefore(now.plus(24, ChronoUnit.HOURS)))
+                .collect(Collectors.toList());
     }
 }
