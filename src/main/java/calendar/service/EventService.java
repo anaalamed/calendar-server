@@ -80,7 +80,7 @@ public class EventService {
 
         Event eventDB = eventRepository.findById(id).get();
 
-        if(eventDB == null){
+        if (eventDB == null) {
             throw new SQLDataException("Event does not exist!");
         }
 
@@ -298,7 +298,7 @@ public class EventService {
         if (eventRepository.findById(eventId).isPresent()) {
             event = eventRepository.findById(eventId).get();
             role = event.getUserRole(userId);
-        }else{ //Event does not exist!
+        } else { //Event does not exist!
             return null;
         }
 
@@ -412,8 +412,8 @@ public class EventService {
     /**
      * Changed the status of a guest can be APPROVED or REJECTED.
      *
-     * @param eventId - The event id of the event we wish to switch someones role at.
-     * @param userId  - The user id of the user we wish to switch his role.
+     * @param eventId         - The event id of the event we wish to switch someones role at.
+     * @param userId          - The user id of the user we wish to switch his role.
      * @param approveOrReject - A boolean value true if approved false if rejected.
      * @return -the role after the changes.
      */
@@ -446,5 +446,37 @@ public class EventService {
         eventRepository.save(event);
 
         return roleToUpdate;
+    }
+
+    public Role leaveEvent(int userId, int eventId) {
+
+        Event event = eventRepository.findById(eventId).get();
+
+        if (event == null) {
+            throw new IllegalArgumentException("Event does not exist!");
+        }
+
+        User user = userRepository.findById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException("User does not exist!");
+        }
+
+        Role roleToHide = getSpecificRole(userId, eventId);
+
+        if (roleToHide == null) {
+            throw new IllegalArgumentException("The user is not part of the event!");
+        }
+
+        if(roleToHide.getRoleType() == RoleType.ORGANIZER){
+            throw new IllegalArgumentException("Organizer cant use this function, use delete event instead!");
+        }
+
+        roleToHide.setShownInMyCalendar(false);
+        roleToHide.setStatusType(StatusType.REJECTED);
+
+        eventRepository.save(event);
+
+        return roleToHide;
     }
 }

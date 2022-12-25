@@ -22,6 +22,9 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
 
+    @Column(nullable = false)
+    private boolean isShownInMyCalendar;
+
     public Role() {
     }
 
@@ -29,6 +32,7 @@ public class Role {
         this.user = user;
         this.statusType = statusType;
         this.roleType = roleType;
+        this.isShownInMyCalendar = true;
     }
 
     public User getUser() {
@@ -58,5 +62,13 @@ public class Role {
 
     public Long getId() {
         return id;
+    }
+
+    public boolean isShownInMyCalendar() {
+        return isShownInMyCalendar;
+    }
+
+    public void setShownInMyCalendar(boolean shownInMyCalendar) {
+        isShownInMyCalendar = shownInMyCalendar;
     }
 }
