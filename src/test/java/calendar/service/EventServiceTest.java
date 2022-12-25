@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
@@ -53,6 +54,7 @@ class EventServiceTest {
         role.setRoleType(RoleType.GUEST);
         role.setUser(user);
         role.setStatusType(StatusType.APPROVED);
+        role.setShownInMyCalendar(true);
 
         roleToInvite = new Role();
         roleToInvite.setRoleType(RoleType.GUEST);
@@ -351,6 +353,50 @@ class EventServiceTest {
         List<Event> response = eventService.getEventsByUserId(1);
 
         assertEquals(response.size(), 0);
+    }
+
+    @Test
+    void Leave_Event_Successfully(){
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        Role response = eventService.leaveEvent(user.getId(),event.getId());
+
+        assertEquals(response.isShownInMyCalendar(), false);
+        assertEquals(response.getStatusType(), StatusType.REJECTED);
+    }
+
+    @Test
+    void Try_To_Leave_Event_User_Does_Not_Exist(){
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(user.getId())).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class,() -> eventService.leaveEvent(user.getId(),event.getId()));
+    }
+
+    @Test
+    void Try_To_Leave_Event_Event_Does_Not_Exist(){
+        when(eventRepository.findById(event.getId())).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class,() -> eventService.leaveEvent(user.getId(),event.getId()));
+    }
+
+    @Test
+    void Try_To_Leave_Event_Role_Does_Not_Exist(){
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(updatedEvent));
+        when(userRepository.findById(user.getId())).thenReturn(userToInvite);
+
+        assertThrows(IllegalArgumentException.class,() -> eventService.leaveEvent(userToInvite.getId(),updatedEvent.getId()));
+    }
+
+    @Test
+    void Try_To_Leave_Event_Role_Is_Organizer(){
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.ofNullable(event));
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        role.setRoleType(RoleType.ORGANIZER);
+
+        assertThrows(IllegalArgumentException.class,() -> eventService.leaveEvent(user.getId(),event.getId()));
     }
 
 }

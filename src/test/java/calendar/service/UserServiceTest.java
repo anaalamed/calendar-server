@@ -1,9 +1,14 @@
 package calendar.service;
 
+import calendar.controller.response.BaseResponse;
+import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
+import calendar.entities.Event;
 import calendar.entities.NotificationSettings;
+import calendar.entities.Role;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
+import calendar.repository.EventRepository;
 import calendar.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -158,4 +165,5 @@ class UserServiceTest {
 
         assertEquals(response.getId(),user.getId());
     }
+
 }

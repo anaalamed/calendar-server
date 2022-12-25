@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -455,6 +456,22 @@ public class EventController {
         List<EventDTO> eventsToShow = events.stream()
                 .filter(event -> event.getRoles().stream().anyMatch(role -> role.getUser().getId() == userId && role.isShownInMyCalendar()))
                 .collect(Collectors.toList());
+
+        for (EventDTO event:eventsToShow) {
+            switch (userOfEvent.getCity()) {
+                case PARIS:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/Paris")));
+                    break;
+                case LONDON:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/London")));
+                    break;
+                case NEW_YORK:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("America/New_York")));
+                    break;
+                default:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Asia/Jerusalem")));
+            }
+        }
 
         return ResponseEntity.ok(BaseResponse.success(eventsToShow));
     }
