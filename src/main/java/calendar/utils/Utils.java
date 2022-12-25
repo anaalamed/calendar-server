@@ -3,6 +3,7 @@ package calendar.utils;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
+import calendar.entities.enums.City;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,21 @@ public class Utils {
                 .append(UUID.randomUUID()).toString();
     }
 
+    public static String getTimeZoneId(City city) {
+        switch (city) {
+            case PARIS:
+                return "Europe/Paris";
+            case LONDON:
+                return "Europe/London";
+            case NEW_YORK:
+                return "America/New_York";
+            default:
+                return "Asia/Jerusalem";
+        }
+    }
+
+    //    ------------------------ hash user's password --------------------
+
     public static String hashPassword(String password) {
         if (password == null || password == "") {
             return password;
@@ -42,6 +58,7 @@ public class Utils {
     }
 
 
+    //    ------------------------ git login ---------------------------------
     public static ResponseEntity<GitToken> reqGitGetToken(String link) {
         logger.info("in reqGitGetToken()");
         logger.debug(link);

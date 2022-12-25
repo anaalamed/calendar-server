@@ -7,6 +7,7 @@ import calendar.entities.enums.*;
 import calendar.eventNotifications.entity.Notification;
 import calendar.service.EventService;
 import calendar.service.UserService;
+import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,6 @@ public class NotificationPublisher {
     }
 
 
-
     @Scheduled(fixedRate = SCHEDULE) // minute
     public void scheduleCheckComingEvents() {
         logger.info("---------- in scheduleCheckComingEvents-------------");
@@ -124,7 +124,6 @@ public class NotificationPublisher {
 
         for (Event event: eventsTillNextDay ) {
             logger.info("--------------------- event "+event.getId()+"-----------------------------");
-            ZonedDateTime eventTime = event.getTime();
             List<Role> roles = event.getRoles();
             logger.info("event roles: " + roles);
 
@@ -135,19 +134,19 @@ public class NotificationPublisher {
                 if (isInterestedInNotification(user)) {
                     NotificationRange notificationRange = user.getNotificationSettings().getNotificationRange();
                     int secondsRange = getNotificationRangeInSeconds(notificationRange);
+                    ZonedDateTime eventTime = event.getTime();
 
-                    if (isEventInNotificationRange(eventTime, secondsRange)) {
+                    if (isEventInNotificationRange(eventTime, secondsRange, user.getCity())) {
                         String title = "Upcoming event";
-                        String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
+                        String message = "Event '"+ event.getTitle() +"' at "+ event.getTime().withZoneSameInstant(ZoneId.of(Utils.getTimeZoneId(user.getCity()))) +" is coming";
                         ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
 
-                        logger.info("senddddd notification");
+                        logger.info("send notification!");
                         eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
                     }
                 }
             }
         }
-
     }
 
     private boolean isInterestedInNotification(User user) {
@@ -185,18 +184,27 @@ public class NotificationPublisher {
         return secondsRange;
     }
 
-    private boolean isEventInNotificationRange(ZonedDateTime eventTime, int secondsRange) {
-        ZonedDateTime now  = ZonedDateTime.now();
-        logger.info("now: " + now);
-        logger.info("event date: " + eventTime);
+    private boolean isEventInNotificationRange(ZonedDateTime eventTime, int secondsRange, City city) {
+        logger.info("---------- in isEventInNotificationRange-------------");
 
-        Duration duration = Duration.between(now, eventTime);
+        ZonedDateTime zonedEventTime = eventTime.withZoneSameInstant(ZoneId.of(Utils.getTimeZoneId(city)));
+        ZonedDateTime zonedNow = ZonedDateTime.now().withZoneSameInstant(ZoneId.of(Utils.getTimeZoneId(city)));
+        logger.info("zoned now: " + zonedNow);
+        logger.info("zoned event date: " + zonedEventTime);
+
+        Duration duration = Duration.between(zonedNow, zonedEventTime);
         logger.info("duration sec : " + duration.getSeconds());
-        logger.info("duration min : " + duration.getSeconds() / 60);
 
-        int range = (SCHEDULE / 1000) / 2 ; // 30sec
-        int startRange = secondsRange-range;
-        int endRange = secondsRange+range;
+        int range, startRange, endRange;
+        if (secondsRange == 86400 ) {
+            range = (SCHEDULE / 1000)  ; // 60sec
+            startRange = secondsRange-range;
+            endRange = secondsRange;
+        } else {
+            range = (SCHEDULE / 1000) / 2 ; // 30sec
+            startRange = secondsRange-range;
+            endRange = secondsRange+range;
+        }
         logger.info("range : " + startRange + ", " + endRange);
 
         if (duration.getSeconds() > startRange && duration.getSeconds() < endRange ) {
