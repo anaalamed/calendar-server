@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -438,5 +439,23 @@ public class EventController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
+    }
+
+    @GetMapping(value = "/getEventsByUserIdShowOnly")
+    public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserIdShowOnly(@RequestAttribute("userId") int userId) {
+
+        User userOfEvent = userService.getById(userId);
+
+        if(userOfEvent == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
+        List<EventDTO> events = getEventsByUserId(userId).getBody().getData();
+
+        List<EventDTO> eventsToShow = events.stream()
+                .filter(event -> event.getRoles().stream().anyMatch(role -> role.getUser().getId() == userId && role.isShownInMyCalendar()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(BaseResponse.success(eventsToShow));
     }
 }

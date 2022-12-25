@@ -76,6 +76,8 @@ public class RoleFilter implements Filter {
 
         if (role != null) {
 
+
+
             // ~~~~~~ Organizer ~~~~~~
             if (role.getRoleType() == RoleType.ORGANIZER) {
                 if(url.equals("/event/leaveEvent")){
