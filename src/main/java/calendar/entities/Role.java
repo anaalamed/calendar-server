@@ -71,4 +71,15 @@ public class Role {
     public void setShownInMyCalendar(boolean shownInMyCalendar) {
         isShownInMyCalendar = shownInMyCalendar;
     }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", user=" + user +
+                ", statusType=" + statusType +
+                ", roleType=" + roleType +
+                ", isShownInMyCalendar=" + isShownInMyCalendar +
+                '}';
+    }
 }

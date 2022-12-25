@@ -12,9 +12,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLDataException;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,8 +113,88 @@ public class NotificationPublisher {
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.USER_STATUS_CHANGED));
     }
 
+    int fixedSchedule = 1000 * 60; // 1min
+    @Scheduled(fixedRate = 1000 * 60) // minute
+    public void scheduleCheckComingEvents(String[] args) {
+        logger.info("---------- in scheduleCheckComingEvents-------------");
+        ZonedDateTime now  = ZonedDateTime.now();
+        String title = "Upcoming event";
 
-    // optional - not in requirements
+        try {
+            Event event = eventService.getEventById(5);
+            String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
+
+            List<Role> roles = event.getRoles();
+            logger.info("event roles: " + roles);
+
+            logger.info("now: " + now);
+
+            LocalDateTime eventTime = event.getTime();
+            logger.info("event date: " + eventTime);
+
+            ZonedDateTime zonedEventTime = eventTime.atZone(ZoneId.of("Asia/Jerusalem"));
+            logger.info("event date: " + zonedEventTime);
+
+            for (Role role :roles) {
+                int userId = role.getUser().getId();
+                int seconds =  600;     // 10min - 10*60
+                int seconds2 =  1800;   // 30min - 30*60
+                int seconds3 =  3600;   // 60min - 60*60
+                Duration duration = Duration.between(now, zonedEventTime);
+                logger.info("duration sec : " + duration.getSeconds());
+                logger.info("duration min : " + duration.getSeconds() / 60);
+//                logger.info("duration hours : " + duration.getSeconds() / 60 / 60);
+
+                int notSet = seconds;
+                int range = (fixedSchedule / 1000) / 2 ; // 3000
+                int start = notSet-range;
+                int end = notSet+range;
+
+                logger.info("range : " + start + ", " + end);
+
+                if (duration.getSeconds() < notSet + range && duration.getSeconds() > notSet - range ) {
+
+                    ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
+                    logger.info("senddddd not");
+                    eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
+                }
+
+
+
+
+
+            }
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+
+//        List<Event> events = new ArrayList<>();
+//        events.add(new Event());
+//        events.add(new Event());
+//        logger.info(events);
+//
+//
+//        for (Event event: events) {
+//            List<Role> roles = event.getRoles();
+//
+//            for (Role role :roles) {
+//                int userId = role.getUser().getId();
+//                int minutes =  5;
+//
+//                LocalDate date = event.getDate();
+//                logger.info(date);
+//
+//
+//            }
+////            deleteVerificationToken(token.getToken());
+////            userRepository.deleteById(token.getUser().getId());
+////            logger.debug("Verification token for user_id#" + token.getUser().getId() + " and non activated user was deleted");
+//        }
+    }
+
+
+
+//    ------------------------ optional - not in requirements ------------------------
     public void publishUserRoleChangedNotification(int eventId, int userId)  {
         String title = "User role";
 
@@ -138,7 +220,6 @@ public class NotificationPublisher {
     }
 
 
-    // optional - not in requirements
     public void publishRegistrationNotification(String email) {
     String title = "Welcome to Calendar App";
     String message = "You registered to Calendar App \n" +
