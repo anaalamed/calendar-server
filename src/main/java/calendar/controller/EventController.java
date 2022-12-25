@@ -419,4 +419,24 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
+
+    @RequestMapping(value = "/leaveEvent", method = RequestMethod.PATCH)
+    public ResponseEntity<BaseResponse<RoleDTO>> leaveEvent(@RequestAttribute("userId") int userId, @RequestParam int eventId) {
+        User user = userService.getById(userId);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
+        }
+
+        try {
+            Role roleToHide = eventService.leaveEvent(userId, eventId);
+
+            if (roleToHide != null) {
+                return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToHide)));
+            }
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!")); // Here for Controller tests only!
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
+        }
+    }
 }

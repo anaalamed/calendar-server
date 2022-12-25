@@ -57,7 +57,7 @@ public class FilterConfig {
                 "/event/saveEvent", "/event/updateEvent", "/event/deleteEvent", "/event/getEventsByUserId",
                 "/event/updateEvent/isPublic", "/event/updateEvent/location", "/event/updateEvent/title", "/event/updateEvent/description",
                 "/event/updateEvent/time", "/event/updateEvent/duration","/event/updateEvent/event", "/event/updateEvent/date",
-                "/calendar/share","/event/switchStatus"
+                "/calendar/share","/event/switchStatus","/event/leaveEvent"
         );
         registrationBean.setOrder(2); //set precedence
         return registrationBean;
@@ -78,7 +78,7 @@ public class FilterConfig {
         registrationBean.setFilter(customURLFilter);
         registrationBean.addUrlPatterns("/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",
-                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent","/event/switchRole");
+                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent","/event/switchRole","/event/leaveEvent");
         registrationBean.setOrder(3); //set precedence
         return registrationBean;
     }

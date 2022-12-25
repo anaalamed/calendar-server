@@ -57,7 +57,7 @@ public class RoleFilter implements Filter {
         logger.info("Role filter is working on the following request: " + servletRequest);
 
         String[] listOfAdminPermissions = {"/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic",
-                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event"};
+                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event","/event/leaveEvent"};
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
         HttpServletResponse res = (HttpServletResponse) servletResponse;
@@ -76,10 +76,17 @@ public class RoleFilter implements Filter {
 
         if (role != null) {
 
+            // ~~~~~~ Organizer ~~~~~~
             if (role.getRoleType() == RoleType.ORGANIZER) {
+                if(url.equals("/event/leaveEvent")){
+                    returnBadResponse(res);
+                } // Organizer cant use the leave event function, use delete event instead!
                 req.setAttribute("role", role);
                 req.setAttribute("roleType", role.getRoleType());
                 filterChain.doFilter(req, res);
+
+
+            // ~~~~~~ Admin ~~~~~~
             } else if (role.getRoleType() == RoleType.ADMIN) {
                 if (Arrays.asList(listOfAdminPermissions).contains(url)) {
                     req.setAttribute("role", role);
@@ -88,9 +95,18 @@ public class RoleFilter implements Filter {
                 } else { // Something that admin cant update
                     returnBadResponse(res);
                 }
-            } else { // Is guest! not allowed here.
-                returnBadResponse(res);
+
+                // ~~~~~~ Guest ~~~~~~
+            } else if(role.getRoleType() == RoleType.GUEST){
+                if(url.equals("/event/leaveEvent")){
+                    req.setAttribute("role", role);
+                    req.setAttribute("roleType", role.getRoleType());
+                    filterChain.doFilter(req, res);
+                }else {
+                    returnBadResponse(res);
+                }
             }
+
         } else { // Role does not exist.
             returnBadResponse(res);
         }
