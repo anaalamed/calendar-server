@@ -13,10 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -65,6 +63,7 @@ class EventServiceTest {
         event.setId(1);
         event.setTitle("EventTest");
         event.getRoles().add(role);
+        event.setTime(ZonedDateTime.now().plusMinutes(5));
         events = new ArrayList<>();
         events.add(event);
 
@@ -397,6 +396,46 @@ class EventServiceTest {
         role.setRoleType(RoleType.ORGANIZER);
 
         assertThrows(IllegalArgumentException.class,() -> eventService.leaveEvent(user.getId(),event.getId()));
+    }
+
+    @Test
+    void Get_Events_In_The_Next_24_Hours_Successfully(){
+        when(eventRepository.findAll()).thenReturn(events);
+
+        Event event2 = new Event();
+        Event event3 = new Event();
+        Event event4 = new Event();
+        ZonedDateTime time = ZonedDateTime.now();
+
+        event2.setTime(time.plusHours(1));
+        event3.setTime(time.plusHours(26));
+        event4.setTime(time.plusHours(44));
+        events.add(event2);
+        events.add(event3);
+        events.add(event4);
+
+        List<Event> response = eventService.getEventsTillNextDay();
+
+        assertEquals(response.size(),2);
+    }
+
+    @Test
+    void Try_To_Get_Events_In_The_Next_24_Hours_When_There_Are_No_Events(){
+        when(eventRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Event> response = eventService.getEventsTillNextDay();
+
+        assertEquals(response.size(),0);
+    }
+
+    @Test
+    void Try_To_Get_Events_In_The_Next_24_Hours_When_There_Are_No_Events_In_The_next_24_Hours(){
+        when(eventRepository.findAll()).thenReturn(events);
+        events.get(0).setTime(ZonedDateTime.now().minusHours(1));
+
+        List<Event> response = eventService.getEventsTillNextDay();
+
+        assertEquals(response.size(),0);
     }
 
 }
