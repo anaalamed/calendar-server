@@ -198,7 +198,7 @@ class EventControllerTest {
         when(eventService.getSpecificRole(1,1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
-        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 2);
         RoleDTO roleDTO = new RoleDTO(roleToInvite);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -305,7 +305,7 @@ class EventControllerTest {
         ResponseEntity<BaseResponse<EventDTO>> response = eventController.saveEvent(1, eventRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(response.getBody().getData().getId(), 1);
+        assertEquals(response.getBody().getData().getId(), 2);
     }
 
     @Test
@@ -354,7 +354,7 @@ class EventControllerTest {
         ResponseEntity<BaseResponse<EventDTO>> response = eventController.getEventById(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(response.getBody().getData().getId(), 1);
+        assertEquals(response.getBody().getData().getId(), 2);
     }
 
     @Test
