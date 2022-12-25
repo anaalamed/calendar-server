@@ -30,6 +30,8 @@ public class NotificationPublisher {
     @Autowired
     public EventService eventService;
 
+    private static final int SCHEDULE = 1000 * 60; // 1min
+
     private static final Logger logger = LogManager.getLogger(NotificationPublisher.class.getName());
 
 
@@ -112,41 +114,48 @@ public class NotificationPublisher {
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.USER_STATUS_CHANGED));
     }
 
-    int fixedSchedule = 1000 * 60; // 1min
-    @Scheduled(fixedRate = 1000 * 60) // minute
-//    public void scheduleCheckComingEvents(String[] args) {   // debug from main
+
+
+    @Scheduled(fixedRate = SCHEDULE) // minute
     public void scheduleCheckComingEvents() {
         logger.info("---------- in scheduleCheckComingEvents-------------");
+        List<Event> eventsTillNextDay = eventService.getEventsTillNextDay();
+        logger.info(eventsTillNextDay);
 
-        try {
-            //        for (Event event: events) {
-            Event event = eventService.getEventById(3);
+        for (Event event: eventsTillNextDay ) {
+            logger.info("--------------------- event "+event.getId()+"-----------------------------");
             ZonedDateTime eventTime = event.getTime();
             List<Role> roles = event.getRoles();
             logger.info("event roles: " + roles);
 
             for (Role role :roles) {
                 User user = role.getUser();
-                NotificationGetType notificationGetType = user.getNotificationSettings().getValue(NotificationType.UPCOMING_EVENT);
-                if (notificationGetType == NotificationGetType.NONE) {
-                    return;
-                }
+                logger.info("------- event "+user.getEmail()+ " - " +user.getId()+"-------------");
 
-                NotificationRange notificationRange = user.getNotificationSettings().getNotificationRange();
-                int secondsRange = getNotificationRangeInSeconds(notificationRange);
+                if (isInterestedInNotification(user)) {
+                    NotificationRange notificationRange = user.getNotificationSettings().getNotificationRange();
+                    int secondsRange = getNotificationRangeInSeconds(notificationRange);
 
-                if (isEventInNotificationRange(eventTime, secondsRange)) {
-                    String title = "Upcoming event";
-                    String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
-                    ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
+                    if (isEventInNotificationRange(eventTime, secondsRange)) {
+                        String title = "Upcoming event";
+                        String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" is coming";
+                        ArrayList<String> email = new ArrayList<>(List.of(role.getUser().getEmail()));
 
-                    logger.info("senddddd notification");
-                    eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
+                        logger.info("senddddd notification");
+                        eventPublisher.publishEvent(new Notification(message, title, email, NotificationType.UPCOMING_EVENT));
+                    }
                 }
             }
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
         }
+
+    }
+
+    private boolean isInterestedInNotification(User user) {
+        NotificationGetType notificationGetType = user.getNotificationSettings().getValue(NotificationType.UPCOMING_EVENT);
+        if (notificationGetType == NotificationGetType.NONE) {
+            return false;
+        }
+        return true;
     }
 
     private int getNotificationRangeInSeconds(NotificationRange notificationRange) {
@@ -185,7 +194,7 @@ public class NotificationPublisher {
         logger.info("duration sec : " + duration.getSeconds());
         logger.info("duration min : " + duration.getSeconds() / 60);
 
-        int range = (fixedSchedule / 1000) / 2 ; // 3000
+        int range = (SCHEDULE / 1000) / 2 ; // 30sec
         int startRange = secondsRange-range;
         int endRange = secondsRange+range;
         logger.info("range : " + startRange + ", " + endRange);
