@@ -6,6 +6,8 @@ import calendar.entities.Role;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,8 @@ public class EventDTO {
 
     private int id;
     private boolean isPublic;
-    private LocalDateTime time;
-//    private LocalDate date;
+//    private LocalDateTime time;
+    private ZonedDateTime time;
     private float duration;//in hours
     private String location;
     private String title;
@@ -27,10 +29,11 @@ public class EventDTO {
     }
 
     public EventDTO(Event event) {
+        ZonedDateTime zonedDateTime = event.getTime().atZone(ZoneId.of("Asia/Jerusalem"));
         this.id = event.getId();
         this.isPublic = event.isPublic();
-        this.time = event.getTime();
-//        this.date = event.getDate();
+//        this.time = event.getTime();
+        this.time = zonedDateTime;
         this.duration = event.getDuration();
         this.location = event.getLocation();
         this.title = event.getTitle();
@@ -66,21 +69,22 @@ public class EventDTO {
         isPublic = aPublic;
     }
 
-    public LocalDateTime getTime() {
+//    public LocalDateTime getTime() {
+//        return time;
+//    }
+//
+//    public void setTime(LocalDateTime time) {
+//        this.time = time;
+//    }
+
+
+    public ZonedDateTime getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(ZonedDateTime time) {
         this.time = time;
     }
-
-//    public LocalDate getDate() {
-//        return date;
-//    }
-//
-//    public void setDate(LocalDate date) {
-//        this.date = date;
-//    }
 
     public float getDuration() {
         return duration;
