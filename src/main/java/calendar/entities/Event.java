@@ -3,6 +3,7 @@ package calendar.entities;
 import javax.persistence.*;
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +15,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private boolean isPublic;
-    private LocalDateTime time;
+    private ZonedDateTime time;
     private float duration;//in hours
     private String location;
     private String title;
@@ -27,7 +28,7 @@ public class Event {
     public Event() {
         this.roles = new ArrayList<>();
     }
-    private  Event(boolean isPublic,LocalDateTime time, float duration,
+    private  Event(boolean isPublic,ZonedDateTime time, float duration,
                    String location,String title,String description,ArrayList<File> attachments) {
         this.isPublic = isPublic;
         this.time = time;
@@ -39,7 +40,7 @@ public class Event {
         this.roles = new ArrayList<>();
     }
 
-    public static Event getNewEvent(boolean isPublic,LocalDateTime time, float duration,
+    public static Event getNewEvent(boolean isPublic,ZonedDateTime time, float duration,
                                  String location,String title,String description,ArrayList<File> attachments) {
         return new Event(isPublic,time,duration,location,title,description,attachments);
     }
@@ -60,11 +61,11 @@ public class Event {
         isPublic = aPublic;
     }
 
-    public LocalDateTime getTime() {
+    public ZonedDateTime getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(ZonedDateTime time) {
         this.time = time;
     }
 

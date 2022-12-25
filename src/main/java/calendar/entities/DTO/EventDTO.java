@@ -29,7 +29,7 @@ public class EventDTO {
     }
 
     public EventDTO(Event event) {
-        ZonedDateTime zonedDateTime = event.getTime().atZone(ZoneId.of("Asia/Jerusalem"));
+        ZonedDateTime zonedDateTime = event.getTime();
         this.id = event.getId();
         this.isPublic = event.isPublic();
 //        this.time = event.getTime();
