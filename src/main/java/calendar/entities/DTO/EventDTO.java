@@ -15,7 +15,7 @@ public class EventDTO {
     private int id;
     private boolean isPublic;
     private LocalDateTime time;
-    private LocalDate date;
+//    private LocalDate date;
     private float duration;//in hours
     private String location;
     private String title;
@@ -30,7 +30,7 @@ public class EventDTO {
         this.id = event.getId();
         this.isPublic = event.isPublic();
         this.time = event.getTime();
-        this.date = event.getDate();
+//        this.date = event.getDate();
         this.duration = event.getDuration();
         this.location = event.getLocation();
         this.title = event.getTitle();
@@ -74,13 +74,13 @@ public class EventDTO {
         this.time = time;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+//    public LocalDate getDate() {
+//        return date;
+//    }
+//
+//    public void setDate(LocalDate date) {
+//        this.date = date;
+//    }
 
     public float getDuration() {
         return duration;
@@ -136,7 +136,7 @@ public class EventDTO {
                 "id=" + id +
                 ", isPublic=" + isPublic +
                 ", time=" + time +
-                ", date=" + date +
+//                ", date=" + date +
                 ", duration=" + duration +
                 ", location='" + location + '\'' +
                 ", title='" + title + '\'' +

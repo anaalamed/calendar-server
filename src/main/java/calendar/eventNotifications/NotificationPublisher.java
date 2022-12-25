@@ -36,7 +36,7 @@ public class NotificationPublisher {
         // get the changed event for now !
 
         String title = "Event Changed";
-        String message = "Event '"+ event.getTitle() +"' at "+ event.getDate() +" was changed!";
+        String message = "Event '"+ event.getTitle() +"' at "+ event.getTime() +" was changed!";
 
         List<Role> roles = event.getRoles();
 
@@ -60,7 +60,7 @@ public class NotificationPublisher {
             logger.error("event was not found");
             return;
         }
-        String message = "You were invited to Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        String message = "You were invited to Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         ArrayList<String> emails = new ArrayList<>(List.of(email));
 
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.INVITE_GUEST));
@@ -76,7 +76,7 @@ public class NotificationPublisher {
             logger.error("event was not found");
             return;
         }
-        String message = "You were uninvited from Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+        String message = "You were uninvited from Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         ArrayList<String> emails = new ArrayList<>(List.of(email));
 
         eventPublisher.publishEvent(new Notification(message, title, emails, NotificationType.UNINVITE_GUEST));
@@ -96,9 +96,9 @@ public class NotificationPublisher {
 
         String message = "";
         if (statusType == StatusType.APPROVED) {
-            message = "User "+userService.getById(userId).getName()+" approved event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+            message = "User "+userService.getById(userId).getName()+" approved event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         } else if (statusType == StatusType.REJECTED){
-            message = "User "+userService.getById(userId).getName()+" rejected event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+            message = "User "+userService.getById(userId).getName()+" rejected event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         }
 
         List<Role> roles = event.getRoles();
@@ -127,9 +127,9 @@ public class NotificationPublisher {
 
         String message = "";
         if (roleType == RoleType.ADMIN) {
-            message = "You are now admin at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+            message = "You are now admin at Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         } else if (roleType == RoleType.GUEST){
-            message = "You are now guest at Event '"+ event.getTitle() +"' at "+ event.getDate() +" !";
+            message = "You are now guest at Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         }
 
         ArrayList<String> emails = new ArrayList<>(List.of(userService.getById(userId).getEmail()));
