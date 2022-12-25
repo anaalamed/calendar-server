@@ -4,6 +4,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
+import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 import calendar.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ class UserControllerTest {
     UserService userService;
 
     static User user;
+    static User updatedUser;
     static UserDTO userDTO;
     static NotificationSettings notificationSettingsRequest;
 
@@ -43,6 +45,10 @@ class UserControllerTest {
         user.setNotificationSettings(notificationSettingsRequest);
 
         userDTO = new UserDTO(user);
+
+        updatedUser = new User();
+        updatedUser.setCity(City.LONDON);
+        updatedUser.setNotificationSettings(notificationSettingsRequest);
     }
 
     @Test
@@ -81,6 +87,27 @@ class UserControllerTest {
         when(userService.updateNotificationsSettings(user.getId(), notificationSettingsRequest)).thenReturn(null);
 
         ResponseEntity<BaseResponse<UserDTO>> response = userController.updateNotifications(user.getId(),user.getNotificationSettings());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Update_City_Successfully() {
+
+        when(userService.updateCity(user.getId(),"LONDON")).thenReturn(updatedUser);
+
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.updateCity(user.getId(),"LONDON");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedUser.getCity(), response.getBody().getData().getCity());
+    }
+
+    @Test
+    void Try_To_Update_City_For_None_Existent_User() {
+
+        when(userService.updateCity(user.getId(), "LONDON")).thenReturn(null);
+
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.updateCity(user.getId(),"LONDON");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
