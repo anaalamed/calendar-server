@@ -13,6 +13,8 @@ public class RoleDTO {
 
     private RoleType roleType;
 
+    private boolean isShownInMyCalendar;
+
     public RoleDTO() {
     }
 
@@ -21,6 +23,7 @@ public class RoleDTO {
         this.user = new UserDTO(role.getUser());
         this.statusType = role.getStatusType();
         this.roleType = role.getRoleType();
+        this.isShownInMyCalendar = role.isShownInMyCalendar();
     }
 
     public Long getId() {
@@ -38,6 +41,10 @@ public class RoleDTO {
 
     public RoleType getRoleType() {
         return roleType;
+    }
+
+    public boolean isShownInMyCalendar() {
+        return isShownInMyCalendar;
     }
 
     @Override
