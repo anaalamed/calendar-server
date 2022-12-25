@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Repository
@@ -27,7 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("update Event e set e.isPublic =:isPublic,e.title =:title,e.time =:time,e.duration =:duration,e.location =:location,e.description =:description where e.id =:id")
     @Transactional
     int updateEvent(@Param("isPublic") boolean isPublic, @Param("title") String title
-            , @Param("time") LocalDateTime time, @Param("duration") float duration
+            , @Param("time") ZonedDateTime time, @Param("duration") float duration
             , @Param("location") String location, @Param("description") String description, @Param("id") int id);
 
 
@@ -54,7 +55,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Modifying
     @Query("update Event e set e.time =:time where e.id =:id")
     @Transactional
-    int updateEventTime(@Param("time") LocalDateTime time,
+    int updateEventTime(@Param("time") ZonedDateTime time,
                         @Param("id") int id);
 
     @Modifying

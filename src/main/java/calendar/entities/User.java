@@ -1,5 +1,6 @@
 package calendar.entities;
 
+import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 
 import javax.persistence.*;
@@ -18,9 +19,10 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
-
     @Enumerated(EnumType.STRING)
     private ProviderType provider;
+    @Enumerated(EnumType.STRING)
+    private City city;
 
     public User() {
     }
@@ -30,6 +32,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.provider = provider;
+        this.city = City.JERUSALEM;
     }
 
     public int getId() {
@@ -80,26 +83,27 @@ public class User {
         this.notificationSettings = notificationSettings;
     }
 
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-
-        if (id != user.id) return false;
-        if (!Objects.equals(name, user.name)) return false;
-        if (!Objects.equals(email, user.email)) return false;
-        return Objects.equals(password, user.password);
+        return id == user.id && Objects.equals(notificationSettings, user.notificationSettings)
+                && Objects.equals(name, user.name) && Objects.equals(email, user.email) &&
+                Objects.equals(password, user.password) && provider == user.provider && city == user.city;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
+        return Objects.hash(id, notificationSettings, name, email, password, provider, city);
     }
 
     @Override
@@ -111,6 +115,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", provider=" + provider +
+                ", city=" + city +
                 '}';
     }
 }

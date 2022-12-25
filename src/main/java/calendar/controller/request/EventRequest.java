@@ -12,7 +12,7 @@ import java.util.List;
 
 public class EventRequest {
     private boolean isPublic;
-    private LocalDateTime time;
+    private ZonedDateTime time;
 //    private ZonedDateTime time;
 
     private float duration;//in hours
@@ -29,11 +29,11 @@ public class EventRequest {
         isPublic = aPublic;
     }
 
-    public LocalDateTime getTime() {
+    public ZonedDateTime getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(ZonedDateTime time) {
         this.time = time;
     }
 

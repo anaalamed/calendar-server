@@ -83,7 +83,7 @@ class EventControllerTest {
         event.setId(1);
         event.getRoles().add(role);
 
-        eventNoShow = Event.getNewEvent(true, null, null, 2.0f, "location2", "title2", "description2", null);
+        eventNoShow = Event.getNewEvent(true, null, 2.0f, "location2", "title2", "description2", null);
         event.setId(2);
 
         events = new ArrayList<>();

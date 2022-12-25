@@ -1,8 +1,9 @@
 package calendar.controller.request;
 
+import calendar.entities.enums.City;
+
 public class UserRequest {
     private String email, name, password;
-
 
     public UserRequest() {}
 
@@ -10,6 +11,7 @@ public class UserRequest {
         this.email = email;
         this.name = name;
         this.password = password;
+
     }
 
     public UserRequest(String email, String password) {
