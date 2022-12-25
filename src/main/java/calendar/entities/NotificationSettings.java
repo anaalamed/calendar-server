@@ -1,7 +1,9 @@
 package calendar.entities;
 
 import calendar.entities.enums.NotificationGetType;
+import calendar.entities.enums.NotificationRange;
 import calendar.entities.enums.NotificationType;
+import calendar.eventNotifications.entity.Notification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.DynamicUpdate;
@@ -47,6 +49,10 @@ public class NotificationSettings {
     @Enumerated(EnumType.STRING)
     @Column(name = "UPCOMING_EVENT")
     private NotificationGetType upcoming_event;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notificationRange")
+    private NotificationRange notificationRange;
 
     private static final Logger logger = LogManager.getLogger(NotificationSettings.class.getName());
 
@@ -115,15 +121,20 @@ public class NotificationSettings {
         return upcoming_event;
     }
 
+    public NotificationRange getNotificationRange() {
+        return notificationRange;
+    }
+
+    public void setNotificationRange(NotificationRange notificationRange) {
+        this.notificationRange = notificationRange;
+    }
+
     public void setUpcoming_event(NotificationGetType upcoming_event) {
         this.upcoming_event = upcoming_event;
     }
 
     public NotificationGetType getValue(NotificationType notificationType) {
         switch (notificationType) {
-//            case REGISTER:
-//                logger.info("REGISTER");
-//                return ;
             case EVENT_CHANGED:
                 logger.info("EVENT_CHANGED");
                 return getEvent_changed();
@@ -164,11 +175,12 @@ public class NotificationSettings {
         this.user_status = NotificationGetType.NONE;
         this.user_role = NotificationGetType.NONE;
         this.cancel_event = NotificationGetType.NONE;
-        this.upcoming_event = NotificationGetType.NONE;
+        this.upcoming_event = NotificationGetType.ALL;
+        this.notificationRange = NotificationRange.TEN_MINUTES;
     }
 
     // update
-    public NotificationSettings(User user, NotificationGetType event_changed, NotificationGetType invite_guest, NotificationGetType uninvite_guest, NotificationGetType user_status, NotificationGetType user_role, NotificationGetType cancel_event, NotificationGetType upcoming_event) {
+    public NotificationSettings(User user, NotificationGetType event_changed, NotificationGetType invite_guest, NotificationGetType uninvite_guest, NotificationGetType user_status, NotificationGetType user_role, NotificationGetType cancel_event, NotificationGetType upcoming_event, NotificationRange notificationRange) {
         this.user = user;
         this.event_changed = event_changed;
         this.invite_guest = invite_guest;
@@ -177,13 +189,13 @@ public class NotificationSettings {
         this.user_role = user_role;
         this.cancel_event = cancel_event;
         this.upcoming_event = upcoming_event;
+        this.notificationRange = notificationRange;
     }
 
     @Override
     public String toString() {
         return "NotificationSettings{" +
                 "id=" + id +
-//                ", user=" + user +
                 ", event_changed=" + event_changed +
                 ", invite_guest=" + invite_guest +
                 ", uninvite_guest=" + uninvite_guest +
@@ -191,6 +203,7 @@ public class NotificationSettings {
                 ", user_role=" + user_role +
                 ", cancel_event=" + cancel_event +
                 ", upcoming_event=" + upcoming_event +
+                ", notificationRange=" + notificationRange +
                 '}';
     }
 }
