@@ -9,6 +9,7 @@ import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,7 @@ class EventControllerTest {
         role = new Role();
         role.setRoleType(RoleType.GUEST);
         role.setUser(user);
+        role.setShownInMyCalendar(true);
         role.setStatusType(StatusType.APPROVED);
 
         roleToInvite = new Role();
@@ -223,10 +225,10 @@ class EventControllerTest {
     @Test
     void Try_To_Invite_Guest_To_An_Event_That_Does_Not_Exist() throws SQLDataException {
         when(userService.getByEmailNotOptional("leon@invite.com")).thenReturn(userToInvite);
-        when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
+        when(eventService.inviteGuest(userToInvite, 999)).thenReturn(null);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1,999)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
@@ -427,4 +429,35 @@ class EventControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().size(), 0);
     }
+
+    @Test
+    void Leave_Event_Successfully(){
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.leaveEvent(user.getId(),event.getId())).thenReturn(role);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().getUser().getId(), user.getId());
+    }
+
+    @Test
+    void Try_To_Leave_Event_User_Does_Not_Exist(){
+        when(userService.getById(1)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Leave_Event_Role_Does_Not_Exist(){
+        when(userService.getById(1)).thenReturn(user);
+        when(eventService.leaveEvent(user.getId(),event.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
 }
