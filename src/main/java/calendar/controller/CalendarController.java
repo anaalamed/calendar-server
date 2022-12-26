@@ -29,49 +29,35 @@ public class CalendarController {
     private UserService userService;
 
     /**
-     * Share user events with other user. This will add the viewer to an array of the user which holds all the users
-     * who shared their calendars with him.
+     * Share my calendar with a different user using his id, I will insert myself into his list of
+     * users who shared their calendar with him.
      *
-     * @param viewerId - who im sharing with.
-     * @return BaseResponse The user i added to my shared calendars list.
+     * @param viewerId - the id of the user I want to share my calendar with.
+     * @param userId-  My user id which I get by using the token in the filter.
+     * @return The user i shared my calendar with.
      */
     @PostMapping(value = "/share")
-    public ResponseEntity<BaseResponse<UserDTO>> shareCalendar(@RequestAttribute("userId") int userId, @RequestParam int viewerId) {
-
-        try {
-            User sharedUser = calendarService.shareCalendar(userId, viewerId);
-
-            if (sharedUser != null)
-                return ResponseEntity.ok(BaseResponse.success(new UserDTO(sharedUser)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed To Share Calendar")));
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed To Share Calendar")));
-        }
-    }
-
-    /**
-     * Share user events with other user. This will add the viewer to an array of the user which holds all the users
-     * who shared their calendars with him.
-     *
-     * @param viewerId - who im sharing with.
-     * @return BaseResponse The user i added to my shared calendars list.
-     */
-    @GetMapping(value = "/GetAllShared")
-    public ResponseEntity<BaseResponse<Map<String, List<EventDTO>>>> GetAllShared(@RequestAttribute("userId") int userId) {
-
+    public ResponseEntity<BaseResponse<UserDTO>> shareCalendar(@RequestAttribute("userId") int userId,
+                                                               @RequestParam int viewerId) {
         User user = userService.getById(userId);
 
-        if(user == null){
+        if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        Map<String, List<EventDTO>> map;
+        User viewer = userService.getById(viewerId);
 
-        List<Event> myEventsToShow = eventService.getEventsByUserIdShowOnly(userId);
+        if (viewer == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The viewer does not exist!"));
+        }
 
-        map = calendarService.GetAllShared(userId,myEventsToShow);
+        try {
+            User sharedUser = calendarService.shareCalendar(user, viewer);
 
-        return ResponseEntity.ok(BaseResponse.success(map));
+            return ResponseEntity.ok(BaseResponse.success(new UserDTO(sharedUser)));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
+        }
     }
 }

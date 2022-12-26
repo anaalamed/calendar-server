@@ -446,4 +446,42 @@ public class EventController {
         }
         return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
+
+    /**
+     * Returns a list of all the events I want to display in my calendar which consists of:
+     * * All of my events that I want to share (meaning events i did not 'leave')
+     * * All the *PUBLIC* events of a user of my choosing who has shared his calendar with me.
+     * Returns a 'Set' meaning no duplicate events if someone happened to share an event i am already in.
+     *
+     * @param sharedEmail - the email of the user who shared his calendar with me.
+     * @param userId-     My user id which I get by using the token in the filter.
+     * @return The list of all relevant events to show in my calendar.
+     */
+
+    @GetMapping(value = "/GetAllShared")
+    public ResponseEntity<BaseResponse<List<EventDTO>>> GetAllShared(@RequestAttribute("userId") int userId,
+                                                                     @RequestParam String sharedEmail) {
+
+        User user = userService.getById(userId);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
+        User sharedUser = userService.getByEmail(sharedEmail).get();
+
+        if (sharedUser == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user i want to share with does not exist!"));
+        }
+
+        if(!user.getUsersWhoSharedTheirCalendarWithMe().contains(sharedUser)){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user did not share his calendar with me!"));
+        }
+
+        try {
+            return ResponseEntity.ok(BaseResponse.success(EventDTO.convertEventsToEventsDTO(eventService.GetAllShared(user, sharedUser))));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
+        }
+    }
 }

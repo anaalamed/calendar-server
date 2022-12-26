@@ -488,4 +488,31 @@ public class EventService {
 
         return eventsToShow;
     }
+
+    /**
+     * Returns a list of all the events I want to display in my calendar which consists of:
+     * * All of my events that I want to share (meaning events i did not 'leave')
+     * * All the *PUBLIC* events of a user of my choosing who has shared his calendar with me.
+     * Returns a 'Set' meaning no duplicate events if someone happened to share an event i am already in.
+     * @param user - my user information.
+     * @param sharedUser- My user who shared his calendar with me.
+     * @return The list of all relevant events to show in my calendar.
+     */
+    public List<Event> GetAllShared(User user, User sharedUser) {
+
+        if (user == null) {
+            throw new IllegalArgumentException("User does not exist!");
+        }
+
+        if (sharedUser == null) {
+            throw new IllegalArgumentException("The user i want to share with does not exist!");
+        }
+
+        List<Event> finalList = new ArrayList<>();
+        finalList.addAll(getEventsByUserIdShowOnly(user.getId()));
+        finalList.addAll(getEventsByUserId(sharedUser.getId()).stream().filter(event -> event.isPublic())
+                .collect(Collectors.toList()));
+
+        return finalList.stream().distinct().collect(Collectors.toList());
+    }
 }
