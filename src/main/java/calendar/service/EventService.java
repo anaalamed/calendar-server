@@ -2,20 +2,15 @@ package calendar.service;
 
 import calendar.controller.request.EventRequest;
 import calendar.entities.*;
-import calendar.entities.DTO.RoleDTO;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.sql.SQLDataException;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,14 +58,12 @@ public class EventService {
     }
 
     /**
-     * Delete an event from the DB if founded
+     * Delete an event from the DB if exists!
      *
-     * @param eventId
-     * @return the number of deleted rows
-     * @throws SQLDataException
+     * @param event - the event we wish to delete
      */
-    public int deleteEvent(int eventId) throws SQLDataException {
-        return eventRepository.deleteById(eventId);
+    public void deleteEvent(Event event){
+         eventRepository.delete(event);
     }
 
     /**
@@ -247,22 +240,6 @@ public class EventService {
         else {
             return null;
         }
-    }
-
-    /**
-     * Update date of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventDate(EventRequest event, int id) throws SQLDataException {
-//        if (eventRepository.updateEventDate(event.getDate(), id) > 0)
-//            return eventRepository.findById(id).get();
-//        else {
-//            return null;
-//        }
-        return null;
     }
 
     /**
@@ -495,5 +472,20 @@ public class EventService {
         return eventsNext24Hours.stream()
                 .filter(event -> event.getTime().isAfter(now) && event.getTime().isBefore(now.plus(24, ChronoUnit.HOURS)))
                 .collect(Collectors.toList());
+    }
+
+    public List<Event> getEventsByUserIdShowOnly(int userId) {
+
+        if(userRepository.findById(userId) == null){
+            return null;
+        }
+
+        List<Event> events = getEventsByUserId(userId);
+
+        List<Event> eventsToShow = events.stream()
+                .filter(event -> event.getRoles().stream().anyMatch(role -> role.getUser().getId() == userId && role.isShownInMyCalendar()))
+                .collect(Collectors.toList());
+
+        return eventsToShow;
     }
 }
