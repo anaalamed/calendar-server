@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.request.NotificationSettingsRequest;
 import calendar.controller.response.BaseResponse;
+import calendar.entities.DTO.NotificationSettingsDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
@@ -68,5 +69,21 @@ public class UserController {
         }
 
         return ResponseEntity.badRequest().body(BaseResponse.failure("failed to update!"));
+    }
+
+    @RequestMapping(value = "/getNotificationSettings", method = RequestMethod.GET)
+    public ResponseEntity<BaseResponse<NotificationSettingsDTO>> getNotificationSettings(@RequestAttribute("userId") int userId) {
+
+        logger.debug("In get notification settings");
+
+        NotificationSettings notificationSettings = userService.getNotificationSettings(userId);
+
+        logger.info(notificationSettings);
+
+        if (notificationSettings != null) {
+            return ResponseEntity.ok(BaseResponse.success(new NotificationSettingsDTO(notificationSettings)));
+        }
+
+        return ResponseEntity.badRequest().body(BaseResponse.failure("failed to get notification settings!"));
     }
 }

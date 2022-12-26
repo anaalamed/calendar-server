@@ -149,4 +149,21 @@ public class UserService {
         userRepository.save(user);
         return user;
     }
+
+    public NotificationSettings getNotificationSettings(int userId) {
+
+        User user = userRepository.findById(userId);
+
+        if(user == null){
+            return null;
+        }
+
+        NotificationSettings notificationSettings = user.getNotificationSettings();
+
+        if(notificationSettings == null){
+            return null;
+        }
+
+        return notificationSettings;
+    }
 }
