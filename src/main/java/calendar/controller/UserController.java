@@ -93,6 +93,11 @@ public class UserController {
 
         logger.debug("In get users who shared their calendar with me.");
 
+        User user = userService.getById(userId);
+        if(user == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
         try{
             List<UserDTO> usersWhoSharedWithMe = UserDTO.convertUsersToUsersDTO(userService.getUsersWhoSharedWithMe(userId));
             return ResponseEntity.ok(BaseResponse.success(usersWhoSharedWithMe));
@@ -100,4 +105,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
+
+
 }
