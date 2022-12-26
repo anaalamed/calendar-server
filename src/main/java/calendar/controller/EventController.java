@@ -469,13 +469,14 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        User sharedUser = userService.getByEmail(sharedEmail).get();
-
-        if (sharedUser == null) {
+        User sharedUser;
+        if (userService.getByEmail(sharedEmail).isPresent()){
+            sharedUser = userService.getByEmail(sharedEmail).get();
+        }else{
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user i want to share with does not exist!"));
         }
 
-        if(!user.getUsersWhoSharedTheirCalendarWithMe().contains(sharedUser)){
+        if (!user.getUsersWhoSharedTheirCalendarWithMe().contains(sharedUser)) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user did not share his calendar with me!"));
         }
 

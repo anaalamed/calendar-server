@@ -260,4 +260,24 @@ class UserServiceTest {
         assertEquals(0, response.size());
     }
 
+    @Test
+    void Share_Calendar_Successfully(){
+        assertDoesNotThrow(() -> userService.shareCalendar(user,user2));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_User_Does_Not_Exist(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(null,user2));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_But_Failed(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(user,null));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_With_Someone_Who_Already_Shared_With(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(user2,user));
+    }
+
 }
