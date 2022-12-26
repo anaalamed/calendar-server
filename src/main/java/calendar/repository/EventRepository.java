@@ -18,11 +18,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     Optional<Event> findById(int id);
 
-    @Modifying
-    @Query("delete from Event e where e.id = :id")
-    @Transactional
-    int deleteById(@Param("id") int id);
-
 
     @Modifying
     @Query("update Event e set e.isPublic =:isPublic,e.title =:title,e.time =:time,e.duration =:duration,e.location =:location,e.description =:description where e.id =:id")
@@ -46,11 +41,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     int updateEventTitle(@Param("title") String title,
                          @Param("id") int id);
 
-//    @Modifying
-//    @Query("update Event e set e.date =:date where e.id =:id")
-//    @Transactional
-//    int updateEventDate(@Param("date") LocalDate date,
-//                        @Param("id") int id);
 
     @Modifying
     @Query("update Event e set e.time =:time where e.id =:id")

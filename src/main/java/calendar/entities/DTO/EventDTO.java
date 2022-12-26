@@ -53,6 +53,17 @@ public class EventDTO {
         return rolesDTO;
     }
 
+    public static List<EventDTO> convertEventsToEventsDTO(List<Event> events) {
+
+        List<EventDTO> eventsDTO = new ArrayList<>();
+
+        for (Event event:events) {
+            EventDTO eventDTO = new EventDTO(event);
+            eventsDTO.add(eventDTO);
+        }
+        return eventsDTO;
+    }
+
     public int getId() {
         return id;
     }

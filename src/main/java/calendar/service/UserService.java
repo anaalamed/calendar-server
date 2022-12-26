@@ -166,4 +166,15 @@ public class UserService {
 
         return notificationSettings;
     }
+
+    public List<User> getUsersWhoSharedWithMe(int userId) {
+
+        User user = userRepository.findById(userId);
+
+        if(user == null){
+            throw new IllegalArgumentException("The user does not exist!");
+        }
+
+        return user.getUsersWhoSharedTheirCalendarWithMe();
+    }
 }

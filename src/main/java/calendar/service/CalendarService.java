@@ -1,46 +1,55 @@
 package calendar.service;
 
-import calendar.controller.response.BaseResponse;
-import calendar.entities.CalendarShare;
+import calendar.entities.DTO.EventDTO;
+import calendar.entities.Event;
 import calendar.entities.User;
-import calendar.repository.CalendarRepository;
+import calendar.repository.EventRepository;
 import calendar.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
     @Autowired
-    private CalendarRepository calendarRepository;
-
-    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EventRepository eventRepository;
 
 
     /**
-     * Share user events with other user
-     * Save it in calendarShare DB
-     *
-     * @param viewerId - who im sharing with
-     * @return BaseResponse with a list of shared events
+     * Share my calendar with a different user using his id, I will insert myself into his list of
+     * users who shared their calendar with him.
+     * @param viewer - the user I want to share my calendar with.
+     * @param user- My user information.
+     * @return The user i shared my calendar with.
      */
-    public CalendarShare shareCalendar(int userId, int viewerId) {
+    public User shareCalendar(User user, User viewer) {
 
-        try {
-            User viewer = userRepository.findById(viewerId);
-            if (viewer != null){
-                CalendarShare calendarShare = new CalendarShare(userId, viewerId);
-                CalendarShare res = calendarRepository.save(calendarShare);
-                return res;
-            }
-            return null;
 
-        } catch (IllegalArgumentException e) {
-            return null;
+        if (user == null) {
+            throw new IllegalArgumentException("User does not exist!");
         }
+
+
+        if (viewer == null) {
+            throw new IllegalArgumentException("Viewer does not exist!");
+        }
+
+        if (viewer.getUsersWhoSharedTheirCalendarWithMe().contains(user)) {
+            throw new IllegalArgumentException("This viewer is already part of my shared calendars!");
+        }
+
+        viewer.addSharedCalendar(user);
+
+        userRepository.save(viewer);
+
+        return viewer;
     }
+
 }

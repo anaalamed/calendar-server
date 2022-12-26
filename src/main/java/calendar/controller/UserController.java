@@ -17,6 +17,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -85,5 +86,18 @@ public class UserController {
         }
 
         return ResponseEntity.badRequest().body(BaseResponse.failure("failed to get notification settings!"));
+    }
+
+    @RequestMapping(value = "/getUsersWhoSharedWithMe", method = RequestMethod.GET)
+    public ResponseEntity<BaseResponse<List<UserDTO>>> getUsersWhoSharedWithMe(@RequestAttribute("userId") int userId) {
+
+        logger.debug("In get users who shared their calendar with me.");
+
+        try{
+            List<UserDTO> usersWhoSharedWithMe = UserDTO.convertUsersToUsersDTO(userService.getUsersWhoSharedWithMe(userId));
+            return ResponseEntity.ok(BaseResponse.success(usersWhoSharedWithMe));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
+        }
     }
 }
