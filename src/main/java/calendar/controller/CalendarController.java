@@ -23,8 +23,7 @@ import java.util.Map;
 public class CalendarController {
     @Autowired
     private CalendarService calendarService;
-    @Autowired
-    private EventService eventService;
+
     @Autowired
     private UserService userService;
 

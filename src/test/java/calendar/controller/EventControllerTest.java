@@ -24,6 +24,7 @@ import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,7 @@ class EventControllerTest {
         event.setId(1);
         event.getRoles().add(role);
 
-        eventNoShow = Event.getNewEvent(true, null, 2.0f, "location2", "title2", "description2", null);
+        eventNoShow = Event.getNewEvent(true, ZonedDateTime.now(), 2.0f, "location2", "title2", "description2", null);
         event.setId(2);
 
         events = new ArrayList<>();
@@ -322,7 +323,6 @@ class EventControllerTest {
     @Test
     void Delete_Event_Successfully() throws SQLDataException {
         when(userService.getById(1)).thenReturn(user);
-        when(eventService.deleteEvent(1)).thenReturn(1);
 
         ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1, 1);
 
@@ -340,9 +340,9 @@ class EventControllerTest {
     }
 
     @Test
-    void Delete_Event_failed() throws SQLDataException {
-        when(userService.getById(1)).thenReturn(user);
-        when(eventService.deleteEvent(1)).thenReturn(0);
+    void Try_To_Delete_Event_Event_Does_Not_Exist() throws SQLDataException {
+        when(userService.getById(1)).thenReturn(null);
+        when(eventService.getEventById(event.getId())).thenReturn(null);
 
         ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1, 1);
 
@@ -471,18 +471,10 @@ class EventControllerTest {
     @Test
     void Get_Events_By_User_Id_Only_Show() {
         when(userService.getById(user.getId())).thenReturn(user);
-        when(eventService.getEventsByUserId(1)).thenReturn(events);
-
-        //Adding new role that we dont want to show
-        Role roleDontShow = new Role();
-        roleDontShow.setUser(user);
-        roleDontShow.setShownInMyCalendar(false);
-        eventNoShow.getRoles().add(roleDontShow);
-        events.add(eventNoShow);
+        when(eventService.getEventsByUserIdShowOnly(user.getId())).thenReturn(events);
 
         ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(user.getId());
 
-        System.out.println(events.size());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().size(), 1);
     }
@@ -498,13 +490,13 @@ class EventControllerTest {
 
     @Test
     void Try_To_Get_Events_Only_Show_By_User_Has_None_That_He_Wants_To_Not_Show() {
-        when(userService.getById(1)).thenReturn(user);
-        when(eventService.getEventsByUserId(1)).thenReturn(events);
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(eventService.getEventsByUserIdShowOnly(user.getId())).thenReturn(Collections.emptyList());
 
-        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(1);
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.getEventsByUserIdShowOnly(user.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(response.getBody().getData().size(), 1);
+        assertEquals(response.getBody().getData().size(), 0);
     }
 
     @Test
