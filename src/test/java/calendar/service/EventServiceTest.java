@@ -1,7 +1,9 @@
 package calendar.service;
 
 import calendar.controller.request.EventRequest;
+import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
+import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.junit.jupiter.api.*;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
@@ -47,6 +50,7 @@ class EventServiceTest {
 
         userToInvite = new User();
         userToInvite.setId(123);
+        user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
 
         role = new Role();
         role.setRoleType(RoleType.GUEST);
@@ -427,4 +431,23 @@ class EventServiceTest {
         assertEquals(response.size(),0);
     }
 
+    @Test
+    void Get_All_Shared_Successfully(){
+        when(userRepository.findById(user.getId())).thenReturn(user);
+        when(eventRepository.findAll()).thenReturn(events);
+
+        List<Event> response = eventService.GetAllShared(user,userToInvite);
+
+        assertEquals(1, response.size());
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Does_Not_Exist(){
+        assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(null,userToInvite));
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist(){
+        assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(user,null));
+    }
 }

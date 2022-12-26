@@ -64,7 +64,9 @@ class EventControllerTest {
 
         userToInvite = new User();
         userToInvite.setId(123);
+        userToInvite.setEmail("leon@test.com");
         userToInvite.setNotificationSettings(new NotificationSettings());
+        user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
 
         role = new Role();
         role.setRoleType(RoleType.GUEST);
@@ -82,7 +84,7 @@ class EventControllerTest {
         switchedRole.setUser(user);
         switchedRole.setStatusType(StatusType.REJECTED);
 
-        event = Event.getNewEvent(true, ZonedDateTime.now(),  3.0f, "location1", "title1", "description1", null);
+        event = Event.getNewEvent(true, ZonedDateTime.now(), 3.0f, "location1", "title1", "description1", null);
         event.setId(1);
         event.getRoles().add(role);
 
@@ -92,7 +94,7 @@ class EventControllerTest {
         events = new ArrayList<>();
         events.add(event);
 
-        updatedEvent = Event.getNewEvent(true, null,  2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
+        updatedEvent = Event.getNewEvent(true, null, 2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
 
         eventRequest = new EventRequest();
         eventRequest.setTitle("UpdatedEvent");
@@ -133,7 +135,7 @@ class EventControllerTest {
         when(eventService.switchRole(1, 1)).thenReturn(switchedRole);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchRole(1, 1);
@@ -165,7 +167,7 @@ class EventControllerTest {
         when(eventService.switchStatus(1, 1, false)).thenReturn(switchedRole);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.switchStatus(false, 1, 1);
@@ -198,7 +200,7 @@ class EventControllerTest {
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(roleToInvite);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 2);
@@ -223,7 +225,7 @@ class EventControllerTest {
         when(eventService.inviteGuest(userToInvite, event.getId())).thenReturn(null);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
@@ -237,7 +239,7 @@ class EventControllerTest {
         when(eventService.inviteGuest(userToInvite, 999)).thenReturn(null);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,999)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 999)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<RoleDTO>> response = eventController.inviteGuest("leon@invite.com", 1);
@@ -251,7 +253,7 @@ class EventControllerTest {
         when(eventService.removeGuest(1, 1)).thenReturn(role);
         //Here because of notifications, cant mock because its void so doing inner mocks
         when(eventService.getEventById(1)).thenReturn(event);
-        when(eventService.getSpecificRole(1,1)).thenReturn(role);
+        when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
         ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
@@ -439,31 +441,31 @@ class EventControllerTest {
     }
 
     @Test
-    void Leave_Event_Successfully(){
+    void Leave_Event_Successfully() {
         when(userService.getById(1)).thenReturn(user);
-        when(eventService.leaveEvent(user.getId(),event.getId())).thenReturn(role);
+        when(eventService.leaveEvent(user.getId(), event.getId())).thenReturn(role);
 
-        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(), event.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().getUser().getId(), user.getId());
     }
 
     @Test
-    void Try_To_Leave_Event_User_Does_Not_Exist(){
+    void Try_To_Leave_Event_User_Does_Not_Exist() {
         when(userService.getById(1)).thenReturn(null);
 
-        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(), event.getId());
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Try_To_Leave_Event_Role_Does_Not_Exist(){
+    void Try_To_Leave_Event_Role_Does_Not_Exist() {
         when(userService.getById(1)).thenReturn(user);
-        when(eventService.leaveEvent(user.getId(),event.getId())).thenReturn(null);
+        when(eventService.leaveEvent(user.getId(), event.getId())).thenReturn(null);
 
-        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(),event.getId());
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.leaveEvent(user.getId(), event.getId());
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -510,5 +512,36 @@ class EventControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().size(), 0);
+    }
+
+    @Test
+    void Get_All_Shared_Successfully() {
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.ofNullable(userToInvite));
+        when(eventService.GetAllShared(user, userToInvite)).thenReturn(events);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 1);
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Does_Not_Exist() {
+        when(userService.getById(user.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist() {
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.empty());
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }

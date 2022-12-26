@@ -40,6 +40,7 @@ class UserServiceTest {
     UserRepository userRepository;
 
     static User user;
+    static User user2;
     static List<User> users;
     static UserDTO userDTO;
     static NotificationSettings notificationSettingsRequest;
@@ -52,10 +53,17 @@ class UserServiceTest {
         notificationSettingsRequest = new NotificationSettings(user);
         user.setNotificationSettings(notificationSettingsRequest);
 
+        user2 = new User("Leon2", "Leon@test2.com", "leon1234", ProviderType.LOCAL);
+        user.setId(1);
+        notificationSettingsRequest = new NotificationSettings(user);
+        user2.setNotificationSettings(notificationSettingsRequest);
+
         users = new ArrayList<>();
         users.add(user);
 
         userDTO = new UserDTO(user);
+
+        user.getUsersWhoSharedTheirCalendarWithMe().add(user2);
     }
 
 
@@ -225,6 +233,51 @@ class UserServiceTest {
 
         assertNull(response);
 
+    }
+
+    @Test
+    void Get_Users_Who_Shared_With_Me_Successfully(){
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        List<User>  response = userService.getUsersWhoSharedWithMe(user.getId());
+
+        assertEquals(1, response.size());
+    }
+
+    @Test
+    void Try_To_Get_Users_Who_Shared_With_Me_But_User_Does_Not_Exist(){
+        when(userRepository.findById(user.getId())).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class,()->userService.getUsersWhoSharedWithMe(user.getId()));
+    }
+
+    @Test
+    void Try_To_Get_Users_Who_Shared_With_Me_But_No_One_Shared_With_Me(){
+        when(userRepository.findById(user2.getId())).thenReturn(user2);
+
+        List<User>  response = userService.getUsersWhoSharedWithMe(user2.getId());
+
+        assertEquals(0, response.size());
+    }
+
+    @Test
+    void Share_Calendar_Successfully(){
+        assertDoesNotThrow(() -> userService.shareCalendar(user,user2));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_User_Does_Not_Exist(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(null,user2));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_But_Failed(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(user,null));
+    }
+
+    @Test
+    void Try_To_Share_Calendar_With_Someone_Who_Already_Shared_With(){
+        assertThrows(IllegalArgumentException.class,()-> userService.shareCalendar(user2,user));
     }
 
 }

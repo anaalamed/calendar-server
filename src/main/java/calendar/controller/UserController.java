@@ -93,11 +93,49 @@ public class UserController {
 
         logger.debug("In get users who shared their calendar with me.");
 
+        User user = userService.getById(userId);
+        if(user == null){
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
         try{
             List<UserDTO> usersWhoSharedWithMe = UserDTO.convertUsersToUsersDTO(userService.getUsersWhoSharedWithMe(userId));
             return ResponseEntity.ok(BaseResponse.success(usersWhoSharedWithMe));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
+        }
+    }
+
+    /**
+     * Share my calendar with a different user using his id, I will insert myself into his list of
+     * users who shared their calendar with him.
+     *
+     * @param viewerId - the id of the user I want to share my calendar with.
+     * @param userId-  My user id which I get by using the token in the filter.
+     * @return The user i shared my calendar with.
+     */
+    @PostMapping(value = "/share")
+    public ResponseEntity<BaseResponse<UserDTO>> shareCalendar(@RequestAttribute("userId") int userId,
+                                                               @RequestParam int viewerId) {
+        User user = userService.getById(userId);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
+        User viewer = userService.getById(viewerId);
+
+        if (viewer == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The viewer does not exist!"));
+        }
+
+        try {
+            User sharedUser = userService.shareCalendar(user, viewer);
+
+            return ResponseEntity.ok(BaseResponse.success(new UserDTO(sharedUser)));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
     }
 }
