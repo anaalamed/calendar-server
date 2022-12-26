@@ -2,8 +2,11 @@ package calendar.entities;
 
 import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -24,7 +27,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private City city;
 
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<User> usersWhoSharedTheirCalendarWithMe;
+
     public User() {
+        usersWhoSharedTheirCalendarWithMe = new ArrayList<>();
     }
 
     public User(String name, String email, String password, ProviderType provider) {
@@ -33,6 +41,7 @@ public class User {
         this.password = password;
         this.provider = provider;
         this.city = City.JERUSALEM;
+        usersWhoSharedTheirCalendarWithMe = new ArrayList<>();
     }
 
     public int getId() {
@@ -89,6 +98,14 @@ public class User {
 
     public void setCity(City city) {
         this.city = city;
+    }
+
+    public List<User> getUsersWhoSharedTheirCalendarWithMe() {
+        return usersWhoSharedTheirCalendarWithMe;
+    }
+
+    public void addSharedCalendar(User user) {
+        this.usersWhoSharedTheirCalendarWithMe.add(user);
     }
 
     @Override

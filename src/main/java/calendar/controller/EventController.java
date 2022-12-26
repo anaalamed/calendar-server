@@ -41,8 +41,8 @@ public class EventController {
         try {
             User userOfEvent = userService.getById(userId);
 
-            if(userOfEvent == null){
-               return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+            if (userOfEvent == null) {
+                return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
             }
 
             Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
@@ -64,17 +64,19 @@ public class EventController {
 
         User userOfEvent = userService.getById(userId);
 
-        if(userOfEvent == null){
+        if (userOfEvent == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
+        Event event;
         try {
-            if (eventService.deleteEvent(eventId) > 0)/* if number of deleted rows in DB > 0 */
-                return ResponseEntity.ok(BaseResponse.success("Event Deleted Successfully"));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Event %s not exists!", eventId)));
+            event = eventService.getEventById(eventId);
         } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
+            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Event %s not exists!", eventId)));
         }
+
+        eventService.deleteEvent(event);
+        return ResponseEntity.ok(BaseResponse.success("Event Deleted Successfully"));
     }
 
 
@@ -116,7 +118,7 @@ public class EventController {
                 res = eventService.updateEventRestricted(event, eventId);
 
             if (res != null) {
-                 notificationPublisher.publishEventChangeNotification(res);
+                notificationPublisher.publishEventChangeNotification(res);
                 return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
             }
 
@@ -168,29 +170,6 @@ public class EventController {
         }
 
     }
-
-
-    /**
-     * Update an event Date in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/date", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventDate(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventDate(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Date of Event %s !", eventId)));
-
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-    }
-
 
     /**
      * Update an event Duration in the DB if founded
@@ -288,18 +267,13 @@ public class EventController {
 
         User userOfEvent = userService.getById(userId);
 
-        if(userOfEvent == null){
+        if (userOfEvent == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
         List<Event> events = eventService.getEventsByUserId(userId);
 
-        List<EventDTO> eventsDTO = new ArrayList<>();
-
-        for (Event event:events) {
-            EventDTO eventDTO = new EventDTO(event);
-            eventsDTO.add(eventDTO);
-        }
+        List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
 
         return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
@@ -347,14 +321,14 @@ public class EventController {
     /**
      * Switches the status of a guest,  can be APPROVED or REJECTED.
      *
-     * @param eventId - The event id of the event we wish to switch someones role at.
-     * @param userId  - The user id of the user we wish to switch his status.
+     * @param eventId         - The event id of the event we wish to switch someones role at.
+     * @param userId          - The user id of the user we wish to switch his status.
      * @param approveOrReject - A boolean value true if approved false if rejected.
      * @return -the role after the changes.
      */
     @RequestMapping(value = "/switchStatus", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<RoleDTO>> switchStatus(@RequestParam("booleanValue") boolean approveOrReject,
-                                                           @RequestParam("eventId") int eventId,
+                                                              @RequestParam("eventId") int eventId,
                                                               @RequestAttribute("userId") int userId) {
 
         try {
@@ -384,10 +358,10 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user is not registered in our app!"));
         }
 
-        try{
+        try {
             Role roleToAdd = eventService.inviteGuest(user, eventId);
             notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
-            if(roleToAdd != null){
+            if (roleToAdd != null) {
                 return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToAdd)));
             }
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!")); // Here for Controller tests only!
@@ -447,17 +421,15 @@ public class EventController {
 
         User userOfEvent = userService.getById(userId);
 
-        if(userOfEvent == null){
+        if (userOfEvent == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        List<EventDTO> events = getEventsByUserId(userId).getBody().getData();
+        List<Event> events = eventService.getEventsByUserIdShowOnly(userId);
 
-        List<EventDTO> eventsToShow = events.stream()
-                .filter(event -> event.getRoles().stream().anyMatch(role -> role.getUser().getId() == userId && role.isShownInMyCalendar()))
-                .collect(Collectors.toList());
+        List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
 
-        for (EventDTO event:eventsToShow) {
+        for (EventDTO event : eventsDTO) {
             switch (userOfEvent.getCity()) {
                 case PARIS:
                     event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/Paris")));
@@ -472,7 +444,6 @@ public class EventController {
                     event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Asia/Jerusalem")));
             }
         }
-
-        return ResponseEntity.ok(BaseResponse.success(eventsToShow));
+        return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
 }

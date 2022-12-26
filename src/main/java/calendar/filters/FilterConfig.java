@@ -58,7 +58,7 @@ public class FilterConfig {
                 "/event/updateEvent/isPublic", "/event/updateEvent/location", "/event/updateEvent/title", "/event/updateEvent/description",
                 "/event/updateEvent/time", "/event/updateEvent/duration","/event/updateEvent/event", "/event/updateEvent/date",
                 "/calendar/share","/event/switchStatus","/event/leaveEvent","/event/getEventsByUserIdShowOnly", "/user/updateCity",
-                "/user/getNotificationSettings"
+                "/user/getNotificationSettings","/calendar/share", "/calendar/GetAllShared"
         );
         registrationBean.setOrder(2); //set precedence
         return registrationBean;
