@@ -51,6 +51,7 @@ class UserControllerTest {
         userDTO = new UserDTO(user);
 
         updatedUser = new User();
+        updatedUser.setId(1);
         updatedUser.setCity(City.LONDON);
         updatedUser.setNotificationSettings(notificationSettingsRequest);
 
@@ -176,4 +177,33 @@ class UserControllerTest {
         assertEquals(0, response.getBody().getData().size());
     }
 
+    @Test
+    void Share_Calendar_Successfully(){
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getById(updatedUser.getId())).thenReturn(updatedUser);
+        when(userService.shareCalendar(user, updatedUser)).thenReturn(updatedUser);
+
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getId());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedUser.getId(), response.getBody().getData().getId());
+    }
+
+    @Test
+    void Try_To_Share_Calendar_User_Does_Not_Exist(){
+        when(userService.getById(user.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getId());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Share_Calendar_But_Failed(){
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getById(updatedUser.getId())).thenReturn(updatedUser);
+        when(userService.shareCalendar(user, updatedUser)).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(NullPointerException.class,()-> userController.shareCalendar(user.getId(),updatedUser.getId()));
+    }
 }

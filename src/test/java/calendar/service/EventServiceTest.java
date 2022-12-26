@@ -450,7 +450,4 @@ class EventServiceTest {
     void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist(){
         assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(user,null));
     }
-
-
-
 }
