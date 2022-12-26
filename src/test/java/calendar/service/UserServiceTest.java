@@ -1,6 +1,7 @@
 package calendar.service;
 
 import calendar.controller.response.BaseResponse;
+import calendar.entities.DTO.NotificationSettingsDTO;
 import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.Event;
@@ -195,6 +196,35 @@ class UserServiceTest {
         User response = userService.updateCity(user.getId(),"Random String");
 
         assertEquals(City.JERUSALEM, response.getCity());
+    }
+
+    @Test
+    void Get_User_Notifications_Successfully() {
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        NotificationSettings response = userService.getNotificationSettings(user.getId());
+
+        assertEquals(user.getNotificationSettings().getId(), response.getId());
+    }
+
+    @Test
+    void Try_To_Get_User_Notifications_User_Does_NOt_Exist() {
+        when(userRepository.findById(user.getId())).thenReturn(null);
+
+        NotificationSettings response = userService.getNotificationSettings(user.getId());
+
+        assertNull(response);
+    }
+    @Test
+    void Try_To_Get_User_Notifications_User_Has_No_Notification_Settings() {
+        when(userRepository.findById(user.getId())).thenReturn(user);
+
+        user.setNotificationSettings(null);
+
+        NotificationSettings response = userService.getNotificationSettings(user.getId());
+
+        assertNull(response);
+
     }
 
 }
