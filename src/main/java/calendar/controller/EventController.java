@@ -5,6 +5,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.DTO.EventDTO;
 import calendar.entities.DTO.RoleDTO;
+import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
@@ -484,4 +485,6 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
     }
+
+
 }

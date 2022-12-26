@@ -177,4 +177,34 @@ public class UserService {
 
         return user.getUsersWhoSharedTheirCalendarWithMe();
     }
+
+    /**
+     * Share my calendar with a different user using his id, I will insert myself into his list of
+     * users who shared their calendar with him.
+     * @param viewer - the user I want to share my calendar with.
+     * @param user- My user information.
+     * @return The user i shared my calendar with.
+     */
+    public User shareCalendar(User user, User viewer) {
+
+
+        if (user == null) {
+            throw new IllegalArgumentException("User does not exist!");
+        }
+
+
+        if (viewer == null) {
+            throw new IllegalArgumentException("Viewer does not exist!");
+        }
+
+        if (viewer.getUsersWhoSharedTheirCalendarWithMe().contains(user)) {
+            throw new IllegalArgumentException("This viewer is already part of my shared calendars!");
+        }
+
+        viewer.addSharedCalendar(user);
+
+        userRepository.save(viewer);
+
+        return viewer;
+    }
 }
