@@ -64,7 +64,9 @@ class EventControllerTest {
 
         userToInvite = new User();
         userToInvite.setId(123);
+        userToInvite.setEmail("leon@test.com");
         userToInvite.setNotificationSettings(new NotificationSettings());
+        user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
 
         role = new Role();
         role.setRoleType(RoleType.GUEST);
@@ -511,4 +513,36 @@ class EventControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().size(), 0);
     }
+
+    @Test
+    void Get_All_Shared_Successfully(){
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.ofNullable(userToInvite));
+        when(eventService.GetAllShared(user, userToInvite)).thenReturn(events);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 1);
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Does_Not_Exist(){
+        when(userService.getById(user.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist(){
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.ofNullable(null));
+
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
 }
