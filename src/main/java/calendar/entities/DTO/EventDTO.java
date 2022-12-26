@@ -58,8 +58,8 @@ public class EventDTO {
         List<EventDTO> eventsDTO = new ArrayList<>();
 
         for (Event event:events) {
-            EventDTO EventDTO = new EventDTO(event);
-            eventsDTO.add(EventDTO);
+            EventDTO eventDTO = new EventDTO(event);
+            eventsDTO.add(eventDTO);
         }
         return eventsDTO;
     }

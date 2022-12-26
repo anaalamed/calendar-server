@@ -1,9 +1,13 @@
 package calendar.entities.DTO;
 
+import calendar.entities.Event;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDTO {
     private int id;
@@ -48,6 +52,17 @@ public class UserDTO {
 
     public City getCity() {
         return city;
+    }
+
+    public static List<UserDTO> convertUsersToUsersDTO(List<User> users) {
+
+        List<UserDTO> usersDTO = new ArrayList<>();
+
+        for (User user:users) {
+            UserDTO userDTO = new UserDTO(user);
+            usersDTO.add(userDTO);
+        }
+        return usersDTO;
     }
 
     @Override
