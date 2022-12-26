@@ -1,6 +1,7 @@
 package calendar.controller;
 
 import calendar.controller.response.BaseResponse;
+import calendar.entities.DTO.NotificationSettingsDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
@@ -111,4 +112,32 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
+    @Test
+    void Get_User_Notifications_Successfully() {
+        when(userService.getNotificationSettings(user.getId())).thenReturn(user.getNotificationSettings());
+
+        ResponseEntity<BaseResponse<NotificationSettingsDTO>> response = userController.getNotificationSettings(user.getId());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(user.getNotificationSettings().getId(), response.getBody().getData().getId());
+    }
+
+    @Test
+    void Try_To_Get_User_Notifications_User_Does_NOt_Exist() {
+        when(userService.getNotificationSettings(123)).thenReturn(null);
+
+        ResponseEntity<BaseResponse<NotificationSettingsDTO>> response = userController.getNotificationSettings(123);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+    @Test
+    void Try_To_Get_User_Notifications_User_Has_No_Notification_Settings() {
+        when(userService.getNotificationSettings(user.getId())).thenReturn(null);
+
+        ResponseEntity<BaseResponse<NotificationSettingsDTO>> response = userController.getNotificationSettings(user.getId());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
 }

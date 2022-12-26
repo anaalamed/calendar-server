@@ -6,6 +6,7 @@ import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
+import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 import calendar.service.AuthService;
 import com.mysql.cj.log.Log;
@@ -46,7 +47,7 @@ class AuthControllerTest {
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
 
-        loginDataDTO = new LoginDataDTO(1,"testToken","Leon");
+        loginDataDTO = new LoginDataDTO(1,"testToken","Leon", City.JERUSALEM);
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 

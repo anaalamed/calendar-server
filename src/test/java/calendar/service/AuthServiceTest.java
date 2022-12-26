@@ -5,6 +5,7 @@ import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
+import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.UserRepository;
 import calendar.utils.Utils;
@@ -50,7 +51,7 @@ class AuthServiceTest {
         user.setNotificationSettings(new NotificationSettings());
         user.setPassword(Utils.hashPassword(user.getPassword()));
 
-        loginDataDTO = new LoginDataDTO(0,"testToken","Leon");
+        loginDataDTO = new LoginDataDTO(0,"testToken","Leon", City.JERUSALEM);
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 

@@ -2,24 +2,20 @@ package calendar.entities.DTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.NotificationGetType;
+import calendar.entities.enums.NotificationRange;
 
 public class NotificationSettingsDTO {
     private int id;
 
-    private User user;
 
     private NotificationGetType event_changed, invite_guest, uninvite_guest, user_status,user_role ,cancel_event , upcoming_event;
 
+    private NotificationRange notificationRange;
 
 
     public int getId() {
         return id;
     }
-
-    public User getUser() {
-        return user;
-    }
-
 
     public NotificationGetType getEvent_changed() {
         return event_changed;
@@ -53,11 +49,14 @@ public class NotificationSettingsDTO {
         return upcoming_event;
     }
 
+    public NotificationRange getNotificationRange() {
+        return notificationRange;
+    }
+
     public NotificationSettingsDTO() {}
 
     public NotificationSettingsDTO(NotificationSettings notificationSettings) {
         this.id = notificationSettings.getId();
-//        this.user = notificationSettings.getUser();
         this.event_changed = notificationSettings.getEvent_changed();
         this.invite_guest = notificationSettings.getInvite_guest();
         this.uninvite_guest = notificationSettings.getUninvite_guest();
@@ -65,14 +64,14 @@ public class NotificationSettingsDTO {
         this.user_role = notificationSettings.getUser_role();
         this.cancel_event = notificationSettings.getCancel_event();
         this.upcoming_event = notificationSettings.getUpcoming_event();
+        this.notificationRange = notificationSettings.getNotificationRange();
     }
 
 
     @Override
     public String toString() {
-        return "NotificationSettings{" +
+        return "NotificationSettingsDTO{" +
                 "id=" + id +
-//                ", user=" + user +
                 ", event_changed=" + event_changed +
                 ", invite_guest=" + invite_guest +
                 ", uninvite_guest=" + uninvite_guest +
@@ -80,7 +79,7 @@ public class NotificationSettingsDTO {
                 ", user_role=" + user_role +
                 ", cancel_event=" + cancel_event +
                 ", upcoming_event=" + upcoming_event +
+                ", notificationRange=" + notificationRange +
                 '}';
     }
-
 }
