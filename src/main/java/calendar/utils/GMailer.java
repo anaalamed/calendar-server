@@ -33,8 +33,11 @@ public class GMailer {
     private static final String FROM_EMAIL = "anaalamed@gmail.com";
 
     private static Gmail init() throws Exception {
+
         NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
         GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
         Gmail service = new Gmail.Builder(httpTransport, jsonFactory, getCredentials(httpTransport, jsonFactory))
                 .setApplicationName("Test Mailer")
                 .build();
@@ -44,6 +47,7 @@ public class GMailer {
 
     private static Credential getCredentials(final NetHttpTransport httpTransport, GsonFactory jsonFactory)
             throws IOException {
+
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, new InputStreamReader(GMailer.class
                 .getResourceAsStream("/gmail.json")));
 
@@ -54,10 +58,12 @@ public class GMailer {
                 .build();
 
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
     public static void sendMail(String emailAddress, String subject, String message) throws Exception {
+
         Gmail service = init();
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);

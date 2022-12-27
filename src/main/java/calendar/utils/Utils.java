@@ -23,14 +23,26 @@ public class Utils {
 
     private static final Logger logger = LogManager.getLogger(Utils.class.getName());
 
+
+    /**
+     * This method generated a unique token for a user who logged-in to our app.
+     * @return the generated token
+     */
     public static String generateUniqueToken() {
+
         StringBuilder token = new StringBuilder();
+
         long currentTimeInMillisecond = Instant.now().toEpochMilli();
 
         return token.append(currentTimeInMillisecond).append("-")
                 .append(UUID.randomUUID()).toString();
     }
 
+    /**
+     * Gets a time zone id of a city
+     * @param city - the city of which we want to get a time zone id.
+     * @return the time zone id of the city.
+     */
     public static String getTimeZoneId(City city) {
         switch (city) {
             case PARIS:
@@ -44,6 +56,13 @@ public class Utils {
         }
     }
 
+    /**
+     * This method converts the time of all the events to the correct time using the time zone of the
+     * user according to the city he chose.
+     * @param events - The list of the events we wish to update.
+     * @param city - The city of the user.
+     * @return The updated list of the events with the correct times.
+     */
     public static List<EventDTO> changeEventTimesByTimeZone(List<EventDTO> events, City city){
 
         for (EventDTO event : events) {
@@ -67,14 +86,27 @@ public class Utils {
 
     //    ------------------------ hash user's password --------------------
 
+    /**
+     * Creates a hash for a password to make it more secure.
+     * @param password - The password we wish to secure.
+     * @return the hashed password.
+     */
     public static String hashPassword(String password) {
+
         if (password == null || password == "") {
             return password;
         }
         return BCrypt.withDefaults().hashToString(12, password.toCharArray());
     }
 
+    /**
+     * Checks if the password of a user matches the password we hold for the same user in our database.
+     * @param passwordFromUser - THe password the user inserted.
+     * @param passwordFromDB - The password we hold in our Database.
+     * @return true or false, matching or not.
+     */
     public static boolean verifyPassword(String passwordFromUser, String passwordFromDB) {
+
         BCrypt.Result result = BCrypt.verifyer().verify(passwordFromUser.toCharArray(),
                 passwordFromDB.toCharArray());
 
@@ -87,7 +119,6 @@ public class Utils {
         logger.info("in reqGitGetToken()");
         logger.debug(link);
 
-//        ResponseEntity<GitToken> response = null;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
@@ -106,7 +137,6 @@ public class Utils {
         logger.info(link);
         logger.info(bearerToken);
 
-//        ResponseEntity<GitUser> response = null;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + bearerToken);
