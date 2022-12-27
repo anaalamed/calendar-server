@@ -54,6 +54,7 @@ class EventControllerTest {
     static User user;
     static User userToInvite;
     static List<Event> events;
+    static String[] sharedUsers;
 
     @BeforeEach
     void setup() {
@@ -98,6 +99,9 @@ class EventControllerTest {
 
         eventRequest = new EventRequest();
         eventRequest.setTitle("UpdatedEvent");
+
+        sharedUsers = new String[10];
+        sharedUsers[0] = user.getEmail();
     }
 
 
@@ -517,10 +521,9 @@ class EventControllerTest {
     @Test
     void Get_All_Shared_Successfully() {
         when(userService.getById(user.getId())).thenReturn(user);
-        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.ofNullable(userToInvite));
-        when(eventService.GetAllShared(user, userToInvite)).thenReturn(events);
+        when(eventService.GetAllShared(user,sharedUsers)).thenReturn(events);
 
-        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), sharedUsers);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData().size(), 1);
@@ -530,18 +533,19 @@ class EventControllerTest {
     void Try_To_Get_All_Shared_User_Does_Not_Exist() {
         when(userService.getById(user.getId())).thenReturn(null);
 
-        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), sharedUsers);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist() {
+    void Try_To_Get_All_Shared_But_Nothing_To_Show() {
         when(userService.getById(user.getId())).thenReturn(user);
-        when(userService.getByEmail(userToInvite.getEmail())).thenReturn(Optional.empty());
 
-        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), userToInvite.getEmail());
+        String[] emptyArray = new String[0];
+        ResponseEntity<BaseResponse<List<EventDTO>>> response = eventController.GetAllShared(user.getId(), emptyArray);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody().getData().size(), 0);
     }
 }

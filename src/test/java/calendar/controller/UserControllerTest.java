@@ -57,6 +57,7 @@ class UserControllerTest {
 
         usersWhosharedWithMe = new ArrayList<>();
         usersWhosharedWithMe.add(updatedUser);
+
     }
 
     @Test
@@ -180,10 +181,10 @@ class UserControllerTest {
     @Test
     void Share_Calendar_Successfully(){
         when(userService.getById(user.getId())).thenReturn(user);
-        when(userService.getById(updatedUser.getId())).thenReturn(updatedUser);
+        when(userService.getByEmailNotOptional(updatedUser.getEmail())).thenReturn(updatedUser);
         when(userService.shareCalendar(user, updatedUser)).thenReturn(updatedUser);
 
-        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getId());
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getEmail());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedUser.getId(), response.getBody().getData().getId());
@@ -193,7 +194,7 @@ class UserControllerTest {
     void Try_To_Share_Calendar_User_Does_Not_Exist(){
         when(userService.getById(user.getId())).thenReturn(null);
 
-        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getId());
+        ResponseEntity<BaseResponse<UserDTO>> response = userController.shareCalendar(user.getId(),updatedUser.getEmail());
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -201,9 +202,19 @@ class UserControllerTest {
     @Test
     void Try_To_Share_Calendar_But_Failed(){
         when(userService.getById(user.getId())).thenReturn(user);
-        when(userService.getById(updatedUser.getId())).thenReturn(updatedUser);
+        when(userService.getByEmailNotOptional(updatedUser.getEmail())).thenReturn(updatedUser);
         when(userService.shareCalendar(user, updatedUser)).thenThrow(IllegalArgumentException.class);
 
-        assertThrows(NullPointerException.class,()-> userController.shareCalendar(user.getId(),updatedUser.getId()));
+        assertThrows(NullPointerException.class,()-> userController.shareCalendar(user.getId(),updatedUser.getEmail()));
     }
+
+    @Test
+    void Try_To_Share_Calendar_With_Someone_Who_I_Already_Shared_With(){
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(userService.getByEmailNotOptional(updatedUser.getEmail())).thenReturn(updatedUser);
+        updatedUser.getUsersWhoSharedTheirCalendarWithMe().add(user);
+
+        assertThrows(IllegalArgumentException.class,()-> userController.shareCalendar(user.getId(),updatedUser.getEmail()));
+    }
+
 }

@@ -8,6 +8,7 @@ import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,15 +43,22 @@ class EventServiceTest {
     static User user;
     static User userToInvite;
     static List<Event> events;
+    static String[] sharedUsers;
 
     @BeforeEach
     void setup() {
         user = new User();
         user.setId(1);
+        user.setEmail("Test@Test.com");
 
         userToInvite = new User();
         userToInvite.setId(123);
+        userToInvite.setEmail("Test@Test2.com");
         user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
+
+
+        sharedUsers =new String[1];
+        sharedUsers[0] = user.getEmail();
 
         role = new Role();
         role.setRoleType(RoleType.GUEST);
@@ -435,19 +443,20 @@ class EventServiceTest {
     void Get_All_Shared_Successfully(){
         when(userRepository.findById(user.getId())).thenReturn(user);
         when(eventRepository.findAll()).thenReturn(events);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.ofNullable(user));
 
-        List<Event> response = eventService.GetAllShared(user,userToInvite);
+        List<Event> response = eventService.GetAllShared(user,sharedUsers);
 
         assertEquals(1, response.size());
     }
 
     @Test
     void Try_To_Get_All_Shared_User_Does_Not_Exist(){
-        assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(null,userToInvite));
+        assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(null,sharedUsers));
     }
 
     @Test
     void Try_To_Get_All_Shared_User_Who_Shared_Does_Not_Exist(){
-        assertThrows(IllegalArgumentException.class,()->eventService.GetAllShared(user,null));
+        assertThrows(NullPointerException.class,()->eventService.GetAllShared(user,null));
     }
 }
