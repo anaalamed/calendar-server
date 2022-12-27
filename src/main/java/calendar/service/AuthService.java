@@ -5,7 +5,6 @@ import calendar.controller.request.UserRequest;
 import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
 import calendar.entities.DTO.LoginDataDTO;
-import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.util.*;
 
-
 @Service
 public class AuthService {
     @Autowired
@@ -32,7 +30,7 @@ public class AuthService {
 
     static HashMap<Integer, String> usersTokensMap = new HashMap<>();
 
-    public AuthService(UserRepository userRepository ) {
+    public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -40,14 +38,16 @@ public class AuthService {
 
     /**
      * Create a user if he is not already part of our system.
+     *
      * @param userRequest - All the information of the user we wish to register.
      * @return the created User
      * @throws SQLDataException - If the user is already registered in our DB.
      */
     public User createUser(UserRequest userRequest, ProviderType provider) throws IllegalArgumentException {
+
         logger.info("in createUser()");
 
-        if(userRepository.findByEmail(userRequest.getEmail()).isPresent()){
+        if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException(String.format("Email %s already exists!", userRequest.getEmail()));
         }
 
@@ -56,31 +56,34 @@ public class AuthService {
         User createdUser = new User(userRequest.getName(), userRequest.getEmail(), Utils.hashPassword(userRequest.getPassword()), provider);
 
         NotificationSettings notificationSettings = new NotificationSettings(createdUser);
+
         createdUser.setNotificationSettings(notificationSettings);
 
         User savedUser = userRepository.save(createdUser);
+
         return savedUser;
     }
 
     /**
      * User logs in into our system with his email and password.
+     *
      * @param userRequest -  All the information of the user we wish to log in.
      * @return LoginData: user id and token (if log in is successful)
      */
     public Optional<LoginDataDTO> login(UserRequest userRequest) {
+
         logger.info("in login()");
 
         Optional<User> user = userRepository.findByEmail(userRequest.getEmail());
 
         if (user.isPresent()) {
-            if ( (user.get().getProvider() == ProviderType.LOCAL && Utils.verifyPassword(userRequest.getPassword(), user.get().getPassword()))
-                || user.get().getProvider() == ProviderType.GITHUB && userRequest.getPassword().equals("")) {
+            if ((user.get().getProvider() == ProviderType.LOCAL && Utils.verifyPassword(userRequest.getPassword(), user.get().getPassword()))
+                    || user.get().getProvider() == ProviderType.GITHUB && userRequest.getPassword().equals("")) {
 
-                    String token = executeLogin(user.get().getId());
-                    return Optional.of(new LoginDataDTO(user.get().getId(), token, user.get().getName(), user.get().getCity(), user.get().getEmail()));
+                String token = executeLogin(user.get().getId());
+                return Optional.of(new LoginDataDTO(user.get().getId(), token, user.get().getName(), user.get().getCity(), user.get().getEmail()));
             }
         }
-
         return Optional.empty();
     }
 
@@ -100,16 +103,25 @@ public class AuthService {
                 .findFirst();
     }
 
+    /**
+     * User logs in into our system with his GitHub.
+     * @param code -  A code given by the GitHub API to proceed with the login process.
+     * @return LoginData: user id and token.
+     */
     public Optional<LoginDataDTO> loginGithub(String code) throws IllegalArgumentException {
+
         logger.info("in loginGithub()");
 
         GitUser githubUser = getGithubUser(code);
+
         logger.info("user: " + githubUser);
 
         if (githubUser != null && githubUser.getEmail() != null && !githubUser.getEmail().equals("")) {
             Optional<User> userFromDB = userRepository.findByEmail(githubUser.getEmail());
-            if ( !userFromDB.isPresent()) {
+
+            if (!userFromDB.isPresent()) {
                 User userCreated = null;
+
                 if (!githubUser.getName().equals("") && githubUser.getName() != null) {
                     userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
                     logger.info(userCreated);
@@ -126,17 +138,20 @@ public class AuthService {
         return Optional.empty();
     }
 
+
     public ResponseEntity<GitToken> getGithubToken(String code) {
+
         String baseLink = "https://github.com/login/oauth/access_token?";
         String clientId = env.getProperty("spring.security.oauth2.client.registration.github.client-id");
         String clientSecret = env.getProperty("spring.security.oauth2.client.registration.github.client-secret");
         String linkGetToken = baseLink + "client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code;
+
         logger.debug(linkGetToken);
 
         return Utils.reqGitGetToken(linkGetToken);
     }
 
-    public GitUser getGithubUser( String code ) {
+    public GitUser getGithubUser(String code) {
         ResponseEntity<GitToken> gitTokenResponse = getGithubToken(code);
 
         if (gitTokenResponse != null) {
@@ -150,7 +165,6 @@ public class AuthService {
                 return gitUserResponseEntity.getBody();
             }
         }
-
         return null;
     }
 
@@ -158,7 +172,12 @@ public class AuthService {
         return usersTokensMap;
     }
 
-    public String executeLogin (int userId) {
+    /**
+     * Puts the token of a logged-in user in our local map which maps a user id to a token.
+     * @param userId - The user id of the user who logged-in
+     * @return the token.
+     */
+    public String executeLogin(int userId) {
         Optional<String> token = Optional.of(Utils.generateUniqueToken());
         usersTokensMap.put(userId, token.get());
         return token.get();

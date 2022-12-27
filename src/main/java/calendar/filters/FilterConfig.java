@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FilterConfig {
+
     public static final Logger logger = LogManager.getLogger(FilterConfig.class);
     private final AuthService authService;
     private final EventService eventService;
 
     @Autowired
     public FilterConfig(AuthService authService, EventService eventService) {
-        System.out.println("AppConfig is created");
+
+        logger.info("AppConfig is created");
+
         this.authService = authService;
         this.eventService = eventService;
     }
@@ -29,7 +32,9 @@ public class FilterConfig {
      */
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterBean() {
+
         logger.info("CorsFilterBean has been created");
+
         FilterRegistrationBean<CorsFilter> registrationBean = new FilterRegistrationBean<>();
         CorsFilter corsFilter = new CorsFilter();
         registrationBean.setFilter(corsFilter);
@@ -47,19 +52,26 @@ public class FilterConfig {
      */
     @Bean
     public FilterRegistrationBean<TokenFilter> filterRegistrationBean() {
+
         logger.info("FilterRegistrationBean has been created");
+
         FilterRegistrationBean<TokenFilter> registrationBean = new FilterRegistrationBean<>();
         TokenFilter customURLFilter = new TokenFilter(authService);
         registrationBean.setFilter(customURLFilter);
 
         registrationBean.addUrlPatterns(
-                "/user/update", "/user/delete", "/user/getNotificationSettings", "/user/getUsersWhoSharedWithMe", "/user/updateCity",   "/user/share",
-                "/event/removeGuest", "/event/inviteGuest", "/event/switchRole", "/event/saveEvent", "/event/updateEvent","/event/GetAllShared",
-                "/event/deleteEvent", "/event/getEventsByUserId", "/event/updateEvent/isPublic", "/event/updateEvent/location",
-                "/event/updateEvent/title", "/event/updateEvent/description", "/event/updateEvent/time", "/event/updateEvent/duration",
-                "/event/updateEvent/event", "/event/updateEvent/date", "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly"
+                "/user/update", "/user/delete", "/user/getNotificationSettings",
+                "/user/getUsersWhoSharedWithMe", "/user/updateCity", "/user/share",
+                "/event/removeGuest", "/event/inviteGuest", "/event/switchRole", "/event/saveEvent",
+                "/event/updateEvent", "/event/GetAllShared", "/event/deleteEvent",
+                "/event/getEventsByUserId", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+                "/event/updateEvent/title", "/event/updateEvent/description", "/event/updateEvent/time",
+                "/event/updateEvent/duration", "/event/updateEvent/event", "/event/updateEvent/date",
+                "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly"
         );
+
         registrationBean.setOrder(2); //set precedence
+
         return registrationBean;
     }
 
@@ -72,14 +84,21 @@ public class FilterConfig {
      */
     @Bean
     public FilterRegistrationBean<RoleFilter> RoleFilterBean() {
+
         logger.info("Filter Role Bean has been created");
+
         FilterRegistrationBean<RoleFilter> registrationBean = new FilterRegistrationBean<>();
         RoleFilter customURLFilter = new RoleFilter(eventService);
         registrationBean.setFilter(customURLFilter);
-        registrationBean.addUrlPatterns("/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+
+        registrationBean.addUrlPatterns(
+                "/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",
-                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent", "/event/switchRole", "/event/leaveEvent");
+                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent", "/event/switchRole", "/event/leaveEvent"
+        );
+
         registrationBean.setOrder(3); //set precedence
+
         return registrationBean;
     }
 

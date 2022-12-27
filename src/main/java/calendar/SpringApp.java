@@ -11,8 +11,5 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class SpringApp {
     public static void main(String[] args) {
         ApplicationContext applicationContext = SpringApplication.run(SpringApp.class, args);
-
-//        NotificationPublisher notificationPublisher = applicationContext.getBean(NotificationPublisher.class);
-//        notificationPublisher.scheduleCheckComingEvents(args);
     }
 }

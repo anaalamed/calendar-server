@@ -42,7 +42,7 @@ public class UserService {
     }
 
     /**
-     * Get a user by his ID from the DB
+     * Get a user by his ID from the database.
      *
      * @param id - the id of the user we want to retrieve
      * @return the User if exists
@@ -53,10 +53,10 @@ public class UserService {
     }
 
     /**
-     * Get UserDTO by email
+     * Get UserDTO by email.
      *
      * @param email - The email of the user we want to retrieve.
-     * @return the User if exists
+     * @return the User if exists.
      */
     public Optional<UserDTO> getDTOByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -68,10 +68,10 @@ public class UserService {
     }
 
     /**
-     * Get User by email
+     * Get User by email.
      *
      * @param email - The email of the user we want to retrieve.
-     * @return the User if exists
+     * @return the User if exists.
      */
     public Optional<User> getByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -83,10 +83,10 @@ public class UserService {
     }
 
     /**
-     * Get User by email
+     * Get User by email.
      *
      * @param email - The email of the user we want to retrieve.
-     * @return the User if exists
+     * @return the User if exists.
      */
     public User getByEmailNotOptional(String email) {
         return userRepository.findByEmail(email).get();
@@ -94,10 +94,10 @@ public class UserService {
 
 
     /**
-     * Get User id by Email
+     * Get User id by Email.
      *
-     * @param email
-     * @return the id
+     * @param email - The email of the user we want to retrieve.
+     * @return the id of the user.
      */
     public Integer getUserIdByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -109,26 +109,42 @@ public class UserService {
         return user.get().getId();
     }
 
-    public UserDTO updateNotificationsSettings( int userId, NotificationSettings notificationSettingsRequest) {
+    /**
+     * Updates the notification settings of a user
+     *
+     * @param userId                      - The id of the user we wish update.
+     * @param notificationSettingsRequest - The notification Settings we wish to insert into the user.
+     * @return the updated user or bad request if not found.
+     */
+    public UserDTO updateNotificationsSettings(int userId, NotificationSettings notificationSettingsRequest) {
 
         User user = userRepository.findById(userId);
+
         logger.info(user);
 
         notificationSettingsRequest.setUser(user);
         NotificationSettings notificationSettingsUser = user.getNotificationSettings();
         BeanUtils.copyProperties(notificationSettingsRequest, notificationSettingsUser);
+
         user.setNotificationSettings(notificationSettingsUser);
 
-
         User savedUser = userRepository.save(user);
+
         return new UserDTO(savedUser);
     }
 
+    /**
+     * Updates the city of a user, can be JERUSALEM, PARIS, LONDON or NEW_YORK.
+     *
+     * @param userId  - The id of the user we wish update.
+     * @param newCity - The city we wish to update the user information with.
+     * @return the updated user or bad request if not found.
+     */
     public User updateCity(int userId, String newCity) {
 
         User user = userRepository.findById(userId);
 
-        if(user == null){
+        if (user == null) {
             return null;
         }
 
@@ -150,28 +166,40 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Gets the notification settings of a user.
+     *
+     * @param userId - The id of the user we wish update.
+     * @return the notification settings of a user.
+     */
     public NotificationSettings getNotificationSettings(int userId) {
 
         User user = userRepository.findById(userId);
 
-        if(user == null){
+        if (user == null) {
             return null;
         }
 
         NotificationSettings notificationSettings = user.getNotificationSettings();
 
-        if(notificationSettings == null){
+        if (notificationSettings == null) {
             return null;
         }
 
         return notificationSettings;
     }
 
+    /**
+     * Gets a list of users who shared their calendar with me.
+     *
+     * @param userId - The id of the user we wish to retrieve the list of shared calendars.
+     * @return the list of users who shared their calendar with the user.
+     */
     public List<User> getUsersWhoSharedWithMe(int userId) {
 
         User user = userRepository.findById(userId);
 
-        if(user == null){
+        if (user == null) {
             throw new IllegalArgumentException("The user does not exist!");
         }
 
@@ -181,8 +209,9 @@ public class UserService {
     /**
      * Share my calendar with a different user using his id, I will insert myself into his list of
      * users who shared their calendar with him.
+     *
      * @param viewer - the user I want to share my calendar with.
-     * @param user- My user information.
+     * @param user-  My user information.
      * @return The user i shared my calendar with.
      */
     public User shareCalendar(User user, User viewer) {

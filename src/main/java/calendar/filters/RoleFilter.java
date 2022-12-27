@@ -6,6 +6,7 @@ import calendar.filters.entity.MutableHttpServletRequest;
 import calendar.service.EventService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import javax.servlet.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -57,9 +58,10 @@ public class RoleFilter implements Filter {
         logger.info("Role filter is working on the following request: " + servletRequest);
 
         String[] listOfAdminPermissions = {"/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic",
-                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event","/event/leaveEvent"};
+                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event", "/event/leaveEvent"};
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
+
         HttpServletResponse res = (HttpServletResponse) servletResponse;
 
         String tempEventId = req.getParameter("eventId");
@@ -76,19 +78,16 @@ public class RoleFilter implements Filter {
 
         if (role != null) {
 
-
-
             // ~~~~~~ Organizer ~~~~~~
             if (role.getRoleType() == RoleType.ORGANIZER) {
-                if(url.equals("/event/leaveEvent")){
+                if (url.equals("/event/leaveEvent")) {
                     returnBadResponse(res);
                 } // Organizer cant use the leave event function, use delete event instead!
                 req.setAttribute("role", role);
                 req.setAttribute("roleType", role.getRoleType());
                 filterChain.doFilter(req, res);
 
-
-            // ~~~~~~ Admin ~~~~~~
+                // ~~~~~~ Admin ~~~~~~
             } else if (role.getRoleType() == RoleType.ADMIN) {
                 if (Arrays.asList(listOfAdminPermissions).contains(url)) {
                     req.setAttribute("role", role);
@@ -99,12 +98,12 @@ public class RoleFilter implements Filter {
                 }
 
                 // ~~~~~~ Guest ~~~~~~
-            } else if(role.getRoleType() == RoleType.GUEST){
-                if(url.equals("/event/leaveEvent")){
+            } else if (role.getRoleType() == RoleType.GUEST) {
+                if (url.equals("/event/leaveEvent")) {
                     req.setAttribute("role", role);
                     req.setAttribute("roleType", role.getRoleType());
                     filterChain.doFilter(req, res);
-                }else {
+                } else {
                     returnBadResponse(res);
                 }
             }
