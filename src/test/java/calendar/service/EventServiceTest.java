@@ -47,6 +47,9 @@ class EventServiceTest {
 
     @BeforeEach
     void setup() {
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //Users I use for testing with the required information
         user = new User();
         user.setId(1);
         user.setEmail("Test@Test.com");
@@ -56,10 +59,11 @@ class EventServiceTest {
         userToInvite.setEmail("Test@Test2.com");
         user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
 
-
         sharedUsers =new String[1];
         sharedUsers[0] = user.getEmail();
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //Roles I use for testing with the required information
         role = new Role();
         role.setRoleType(RoleType.GUEST);
         role.setUser(user);
@@ -71,6 +75,8 @@ class EventServiceTest {
         roleToInvite.setUser(userToInvite);
         roleToInvite.setStatusType(StatusType.TENTATIVE);
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //Events I use for testing with the required information
         event = new Event();
         event.setId(1);
         event.setTitle("EventTest");
@@ -92,7 +98,6 @@ class EventServiceTest {
         updateEventRequest.setDescription("UpdatedEvent");
         updateEventRequest.setTime(ZonedDateTime.now());
     }
-
 
     @Test
     void Get_Specific_Role_Successfully() {

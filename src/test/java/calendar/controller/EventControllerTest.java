@@ -47,17 +47,23 @@ class EventControllerTest {
     static Role role;
     static Role roleToInvite;
     static Role switchedRole;
+
     static Event event;
     static Event eventNoShow;
     static Event updatedEvent;
+    static List<Event> events;
+
     static EventRequest eventRequest;
+
     static User user;
     static User userToInvite;
-    static List<Event> events;
     static String[] sharedUsers;
 
     @BeforeEach
     void setup() {
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //User I use for testing with the required information
         user = new User();
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
@@ -69,6 +75,11 @@ class EventControllerTest {
         userToInvite.setNotificationSettings(new NotificationSettings());
         user.getUsersWhoSharedTheirCalendarWithMe().add(userToInvite);
 
+        sharedUsers = new String[10];
+        sharedUsers[0] = user.getEmail();
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //roles I use for testing with the required information
         role = new Role();
         role.setRoleType(RoleType.GUEST);
         role.setUser(user);
@@ -85,6 +96,9 @@ class EventControllerTest {
         switchedRole.setUser(user);
         switchedRole.setStatusType(StatusType.REJECTED);
 
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //Events I use for testing with the required information
         event = Event.getNewEvent(true, ZonedDateTime.now(), 3.0f, "location1", "title1", "description1", null);
         event.setId(1);
         event.getRoles().add(role);
@@ -92,16 +106,13 @@ class EventControllerTest {
         eventNoShow = Event.getNewEvent(true, ZonedDateTime.now(), 2.0f, "location2", "title2", "description2", null);
         event.setId(2);
 
+        updatedEvent = Event.getNewEvent(true, null, 2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
+
         events = new ArrayList<>();
         events.add(event);
 
-        updatedEvent = Event.getNewEvent(true, null, 2.0f, "UpdatedEvent", "UpdatedEvent", "UpdatedEvent", null);
-
         eventRequest = new EventRequest();
         eventRequest.setTitle("UpdatedEvent");
-
-        sharedUsers = new String[10];
-        sharedUsers[0] = user.getEmail();
     }
 
 
