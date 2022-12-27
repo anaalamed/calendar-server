@@ -28,6 +28,13 @@ public class NotificationListener implements ApplicationListener<Notification> {
     private static final Logger logger = LogManager.getLogger(NotificationListener.class.getName());
 
 
+    /**
+     * This method is called when a new notification created because the Notification class
+     * extends the ApplicationEvent abstract class.
+     * Calls onGenericEvent method to deal with the notifcation sending logic.
+     *
+     * @param notification - The notification that was created.
+     */
     public void onApplicationEvent(Notification notification) {
 
         logger.info("Received generic event - " + notification);
@@ -39,11 +46,20 @@ public class NotificationListener implements ApplicationListener<Notification> {
         }
     }
 
+    /**
+     * Receives a notification and all of its information and sends the notification to the relevant user via
+     * email, popup, both or none depends on his preference.
+     *
+     * @param notification - The notification we wish to send.
+     * @throws Exception - if Gmailer.sendMail failed.
+     */
     private void onGenericEvent(Notification notification) throws Exception {
+
         logger.info("onGenericEvent");
         logger.info("event" + notification);
 
         ArrayList<String> emails = notification.getEmailsToSend();
+
         logger.info(emails);
 
         for (String email : emails) {
@@ -58,6 +74,7 @@ public class NotificationListener implements ApplicationListener<Notification> {
 
             NotificationSettings notificationSettings = user.get().getNotificationSettings();
             NotificationType notificationType = notification.getNotificationType();
+
             logger.info(notificationType);
 
             if (notificationType == NotificationType.REGISTER) {
@@ -90,7 +107,5 @@ public class NotificationListener implements ApplicationListener<Notification> {
                     break;
             }
         }
-
     }
-
 }

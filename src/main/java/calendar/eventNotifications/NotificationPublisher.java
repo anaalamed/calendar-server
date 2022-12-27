@@ -305,7 +305,7 @@ public class NotificationPublisher {
 
     /**
      * This method is called when an organizer changes a role of a guest in the event.
-     * The notification it sent to the guest informing him of the change..
+     * The notification it sent to the guest informing him of the change.
      * Upon creating a notification it invokes the onApplicationEvent method in NotificationListener because
      * notification extends the ApplicationEvent abstract class.
      *
