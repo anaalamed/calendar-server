@@ -1,6 +1,6 @@
 package calendar.entities.DTO;
+
 import calendar.entities.NotificationSettings;
-import calendar.entities.User;
 import calendar.entities.enums.NotificationGetType;
 import calendar.entities.enums.NotificationRange;
 
@@ -8,7 +8,7 @@ public class NotificationSettingsDTO {
     private int id;
 
 
-    private NotificationGetType event_changed, invite_guest, uninvite_guest, user_status,user_role ,cancel_event , upcoming_event;
+    private NotificationGetType event_changed, invite_guest, uninvite_guest, user_status, user_role, cancel_event, upcoming_event;
 
     private NotificationRange notificationRange;
 
@@ -53,7 +53,8 @@ public class NotificationSettingsDTO {
         return notificationRange;
     }
 
-    public NotificationSettingsDTO() {}
+    public NotificationSettingsDTO() {
+    }
 
     public NotificationSettingsDTO(NotificationSettings notificationSettings) {
         this.id = notificationSettings.getId();

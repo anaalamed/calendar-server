@@ -71,7 +71,6 @@ public class Notification extends ApplicationEvent {
         super(message);
         this.title = title;
         this.message = message;
-//        this.event = event;
         this.emailsToSend = emails;
         this.notificationType = notificationType;
     }

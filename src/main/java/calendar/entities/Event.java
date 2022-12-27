@@ -28,8 +28,9 @@ public class Event {
     public Event() {
         this.roles = new ArrayList<>();
     }
-    private  Event(boolean isPublic,ZonedDateTime time, float duration,
-                   String location,String title,String description,ArrayList<File> attachments) {
+
+    private Event(boolean isPublic, ZonedDateTime time, float duration,
+                  String location, String title, String description, ArrayList<File> attachments) {
         this.isPublic = isPublic;
         this.time = time;
         this.duration = duration;
@@ -40,10 +41,11 @@ public class Event {
         this.roles = new ArrayList<>();
     }
 
-    public static Event getNewEvent(boolean isPublic,ZonedDateTime time, float duration,
-                                 String location,String title,String description,ArrayList<File> attachments) {
-        return new Event(isPublic,time,duration,location,title,description,attachments);
+    public static Event getNewEvent(boolean isPublic, ZonedDateTime time, float duration,
+                                    String location, String title, String description, ArrayList<File> attachments) {
+        return new Event(isPublic, time, duration, location, title, description, attachments);
     }
+
     public int getId() {
         return id;
     }
@@ -120,7 +122,7 @@ public class Event {
 
     public Role getUserRole(int userId) {
 
-        return  this.roles.stream().filter((r) -> r.getUser().getId() == userId).findFirst().orElse(null);
+        return this.roles.stream().filter((r) -> r.getUser().getId() == userId).findFirst().orElse(null);
     }
 
     public void AddRole(Role userRole) {

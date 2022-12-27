@@ -56,7 +56,6 @@ public class NotificationSettings {
 
     private static final Logger logger = LogManager.getLogger(NotificationSettings.class.getName());
 
-
     public int getId() {
         return id;
     }

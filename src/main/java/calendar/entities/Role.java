@@ -2,6 +2,7 @@ package calendar.entities;
 
 import calendar.entities.enums.RoleType;
 import calendar.entities.enums.StatusType;
+
 import javax.persistence.*;
 
 @Entity
