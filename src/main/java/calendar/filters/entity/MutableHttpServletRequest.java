@@ -22,21 +22,27 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     }
 
     public String getHeader(String name) {
+
         String headerValue = customHeaders.get(name);
+
         if (headerValue != null){
             return headerValue;
         }
+
         return ((HttpServletRequest) getRequest()).getHeader(name);
     }
 
     public Enumeration<String> getHeaderNames() {
+
         Set<String> set = new HashSet<>(customHeaders.keySet());
+
         Enumeration<String> e = ((HttpServletRequest) getRequest()).getHeaderNames();
+
         while (e.hasMoreElements()) {
             String n = e.nextElement();
             set.add(n);
         }
+
         return Collections.enumeration(set);
     }
-
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public class TokenFilter implements Filter {
     private final AuthService authService;
+
     public static final Logger logger = LogManager.getLogger(TokenFilter.class);
     public TokenFilter(AuthService authService) {
         this.authService = authService;
@@ -48,9 +49,12 @@ public class TokenFilter implements Filter {
      */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
         logger.info("Auth filter is working on the following request: " + servletRequest);
+
         MutableHttpServletRequest req =new MutableHttpServletRequest ((HttpServletRequest) servletRequest);
         HttpServletResponse res = (HttpServletResponse) servletResponse;
+
         String token = req.getHeader("token");
 
         if (token != null) {
