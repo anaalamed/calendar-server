@@ -110,20 +110,20 @@ public class UserController {
      * Share my calendar with a different user using his id, I will insert myself into his list of
      * users who shared their calendar with him.
      *
-     * @param viewerId - the id of the user I want to share my calendar with.
+     * @param email - the email of the user I want to share my calendar with.
      * @param userId-  My user id which I get by using the token in the filter.
      * @return The user i shared my calendar with.
      */
     @PostMapping(value = "/share")
     public ResponseEntity<BaseResponse<UserDTO>> shareCalendar(@RequestAttribute("userId") int userId,
-                                                               @RequestParam int viewerId) {
+                                                               @RequestParam String email) {
         User user = userService.getById(userId);
 
         if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        User viewer = userService.getById(viewerId);
+        User viewer = userService.getByEmailNotOptional(email);
 
         if (viewer == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The viewer does not exist!"));
