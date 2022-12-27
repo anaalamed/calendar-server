@@ -47,6 +47,10 @@ public class NotificationPublisher {
      */
     public void publishEventChangeNotification(Event event) {
 
+        if (event == null) {
+            throw new IllegalArgumentException();
+        }
+
         String title = "Event Changed";
         String message = "Event '" + event.getTitle() + "' at " + event.getTime() + " was changed!";
 

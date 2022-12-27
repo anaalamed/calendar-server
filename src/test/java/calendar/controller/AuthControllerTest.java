@@ -2,6 +2,7 @@ package calendar.controller;
 
 import calendar.controller.request.UserRequest;
 import calendar.controller.response.BaseResponse;
+import calendar.controller.response.GitToken;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
