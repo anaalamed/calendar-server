@@ -129,6 +129,10 @@ public class UserController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The viewer does not exist!"));
         }
 
+        if (viewer.getUsersWhoSharedTheirCalendarWithMe().contains(user)) {
+            throw new IllegalArgumentException("This viewer is already part of my shared calendars!");
+        }
+
         try {
             User sharedUser = userService.shareCalendar(user, viewer);
 
