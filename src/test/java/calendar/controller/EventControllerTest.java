@@ -271,17 +271,17 @@ class EventControllerTest {
         when(eventService.getSpecificRole(1, 1)).thenReturn(role);
         when(userService.getById(1)).thenReturn(user);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("The guest was removed successfully!", response.getBody().getMessage());
+        assertEquals(role.getId(), response.getBody().getData().getId());
     }
 
     @Test
     void Try_To_Remove_Guest_Who_Is_Not_Registered() {
         when(userService.getByEmailNotOptional("leon@notRegistered.com")).thenReturn(null);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@notRegistered.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.removeGuest("leon@notRegistered.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -291,7 +291,7 @@ class EventControllerTest {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -301,7 +301,7 @@ class EventControllerTest {
         when(userService.getByEmailNotOptional("leon@remove.com")).thenReturn(user);
         when(eventService.removeGuest(1, 999)).thenThrow(IllegalArgumentException.class);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 999);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.removeGuest("leon@remove.com", 999);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -312,7 +312,7 @@ class EventControllerTest {
         role.setRoleType(RoleType.ORGANIZER);
         when(eventService.removeGuest(1, 1)).thenThrow(IllegalArgumentException.class);
 
-        ResponseEntity<BaseResponse<Role>> response = eventController.removeGuest("leon@remove.com", 1);
+        ResponseEntity<BaseResponse<RoleDTO>> response = eventController.removeGuest("leon@remove.com", 1);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -339,9 +339,10 @@ class EventControllerTest {
 
     @Test
     void Delete_Event_Successfully() throws SQLDataException {
-        when(userService.getById(1)).thenReturn(user);
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(eventService.getEventById(event.getId())).thenReturn(event);
 
-        ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(1, 1);
+        ResponseEntity<BaseResponse<String>> response = eventController.deleteEvent(user.getId(), event.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody().getData(), "Event Deleted Successfully");

@@ -352,6 +352,32 @@ public class EventController {
     }
 
     /**
+     * get all events of a user by his id.
+     *
+     * @param userId - the id of the user we want to get all of his events.
+     * @return a list of all the events.
+     */
+    @GetMapping(value = "/getEventsByUserId")
+    public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
+
+        logger.info("in get events by user id inside EventController");
+
+        User userOfEvent = userService.getById(userId);
+
+        if (userOfEvent == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
+        List<Event> events = eventService.getEventsByUserId(userId);
+
+        List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
+
+        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO, userOfEvent.getCity());
+
+        return ResponseEntity.ok(BaseResponse.success(eventsDTO));
+    }
+
+    /**
      * Returns a list of all the events I want to display in my calendar which consists of:
      * * All of my events that I want to share (meaning events i did not 'leave')
      * * All the *PUBLIC* events of a user of my choosing who has shared his calendar with me.
