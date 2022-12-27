@@ -1,7 +1,5 @@
 package calendar.entities.DTO;
 
-import calendar.entities.Event;
-import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
@@ -58,7 +56,7 @@ public class UserDTO {
 
         List<UserDTO> usersDTO = new ArrayList<>();
 
-        for (User user:users) {
+        for (User user : users) {
             UserDTO userDTO = new UserDTO(user);
             usersDTO.add(userDTO);
         }

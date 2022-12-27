@@ -1,6 +1,5 @@
 package calendar.entities.DTO;
 
-
 import calendar.entities.enums.City;
 
 public class LoginDataDTO {

@@ -2,21 +2,15 @@ package calendar.entities.DTO;
 
 import calendar.entities.Event;
 import calendar.entities.Role;
-
 import java.io.File;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventDTO {
 
-
     private int id;
     private boolean isPublic;
-//    private LocalDateTime time;
     private ZonedDateTime time;
     private float duration;//in hours
     private String location;
@@ -32,7 +26,6 @@ public class EventDTO {
         ZonedDateTime zonedDateTime = event.getTime();
         this.id = event.getId();
         this.isPublic = event.isPublic();
-//        this.time = event.getTime();
         this.time = zonedDateTime;
         this.duration = event.getDuration();
         this.location = event.getLocation();
@@ -42,11 +35,11 @@ public class EventDTO {
         this.roles = convertRolesToRolesDTO(event.getRoles());
     }
 
-    private List<RoleDTO> convertRolesToRolesDTO(List<Role> roles) {
+    public static List<RoleDTO> convertRolesToRolesDTO(List<Role> roles) {
 
         List<RoleDTO> rolesDTO = new ArrayList<>();
 
-        for (Role role:roles) {
+        for (Role role : roles) {
             RoleDTO roleDTO = new RoleDTO(role);
             rolesDTO.add(roleDTO);
         }
@@ -57,7 +50,7 @@ public class EventDTO {
 
         List<EventDTO> eventsDTO = new ArrayList<>();
 
-        for (Event event:events) {
+        for (Event event : events) {
             EventDTO eventDTO = new EventDTO(event);
             eventsDTO.add(eventDTO);
         }
@@ -79,15 +72,6 @@ public class EventDTO {
     public void setPublic(boolean aPublic) {
         isPublic = aPublic;
     }
-
-//    public LocalDateTime getTime() {
-//        return time;
-//    }
-//
-//    public void setTime(LocalDateTime time) {
-//        this.time = time;
-//    }
-
 
     public ZonedDateTime getTime() {
         return time;
@@ -151,7 +135,6 @@ public class EventDTO {
                 "id=" + id +
                 ", isPublic=" + isPublic +
                 ", time=" + time +
-//                ", date=" + date +
                 ", duration=" + duration +
                 ", location='" + location + '\'' +
                 ", title='" + title + '\'' +
