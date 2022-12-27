@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Optional;
 
-
 @Component
 public class NotificationListener implements ApplicationListener<Notification> {
 
@@ -28,8 +27,11 @@ public class NotificationListener implements ApplicationListener<Notification> {
 
     private static final Logger logger = LogManager.getLogger(NotificationListener.class.getName());
 
+
     public void onApplicationEvent(Notification notification) {
+
         logger.info("Received generic event - " + notification);
+
         try {
             this.onGenericEvent(notification);
         } catch (Exception e) {
@@ -47,7 +49,7 @@ public class NotificationListener implements ApplicationListener<Notification> {
         for (String email : emails) {
             Optional<User> user = userService.getByEmail(email);
 
-            if ( !user.isPresent()) {
+            if (!user.isPresent()) {
                 return;
             }
 
@@ -58,7 +60,7 @@ public class NotificationListener implements ApplicationListener<Notification> {
             NotificationType notificationType = notification.getNotificationType();
             logger.info(notificationType);
 
-            if ( notificationType == NotificationType.REGISTER) {
+            if (notificationType == NotificationType.REGISTER) {
                 GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
                 return;
             }
