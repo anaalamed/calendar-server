@@ -13,8 +13,6 @@ import java.util.List;
 public class EventRequest {
     private boolean isPublic;
     private ZonedDateTime time;
-//    private ZonedDateTime time;
-
     private float duration;//in hours
     private String location;
     private String title;
@@ -36,15 +34,6 @@ public class EventRequest {
     public void setTime(ZonedDateTime time) {
         this.time = time;
     }
-
-
-//    public ZonedDateTime getTime() {
-//        return time;
-//    }
-//
-//    public void setTime(ZonedDateTime time) {
-//        this.time = time;
-//    }
 
     public float getDuration() {
         return duration;

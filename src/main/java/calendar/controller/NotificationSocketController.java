@@ -15,8 +15,7 @@ public class NotificationSocketController {
     @SendTo("/notifications")
     public Notification send(Notification notification ) {
         logger.info("in socket send notification");
+
         return notification;
     }
-
-
 }

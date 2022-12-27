@@ -43,6 +43,8 @@ class AuthControllerTest {
 
     @BeforeEach
     void setup() {
+
+        //User I use for testing with the required information
         user = new User("Leon", "Leon@test.com", "leon1234", ProviderType.LOCAL);
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
@@ -51,6 +53,7 @@ class AuthControllerTest {
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 
+        //Code for testing Github.
         code = "GitHubCode";
     }
 

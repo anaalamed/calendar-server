@@ -3,6 +3,7 @@ package calendar.utils;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
+import calendar.entities.DTO.EventDTO;
 import calendar.entities.enums.City;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpEntity;
 
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 public class Utils {
@@ -39,6 +42,27 @@ public class Utils {
             default:
                 return "Asia/Jerusalem";
         }
+    }
+
+    public static List<EventDTO> changeEventTimesByTimeZone(List<EventDTO> events, City city){
+
+        for (EventDTO event : events) {
+            switch (city) {
+                case PARIS:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/Paris")));
+                    break;
+                case LONDON:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/London")));
+                    break;
+                case NEW_YORK:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("America/New_York")));
+                    break;
+                default:
+                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Asia/Jerusalem")));
+            }
+        }
+
+        return events;
     }
 
     //    ------------------------ hash user's password --------------------

@@ -47,6 +47,8 @@ class AuthServiceTest {
 
     @BeforeEach
     void setup() {
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //User I use for testing with the required information
         user = new User("Leon", "Leon@test.com", "leon1234", ProviderType.LOCAL);
         user.setNotificationSettings(new NotificationSettings());
         user.setPassword(Utils.hashPassword(user.getPassword()));
@@ -57,6 +59,7 @@ class AuthServiceTest {
 
         authService.getUsersTokensMap().put(loginDataDTO.getUserId(),loginDataDTO.getToken());
 
+        //Code for github tests
         code = "GitHubCode";
     }
 
@@ -120,5 +123,4 @@ class AuthServiceTest {
 
         assertEquals(userId,Optional.empty());
     }
-
 }

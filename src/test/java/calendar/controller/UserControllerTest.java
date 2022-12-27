@@ -40,9 +40,11 @@ class UserControllerTest {
     static NotificationSettings notificationSettingsRequest;
     static List<User> usersWhosharedWithMe;
 
-
     @BeforeEach
     void setup() {
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //Users I use for testing with the required information
         user = new User("Leon", "Leon@test.com", "leon1234", ProviderType.LOCAL);
         user.setId(0);
         notificationSettingsRequest = new NotificationSettings(user);
@@ -81,7 +83,6 @@ class UserControllerTest {
 
     @Test
     void Update_Notifications_Successfully() {
-
         when(userService.updateNotificationsSettings(user.getId(), notificationSettingsRequest)).thenReturn(userDTO);
 
         ResponseEntity<BaseResponse<UserDTO>> response = userController.updateNotifications(user.getId(),user.getNotificationSettings());
@@ -92,7 +93,6 @@ class UserControllerTest {
 
     @Test
     void Try_To_Update_Notifications_For_None_Existent_User() {
-
         when(userService.updateNotificationsSettings(user.getId(), notificationSettingsRequest)).thenReturn(null);
 
         ResponseEntity<BaseResponse<UserDTO>> response = userController.updateNotifications(user.getId(),user.getNotificationSettings());
@@ -102,7 +102,6 @@ class UserControllerTest {
 
     @Test
     void Update_City_Successfully() {
-
         when(userService.updateCity(user.getId(),"LONDON")).thenReturn(updatedUser);
 
         ResponseEntity<BaseResponse<UserDTO>> response = userController.updateCity(user.getId(),"LONDON");
@@ -113,7 +112,6 @@ class UserControllerTest {
 
     @Test
     void Try_To_Update_City_For_None_Existent_User() {
-
         when(userService.updateCity(user.getId(), "LONDON")).thenReturn(null);
 
         ResponseEntity<BaseResponse<UserDTO>> response = userController.updateCity(user.getId(),"LONDON");
@@ -216,5 +214,4 @@ class UserControllerTest {
 
         assertThrows(IllegalArgumentException.class,()-> userController.shareCalendar(user.getId(),updatedUser.getEmail()));
     }
-
 }
