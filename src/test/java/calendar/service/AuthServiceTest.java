@@ -53,7 +53,7 @@ class AuthServiceTest {
         user.setNotificationSettings(new NotificationSettings());
         user.setPassword(Utils.hashPassword(user.getPassword()));
 
-        loginDataDTO = new LoginDataDTO(0,"testToken","Leon", City.JERUSALEM);
+        loginDataDTO = new LoginDataDTO(0,"testToken","Leon", City.JERUSALEM, "Leon@test.com");
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 

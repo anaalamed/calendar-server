@@ -49,7 +49,7 @@ class AuthControllerTest {
         user.setId(1);
         user.setNotificationSettings(new NotificationSettings());
 
-        loginDataDTO = new LoginDataDTO(1,"testToken","Leon", City.JERUSALEM);
+        loginDataDTO = new LoginDataDTO(1,"testToken","Leon", City.JERUSALEM, "Leon@Test.com");
 
         userRequest = new UserRequest("Leon@test.com", "Leon", "leon1234");
 
