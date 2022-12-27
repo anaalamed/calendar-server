@@ -388,7 +388,7 @@ public class EventController {
      * @return The list of all relevant events to show in my calendar.
      */
 
-    @GetMapping(value = "/GetAllShared")
+    @PostMapping(value = "/GetAllShared")
     public ResponseEntity<BaseResponse<List<EventDTO>>> GetAllShared(@RequestAttribute("userId") int userId,
                                                                      @RequestBody String[] sharedEmails) {
         User user = userService.getById(userId);
