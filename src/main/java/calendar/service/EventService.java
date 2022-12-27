@@ -31,7 +31,7 @@ public class EventService {
      * @return the created Event
      * @throws SQLDataException
      */
-    public Event saveEvent(EventRequest eventRequest, User userOfEvent) throws SQLDataException {
+    public Event saveEvent(EventRequest eventRequest, User userOfEvent){
 
         Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
@@ -51,7 +51,7 @@ public class EventService {
      * @return the Updated Event
      * @throws SQLDataException
      */
-    public Event getEventById(int id) throws SQLDataException {
+    public Event getEventById(int id){
         if (eventRepository.findById(id).isPresent()) {
             return eventRepository.findById(id).get();
         } else {
@@ -76,12 +76,12 @@ public class EventService {
      * @return the Updated Event
      * @throws SQLDataException
      */
-    public Event updateEvent(EventRequest event, int id) throws SQLDataException {
+    public Event updateEvent(EventRequest event, int id){
 
         Event eventDB = eventRepository.findById(id).get();
 
         if (eventDB == null) {
-            throw new SQLDataException("Event does not exist!");
+            throw new IllegalArgumentException("Event does not exist!");
         }
 
         if (!event.isPublic())
@@ -126,9 +126,13 @@ public class EventService {
      * @return the Updated Event
      * @throws SQLDataException
      */
-    public Event updateEventRestricted(EventRequest event, int id) throws SQLDataException {
+    public Event updateEventRestricted(EventRequest event, int id) {
 
         Event eventDB = eventRepository.findById(id).get();
+
+        if (eventDB == null) {
+            throw new IllegalArgumentException("Event does not exist!");
+        }
 
         if (!event.isPublic())
             event.setPublic(eventDB.isPublic());

@@ -1,19 +1,14 @@
 package calendar.controller;
 
-import calendar.controller.request.NotificationSettingsRequest;
 import calendar.controller.response.BaseResponse;
 import calendar.entities.DTO.NotificationSettingsDTO;
-import calendar.entities.DTO.RoleDTO;
 import calendar.entities.DTO.UserDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.service.UserService;
-import calendar.utils.InputValidation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +25,10 @@ public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class.getName());
 
     /**
-     * Find user by email
-     * @param email
-     * @return the User
+     * Find user by email from the database.
+     *
+     * @param email - The email of the user we wish to retrieve.
+     * @return the User were looking for or bad request if not found.
      */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<BaseResponse<UserDTO>> getUserByEmail(@RequestParam String email) {
@@ -43,6 +39,13 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.badRequest().body(BaseResponse.failure("User not found!")));
     }
 
+    /**
+     * Updates the notification settings of a user
+     *
+     * @param userId - The id of the user we wish update.
+     * @param notificationSettingsRequest - The notification Settings we wish to insert into the user..
+     * @return the updated user or bad request if not found.
+     */
     @PutMapping(value = "/update", params = "notifications")
     public ResponseEntity<BaseResponse<UserDTO>> updateNotifications(@RequestAttribute("userId") int userId, @RequestBody NotificationSettings notificationSettingsRequest) {
         logger.debug("in updateNotifications");
@@ -94,11 +97,11 @@ public class UserController {
         logger.debug("In get users who shared their calendar with me.");
 
         User user = userService.getById(userId);
-        if(user == null){
+        if (user == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        try{
+        try {
             List<UserDTO> usersWhoSharedWithMe = UserDTO.convertUsersToUsersDTO(userService.getUsersWhoSharedWithMe(userId));
             return ResponseEntity.ok(BaseResponse.success(usersWhoSharedWithMe));
         } catch (IllegalArgumentException e) {
@@ -110,8 +113,8 @@ public class UserController {
      * Share my calendar with a different user using his id, I will insert myself into his list of
      * users who shared their calendar with him.
      *
-     * @param email - the email of the user I want to share my calendar with.
-     * @param userId-  My user id which I get by using the token in the filter.
+     * @param email   - the email of the user I want to share my calendar with.
+     * @param userId- My user id which I get by using the token in the filter.
      * @return The user i shared my calendar with.
      */
     @PostMapping(value = "/share")

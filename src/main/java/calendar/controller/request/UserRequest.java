@@ -1,11 +1,10 @@
 package calendar.controller.request;
 
-import calendar.entities.enums.City;
-
 public class UserRequest {
     private String email, name, password;
 
-    public UserRequest() {}
+    public UserRequest() {
+    }
 
     public UserRequest(String email, String name, String password) {
         this.email = email;

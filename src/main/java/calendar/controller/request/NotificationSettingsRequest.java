@@ -2,12 +2,9 @@ package calendar.controller.request;
 
 import calendar.entities.enums.NotificationGetType;
 
-
 public class NotificationSettingsRequest {
 
     private NotificationGetType event_changed, invite_guest, uninvite_guest, user_status, user_role, cancel_event, upcoming_event;
-
-
 
     public NotificationGetType getEvent_changed() {
         return event_changed;
@@ -68,7 +65,6 @@ public class NotificationSettingsRequest {
 
     public NotificationSettingsRequest() {
     }
-
 
     @Override
     public String toString() {

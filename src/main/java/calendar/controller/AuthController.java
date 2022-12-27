@@ -57,7 +57,7 @@ public class AuthController {
     /**
      * User logs in into our system with his email and password.
      * @param userRequest -  All the information of the user we wish to log in.
-     * @return LoginData: user id and token
+     * @return LoginData: Information of the logged-in user.
      */
     @RequestMapping(method = RequestMethod.POST, path = "/login")
     public  ResponseEntity<BaseResponse<LoginDataDTO>> login(@RequestBody UserRequest userRequest) {
@@ -84,6 +84,7 @@ public class AuthController {
     @RequestMapping(method = RequestMethod.POST, path = "/loginGithub")
     public ResponseEntity<BaseResponse<LoginDataDTO>> loginGithub(@RequestParam String code) throws SQLDataException {
         logger.info("in loginGithub()");
+
         Optional<LoginDataDTO> loginData = authService.loginGithub(code);
 
         if (loginData == null || !loginData.isPresent()) {
@@ -92,7 +93,7 @@ public class AuthController {
 
         logger.info("User github has logged in");
         logger.info("login data: " + loginData);
+
         return ResponseEntity.ok(BaseResponse.success(loginData.get()));
     }
-
 }

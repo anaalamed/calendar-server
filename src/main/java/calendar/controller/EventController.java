@@ -9,6 +9,9 @@ import calendar.entities.DTO.UserDTO;
 import calendar.entities.enums.*;
 import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.*;
+import calendar.utils.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,38 +34,18 @@ public class EventController {
     @Autowired
     private NotificationPublisher notificationPublisher;
 
+    private static final Logger logger = LogManager.getLogger(EventController.class.getName());
+
     /**
-     * Create new event and save it in the DB
+     * Create a new event and save it in the database
      *
-     * @param eventRequest - The information of the event we want to save in the DB
+     * @param eventRequest - The information of the event we want to save in the database.
      * @return BaseResponse with the created event on success or error message on fail.
      */
     @PostMapping(value = "/saveEvent")
     public ResponseEntity<BaseResponse<EventDTO>> saveEvent(@RequestAttribute("userId") int userId, @RequestBody EventRequest eventRequest) {
-        //check token of the user from header
-        try {
-            User userOfEvent = userService.getById(userId);
 
-            if (userOfEvent == null) {
-                return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
-            }
-
-            Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
-
-            return ResponseEntity.ok(BaseResponse.success(new EventDTO(createdEvent)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure("Failed To Create Event"));
-        }
-    }
-
-    /**
-     * Delete an event by id from the DB
-     *
-     * @param eventId
-     * @return BaseResponse with a message (deleted successfully or error)
-     */
-    @RequestMapping(value = "/deleteEvent", method = RequestMethod.DELETE)
-    public ResponseEntity<BaseResponse<String>> deleteEvent(@RequestAttribute("userId") int userId, @RequestParam int eventId) {
+        logger.info("In Save event inside EventController");
 
         User userOfEvent = userService.getById(userId);
 
@@ -70,54 +53,91 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        Event event;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
+        Event createdEvent = eventService.saveEvent(eventRequest, userOfEvent);
+
+        if (createdEvent != null) {
+            return ResponseEntity.ok(BaseResponse.success(new EventDTO(createdEvent)));
+        } else {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("Failed to create event!"));
+        }
+    }
+
+
+    /**
+     * Delete an event by id from the database. Only an organizer can delete an event.
+     *
+     * @param eventId - The id of the event we wish to delete.
+     * @param userId  - The id of the user who wishes to delete the event.
+     * @return BaseResponse with a message (deleted successfully or error)
+     */
+    @RequestMapping(value = "/deleteEvent", method = RequestMethod.DELETE)
+    public ResponseEntity<BaseResponse<String>> deleteEvent(@RequestAttribute("userId") int userId, @RequestParam int eventId) {
+
+        logger.info("In delete event inside EventController");
+
+        User userOfEvent = userService.getById(userId);
+
+        if (userOfEvent == null) {
+            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
+        }
+
+        Event event = eventService.getEventById(eventId);
+
+        if (event == null) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Event %s not exists!", eventId)));
         }
 
         eventService.deleteEvent(event);
+
         return ResponseEntity.ok(BaseResponse.success("Event Deleted Successfully"));
     }
 
 
     /**
-     * get an event in the DB by id if founded
+     * get an event from the database by an event id if it exists.
      *
-     * @param id
-     * @return BaseResponse with a data of the Updated Event
+     * @param id - the id of the event we wish to retrieve.
+     * @return The event in DTO format we wanted to get or an error message if not found.
      */
     @RequestMapping(value = "/getEventById", method = RequestMethod.GET)
     public ResponseEntity<BaseResponse<EventDTO>> getEventById(@RequestParam int id) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.getEventById(id);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
+
+        logger.info("in get event by id inside EventController");
+
+        Event event = eventService.getEventById(id);
+
+        if (event != null) {
+            return ResponseEntity.ok(BaseResponse.success(new EventDTO(event)));
+        } else {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("The event %s does not exist!", id)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
     }
 
 
     /**
-     * Update an event in the DB if founded
+     * Update an event in the database if it exists. Only an admin or an organizer can access this method.
      *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
+     * @param event    - The event with the updated information.
+     * @param roleType - The event with the updated information.
+     * @param eventId  - The event with the updated information.
+     * @return BaseResponse with a data of the Updated Event or error message on fail.
      */
     @RequestMapping(value = "/updateEvent/event", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEvent(@RequestAttribute("roleType") RoleType roleType, @RequestParam int eventId, @RequestBody EventRequest event) {
-        Event res = null;
-        try {
-            if (roleType.equals(RoleType.ORGANIZER))
-                res = eventService.updateEvent(event, eventId);
+    public ResponseEntity<BaseResponse<EventDTO>> updateEvent(@RequestAttribute("roleType") RoleType roleType,
+                                                              @RequestParam int eventId, @RequestBody EventRequest event) {
 
-            if (roleType.equals(RoleType.ADMIN))
+        logger.info("in update event inside EventController");
+
+        Event res = null;
+
+        try {
+            if (roleType.equals(RoleType.ORGANIZER)) {
+                res = eventService.updateEvent(event, eventId);
+            }
+
+            if (roleType.equals(RoleType.ADMIN)) {
                 res = eventService.updateEventRestricted(event, eventId);
+            }
 
             if (res != null) {
                 notificationPublisher.publishEventChangeNotification(res);
@@ -126,159 +146,11 @@ public class EventController {
 
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update the Event %s !", eventId)));
 
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
     }
 
-
-    /**
-     * Update an event title in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/title", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventTitle(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventTitle(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Title of Event %s !", eventId)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-    }
-
-    /**
-     * Update an event Description in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/description", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventDescription(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventDescription(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Description of Event %s !", eventId)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-
-    }
-
-    /**
-     * Update an event Duration in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/duration", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventDuration(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventDuration(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Duration of Event %s !", eventId)));
-
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-    }
-
-    /**
-     * Update an event Time in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/time", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventTime(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventTime(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Time of Event %s !", eventId)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-
-    }
-
-
-    /**
-     * Update an event Location in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/location", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventLocation(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventLocation(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update Location of Event %s !", eventId)));
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-    }
-
-
-    /**
-     * Update an event Accessibility in the DB if founded
-     *
-     * @param event
-     * @return BaseResponse with a data of the Updated Event
-     */
-    @RequestMapping(value = "/updateEvent/isPublic", method = RequestMethod.PUT)
-    public ResponseEntity<BaseResponse<EventDTO>> updateEventIsPublic(@RequestParam int eventId, @RequestBody EventRequest event) {
-        //check token of the user from header
-        Event res;
-        try {
-            res = eventService.updateEventIsPublic(event, eventId);
-            if (res != null)
-                return ResponseEntity.ok(BaseResponse.success(new EventDTO(res)));
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format("Failed to update accessibility of Event %s !", eventId)));
-
-        } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
-        }
-    }
-
-    /**
-     * get all events of a user by his id
-     *
-     * @param userId - the id of the user we want to get all of his events.
-     * @return a list of all the events.
-     */
-    @GetMapping(value = "/getEventsByUserId")
-    public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserId(@RequestAttribute("userId") int userId) {
-
-        User userOfEvent = userService.getById(userId);
-
-        if (userOfEvent == null) {
-            return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
-        }
-
-        List<Event> events = eventService.getEventsByUserId(userId);
-
-        List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
-
-        return ResponseEntity.ok(BaseResponse.success(eventsDTO));
-    }
 
     /**
      * Returns one specific role of a user in an event, User can be part of many events, so he can have many
@@ -290,6 +162,9 @@ public class EventController {
      */
     @RequestMapping(value = "/getSpecificRole", method = RequestMethod.GET)
     public ResponseEntity<BaseResponse<RoleDTO>> getSpecificRole(@RequestParam int userId, @RequestParam int eventId) {
+
+        logger.info("in get specific role inside EventController");
+
 
         Role role = eventService.getSpecificRole(userId, eventId);
 
@@ -311,11 +186,16 @@ public class EventController {
     @RequestMapping(value = "/switchRole", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<RoleDTO>> switchRole(@RequestParam("eventId") int eventId, @RequestBody int userId) {
 
+        logger.info("in switch role inside EventController");
+
         try {
+
             RoleDTO roleDTO = new RoleDTO(eventService.switchRole(userId, eventId));
             notificationPublisher.publishUserRoleChangedNotification(eventId, userId);
+
             return ResponseEntity.ok(BaseResponse.success(roleDTO));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
@@ -333,11 +213,16 @@ public class EventController {
                                                               @RequestParam("eventId") int eventId,
                                                               @RequestAttribute("userId") int userId) {
 
+        logger.info("in switch status inside EventController");
+
         try {
+
             Role role = eventService.switchStatus(userId, eventId, approveOrReject);
             notificationPublisher.publishUserStatusChangedNotification(eventId, userId);
+
             return ResponseEntity.ok(BaseResponse.success(new RoleDTO(role)));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
@@ -354,6 +239,8 @@ public class EventController {
     @RequestMapping(value = "/inviteGuest", method = RequestMethod.POST)
     public ResponseEntity<BaseResponse<RoleDTO>> inviteGuest(@RequestParam String email, @RequestParam int eventId) {
 
+        logger.info("in invite guest inside EventController");
+
         User user = userService.getByEmailNotOptional(email);
 
         if (user == null) {
@@ -361,13 +248,17 @@ public class EventController {
         }
 
         try {
+
             Role roleToAdd = eventService.inviteGuest(user, eventId);
             notificationPublisher.publishInviteGuestNotification(eventId, user.getEmail());
+
             if (roleToAdd != null) {
                 return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToAdd)));
             }
+
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!")); // Here for Controller tests only!
         } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
@@ -381,7 +272,9 @@ public class EventController {
      * @return a message confirming the removal of the guest.
      */
     @RequestMapping(value = "/removeGuest", method = RequestMethod.DELETE)
-    public ResponseEntity<BaseResponse<Role>> removeGuest(@RequestParam String email, @RequestParam int eventId) {
+    public ResponseEntity<BaseResponse<RoleDTO>> removeGuest(@RequestParam String email, @RequestParam int eventId) {
+
+        logger.info("in remove guest inside EventController");
 
         User user = userService.getByEmailNotOptional(email);
 
@@ -390,16 +283,29 @@ public class EventController {
         }
 
         try {
+
             Role roleToRemove = eventService.removeGuest(user.getId(), eventId);
             notificationPublisher.publishRemoveUserFromEventNotification(eventId, user.getEmail());
-            return ResponseEntity.ok(BaseResponse.noContent(true, "The guest was removed successfully!"));
+
+            return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToRemove)));
         } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
 
+    /**
+     * Allows a user to 'leave' an event which will hide it from his calendar and mark him as rejected in the event guest list.
+     * Leaving the event does not remove you from the guest list as intended.
+     * @param eventId - The id of the event the user wishes to leave.
+     * @param userId- The id of the user who wishes to leave the event.
+     * @return The 'Role' representing the user id and event id of the user who left.
+     */
     @RequestMapping(value = "/leaveEvent", method = RequestMethod.PATCH)
     public ResponseEntity<BaseResponse<RoleDTO>> leaveEvent(@RequestAttribute("userId") int userId, @RequestParam int eventId) {
+
+        logger.info("in leave event inside EventController");
+
         User user = userService.getById(userId);
 
         if (user == null) {
@@ -412,14 +318,23 @@ public class EventController {
             if (roleToHide != null) {
                 return ResponseEntity.ok(BaseResponse.success(new RoleDTO(roleToHide)));
             }
+
             return ResponseEntity.badRequest().body(BaseResponse.failure("The role does not exist!")); // Here for Controller tests only!
         } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(e.getMessage()));
         }
     }
 
+    /**
+     * Returns a list of all my events I want to display in my calendar. (Meaning events i did not leave).
+     * @param userId-      My user id which I get by using the token in the filter.
+     * @return The list of all relevant events to show in my calendar.
+     */
     @GetMapping(value = "/getEventsByUserIdShowOnly")
     public ResponseEntity<BaseResponse<List<EventDTO>>> getEventsByUserIdShowOnly(@RequestAttribute("userId") int userId) {
+
+        logger.info("in get events by user id show only inside EventController");
 
         User userOfEvent = userService.getById(userId);
 
@@ -431,21 +346,8 @@ public class EventController {
 
         List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
 
-        for (EventDTO event : eventsDTO) {
-            switch (userOfEvent.getCity()) {
-                case PARIS:
-                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/Paris")));
-                    break;
-                case LONDON:
-                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Europe/London")));
-                    break;
-                case NEW_YORK:
-                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("America/New_York")));
-                    break;
-                default:
-                    event.setTime(event.getTime().withZoneSameInstant(ZoneId.of("Asia/Jerusalem")));
-            }
-        }
+        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO,userOfEvent.getCity());
+
         return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
 
@@ -456,7 +358,7 @@ public class EventController {
      * Returns a 'Set' meaning no duplicate events if someone happened to share an event i am already in.
      *
      * @param sharedEmails - An array of all the emails of the users who shared his calendar with me which i want to see.
-     * @param userId-     My user id which I get by using the token in the filter.
+     * @param userId-      My user id which I get by using the token in the filter.
      * @return The list of all relevant events to show in my calendar.
      */
 
@@ -469,13 +371,19 @@ public class EventController {
             return ResponseEntity.badRequest().body(BaseResponse.failure("The user does not exist!"));
         }
 
-        if (sharedEmails.length == 0){
+        if (sharedEmails.length == 0) {
             ResponseEntity.ok(BaseResponse.success(Collections.emptyList()));
         }
 
         try {
-            return ResponseEntity.ok(BaseResponse.success(EventDTO.convertEventsToEventsDTO(eventService.GetAllShared(user, sharedEmails))));
+
+           List<EventDTO> events =  EventDTO.convertEventsToEventsDTO(eventService.GetAllShared(user, sharedEmails));
+
+           events = Utils.changeEventTimesByTimeZone(events,user.getCity());
+
+            return ResponseEntity.ok(BaseResponse.success(events));
         } catch (IllegalArgumentException e) {
+
             return ResponseEntity.badRequest().body(BaseResponse.failure(String.format(e.getMessage())));
         }
     }

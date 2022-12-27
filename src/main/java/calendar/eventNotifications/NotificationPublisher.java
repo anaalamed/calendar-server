@@ -57,13 +57,12 @@ public class NotificationPublisher {
     public void publishInviteGuestNotification(int eventId, String email)  {
         String title = "New Event Invitation";
 
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            logger.error("event was not found");
-            return;
+        Event event = eventService.getEventById(eventId);
+
+        if(event == null){
+            throw new IllegalArgumentException();
         }
+
         String message = "You were invited to Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         ArrayList<String> emails = new ArrayList<>(List.of(email));
 
@@ -73,13 +72,12 @@ public class NotificationPublisher {
     public void publishRemoveUserFromEventNotification(int eventId, String email) {
         String title = "UnInvitation from Event";
 
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            logger.error("event was not found");
-            return;
+        Event event = eventService.getEventById(eventId);
+
+        if(event == null){
+            throw new IllegalArgumentException();
         }
+
         String message = "You were uninvited from Event '"+ event.getTitle() +"' at "+ event.getTime() +" !";
         ArrayList<String> emails = new ArrayList<>(List.of(email));
 
@@ -89,12 +87,12 @@ public class NotificationPublisher {
     public void publishUserStatusChangedNotification(int eventId, int userId)  {
         String title = "User status";
 
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+        Event event = eventService.getEventById(eventId);
+
+        if(event == null){
+            throw new IllegalArgumentException();
         }
+
         StatusType statusType = eventService.getSpecificRole(userId, eventId).getStatusType();
         logger.info(statusType);
 
@@ -218,12 +216,12 @@ public class NotificationPublisher {
     public void publishUserRoleChangedNotification(int eventId, int userId)  {
         String title = "User role";
 
-        Event event = null;
-        try {
-            event = eventService.getEventById(eventId);
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+        Event event = eventService.getEventById(eventId);
+
+        if(event == null){
+            throw new IllegalArgumentException();
         }
+
         RoleType roleType = eventService.getSpecificRole(userId, eventId).getRoleType();
         logger.info(roleType);
 
