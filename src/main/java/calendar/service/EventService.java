@@ -1,10 +1,12 @@
 package calendar.service;
 
 import calendar.controller.request.EventRequest;
+import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.time.ZonedDateTime;
@@ -495,23 +497,35 @@ public class EventService {
      * * All the *PUBLIC* events of a user of my choosing who has shared his calendar with me.
      * Returns a 'Set' meaning no duplicate events if someone happened to share an event i am already in.
      * @param user - my user information.
-     * @param sharedUser- My user who shared his calendar with me.
+     * @param sharedEmails- An array of all the emails of the users who shared his calendar with me which i want to see.
      * @return The list of all relevant events to show in my calendar.
      */
-    public List<Event> GetAllShared(User user, User sharedUser) {
+    public List<Event> GetAllShared(User user, String[] sharedEmails) {
 
         if (user == null) {
             throw new IllegalArgumentException("User does not exist!");
         }
 
-        if (sharedUser == null) {
-            throw new IllegalArgumentException("The user i want to share with does not exist!");
+
+        List<User> validUsers = new ArrayList<>();
+
+        for (String email:sharedEmails) {
+            User tempUser = userRepository.findByEmail(email).get();
+            if(user.getUsersWhoSharedTheirCalendarWithMe().contains(tempUser) || tempUser.equals(user)){
+                validUsers.add(tempUser);
+            }
         }
 
         List<Event> finalList = new ArrayList<>();
-        finalList.addAll(getEventsByUserIdShowOnly(user.getId()));
-        finalList.addAll(getEventsByUserId(sharedUser.getId()).stream().filter(event -> event.isPublic())
-                .collect(Collectors.toList()));
+
+        for (User tempUser: validUsers) {
+            if(tempUser.getId() == user.getId()){
+                finalList.addAll(getEventsByUserIdShowOnly(user.getId()));
+            }else{
+                finalList.addAll(getEventsByUserId(tempUser.getId()).stream().filter(event -> event.isPublic())
+                        .collect(Collectors.toList()));
+            }
+        }
 
         return finalList.stream().distinct().collect(Collectors.toList());
     }

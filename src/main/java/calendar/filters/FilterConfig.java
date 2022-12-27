@@ -53,12 +53,11 @@ public class FilterConfig {
         registrationBean.setFilter(customURLFilter);
 
         registrationBean.addUrlPatterns(
-                "/user/update", "/user/delete", "/user/getNotificationSettings", "/user/getUsersWhoSharedWithMe", "/user/updateCity",
+                "/user/update", "/user/delete", "/user/getNotificationSettings", "/user/getUsersWhoSharedWithMe", "/user/updateCity",   "/user/share",
                 "/event/removeGuest", "/event/inviteGuest", "/event/switchRole", "/event/saveEvent", "/event/updateEvent","/event/GetAllShared",
                 "/event/deleteEvent", "/event/getEventsByUserId", "/event/updateEvent/isPublic", "/event/updateEvent/location",
                 "/event/updateEvent/title", "/event/updateEvent/description", "/event/updateEvent/time", "/event/updateEvent/duration",
-                "/event/updateEvent/event", "/event/updateEvent/date", "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly",
-                "/calendar/share", "/calendar/share"
+                "/event/updateEvent/event", "/event/updateEvent/date", "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly"
         );
         registrationBean.setOrder(2); //set precedence
         return registrationBean;

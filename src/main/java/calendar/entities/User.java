@@ -27,8 +27,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private City city;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
-    @JsonIgnore
+    @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     private List<User> usersWhoSharedTheirCalendarWithMe;
 
     public User() {
@@ -101,7 +100,7 @@ public class User {
     }
 
     public List<User> getUsersWhoSharedTheirCalendarWithMe() {
-        return usersWhoSharedTheirCalendarWithMe;
+        return this.usersWhoSharedTheirCalendarWithMe;
     }
 
     public void addSharedCalendar(User user) {
