@@ -1,13 +1,12 @@
 package calendar.service;
 
 import calendar.controller.request.EventRequest;
-import calendar.controller.response.BaseResponse;
 import calendar.entities.*;
 import calendar.entities.enums.*;
 import calendar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.sql.SQLDataException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -24,14 +23,12 @@ public class EventService {
     UserRepository userRepository;
 
     /**
-     * Create new event if isn't already exist
+     * Create a new event and save it in the database
      *
-     * @param eventRequest
-     * @param userOfEvent
-     * @return the created Event
-     * @throws SQLDataException
+     * @param eventRequest - The information of the event we want to save in the database.
+     * @return The created event.
      */
-    public Event saveEvent(EventRequest eventRequest, User userOfEvent){
+    public Event saveEvent(EventRequest eventRequest, User userOfEvent) {
 
         Event eventReq = Event.getNewEvent(eventRequest.isPublic(), eventRequest.getTime(), eventRequest.getDuration(), eventRequest.getLocation(),
                 eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getAttachments());
@@ -45,13 +42,12 @@ public class EventService {
     }
 
     /**
-     * get event by id if it exists in db
+     * get an event from the database by an event id if it exists.
      *
-     * @param id - the id of the event we want to retrieve.
-     * @return the Updated Event
-     * @throws SQLDataException
+     * @param id - the id of the event we wish to retrieve.
+     * @return The event we wanted to get or null if not found.
      */
-    public Event getEventById(int id){
+    public Event getEventById(int id) {
         if (eventRepository.findById(id).isPresent()) {
             return eventRepository.findById(id).get();
         } else {
@@ -60,25 +56,24 @@ public class EventService {
     }
 
     /**
-     * Delete an event from the DB if exists!
+     * Delete an event by id from the database. Only an organizer can delete an event.
      *
-     * @param event - the event we wish to delete
+     * @param event - The event we wish to delete.
      */
-    public void deleteEvent(Event event){
-         eventRepository.delete(event);
+    public void deleteEvent(Event event) {
+        eventRepository.delete(event);
     }
 
     /**
-     * Update the event if founded in db
-     * For ORGANIZER
+     * Update an event in the database if it exists. Only an organizer can access this method.
      *
-     * @param event
-     * @return the Updated Event
-     * @throws SQLDataException
+     * @param event    - The event with the updated information.
+     * @param eventId  - The if of the event we wish to update.
+     * @return The updated event.
      */
-    public Event updateEvent(EventRequest event, int id){
+    public Event updateEvent(EventRequest event, int eventId) {
 
-        Event eventDB = eventRepository.findById(id).get();
+        Event eventDB = eventRepository.findById(eventId).get();
 
         if (eventDB == null) {
             throw new IllegalArgumentException("Event does not exist!");
@@ -86,9 +81,6 @@ public class EventService {
 
         if (!event.isPublic())
             event.setPublic(eventDB.isPublic());
-
-//        if (event.getDate() == null)
-//            event.setDate(eventDB.getDate());
 
         if (event.getTime() == null)
             event.setTime(eventDB.getTime());
@@ -109,9 +101,10 @@ public class EventService {
             event.setLocation(eventDB.getLocation());
 
         int rows = eventRepository.updateEvent(event.isPublic(), event.getTitle(), event.getTime()
-                , event.getDuration(), event.getLocation(), event.getDescription(), id);
+                , event.getDuration(), event.getLocation(), event.getDescription(), eventId);
+
         if (rows > 0) {
-            return eventRepository.findById(id).get();
+            return eventRepository.findById(eventId).get();
         } else {
             return null;
         }
@@ -119,16 +112,15 @@ public class EventService {
 
 
     /**
-     * Update the event if founded in db
-     * For ADMIN
-     *
-     * @param event
-     * @return the Updated Event
-     * @throws SQLDataException
+     * Update an event in the database if it exists. Only an admin can access this method.
+     * Unlike the normal update method , this method can update only a restricted amount of fields.
+     * @param event    - The event with the updated information.
+     * @param eventId  - The if of the event we wish to update.
+     * @return The updated event.
      */
-    public Event updateEventRestricted(EventRequest event, int id) {
+    public Event updateEventRestricted(EventRequest event, int eventId) {
 
-        Event eventDB = eventRepository.findById(id).get();
+        Event eventDB = eventRepository.findById(eventId).get();
 
         if (eventDB == null) {
             throw new IllegalArgumentException("Event does not exist!");
@@ -147,109 +139,17 @@ public class EventService {
             event.setLocation(eventDB.getLocation());
 
 
-        int rows = eventRepository.updateEventRestricted(event.isPublic(), event.getLocation(), event.getDescription(), id);
+        int rows = eventRepository.updateEventRestricted(event.isPublic(), event.getLocation(), event.getDescription(), eventId);
+
         if (rows > 0) {
-            return eventRepository.findById(id).get();
-        } else {
-            return null;
-        }
-    }
-
-
-    /**
-     * Update Title of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventTitle(EventRequest event, int id) throws SQLDataException {
-        int rows = eventRepository.updateEventTitle(event.getTitle(), id);
-        if (rows > 0)//number of updated rows in db
-        {
-            return eventRepository.findById(id).get();
+            return eventRepository.findById(eventId).get();
         } else {
             return null;
         }
     }
 
     /**
-     * Update Location of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventLocation(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventLocation(event.getLocation(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Update Time of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventTime(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventTime(event.getTime(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Update IsPublic (accessibility) of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventIsPublic(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventIsPublic(event.isPublic(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Update Duration of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventDuration(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventDuration(event.getDuration(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Update Description of the event
-     *
-     * @param event
-     * @return updated event
-     * @throws SQLDataException
-     */
-    public Event updateEventDescription(EventRequest event, int id) throws SQLDataException {
-        if (eventRepository.updateEventDescription(event.getDescription(), id) > 0)
-            return eventRepository.findById(id).get();
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * get all events of a user by his id
+     * get all events of a user by his id.
      *
      * @param userId - the id of the user we want to get all of his events.
      * @return a list of all the events.
@@ -282,6 +182,7 @@ public class EventService {
     public Role getSpecificRole(int userId, int eventId) {
 
         Event event;
+
         Role role = null;
 
         if (eventRepository.findById(eventId).isPresent()) {
@@ -294,6 +195,7 @@ public class EventService {
         if (role == null) {
             return null;
         }
+
         return role;
     }
 
@@ -324,10 +226,10 @@ public class EventService {
         }
 
         event.removeRole(roleToRemove);
+
         eventRepository.save(event);
 
         return roleToRemove;
-
     }
 
     /**
@@ -355,6 +257,7 @@ public class EventService {
         Role role = new Role(user, StatusType.TENTATIVE, RoleType.GUEST);
 
         event.getRoles().add(role);
+
         eventRepository.save(event);
 
         return role;
@@ -437,6 +340,13 @@ public class EventService {
         return roleToUpdate;
     }
 
+    /**
+     * Allows a user to 'leave' an event which will hide it from his calendar and mark him as rejected in the event guest list.
+     * Leaving the event does not remove you from the guest list as intended.
+     * @param eventId - The id of the event the user wishes to leave.
+     * @param userId- The id of the user who wishes to leave the event.
+     * @return The 'Role' representing the user id and event id of the user who left.
+     */
     public Role leaveEvent(int userId, int eventId) {
 
         Event event = eventRepository.findById(eventId).get();
@@ -469,6 +379,10 @@ public class EventService {
         return roleToHide;
     }
 
+    /**
+     * get all the events with a starting time within the next 24 hours.
+     * @return a list of all the events with a starting time within the next 24 hours.
+     */
     public List<Event> getEventsTillNextDay() {
 
         List<Event> eventsNext24Hours = eventRepository.findAll();
@@ -480,9 +394,15 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * get all events of a user by his id but only the ones he wishes to show in his calendar (Did not leave the event).
+     *
+     * @param userId - the id of the user we want to get all of his events.
+     * @return a list of all the events a user wishes to show.
+     */
     public List<Event> getEventsByUserIdShowOnly(int userId) {
 
-        if(userRepository.findById(userId) == null){
+        if (userRepository.findById(userId) == null) {
             return null;
         }
 
@@ -500,7 +420,8 @@ public class EventService {
      * * All of my events that I want to share (meaning events i did not 'leave')
      * * All the *PUBLIC* events of a user of my choosing who has shared his calendar with me.
      * Returns a 'Set' meaning no duplicate events if someone happened to share an event i am already in.
-     * @param user - my user information.
+     *
+     * @param user          - my user information.
      * @param sharedEmails- An array of all the emails of the users who shared his calendar with me which i want to see.
      * @return The list of all relevant events to show in my calendar.
      */
@@ -513,19 +434,19 @@ public class EventService {
 
         List<User> validUsers = new ArrayList<>();
 
-        for (String email:sharedEmails) {
+        for (String email : sharedEmails) {
             User tempUser = userRepository.findByEmail(email).get();
-            if(user.getUsersWhoSharedTheirCalendarWithMe().contains(tempUser) || tempUser.equals(user)){
+            if (user.getUsersWhoSharedTheirCalendarWithMe().contains(tempUser) || tempUser.equals(user)) {
                 validUsers.add(tempUser);
             }
         }
 
         List<Event> finalList = new ArrayList<>();
 
-        for (User tempUser: validUsers) {
-            if(tempUser.getId() == user.getId()){
+        for (User tempUser : validUsers) {
+            if (tempUser.getId() == user.getId()) {
                 finalList.addAll(getEventsByUserIdShowOnly(user.getId()));
-            }else{
+            } else {
                 finalList.addAll(getEventsByUserId(tempUser.getId()).stream().filter(event -> event.isPublic())
                         .collect(Collectors.toList()));
             }
