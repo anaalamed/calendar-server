@@ -73,12 +73,12 @@ public class NotificationListener implements ApplicationListener<Notification> {
                     break;
                 case POPUP:
                     logger.info("------- send socket popup");
-                    simpMessagingTemplate.convertAndSend("/notifications", notification);
+                    simpMessagingTemplate.convertAndSend("/notifications/" + email, notification);
                     break;
                 case ALL:
                     logger.info("-------- send email and popup");
                     GMailer.sendMail(email, notification.getTitle(), notification.getMessage());
-                    simpMessagingTemplate.convertAndSend("/notifications", notification);
+                    simpMessagingTemplate.convertAndSend("/notifications/" + email, notification);
                     break;
                 case NONE:
                     logger.info("--------- no notifications ");

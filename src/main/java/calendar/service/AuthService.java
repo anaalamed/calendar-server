@@ -77,7 +77,7 @@ public class AuthService {
                 || user.get().getProvider() == ProviderType.GITHUB && userRequest.getPassword().equals("")) {
 
                     String token = executeLogin(user.get().getId());
-                    return Optional.of(new LoginDataDTO(user.get().getId(), token, user.get().getName(), user.get().getCity()));
+                    return Optional.of(new LoginDataDTO(user.get().getId(), token, user.get().getName(), user.get().getCity(), user.get().getEmail()));
             }
         }
 
