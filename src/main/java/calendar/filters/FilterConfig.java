@@ -16,6 +16,19 @@ public class FilterConfig {
     private final AuthService authService;
     private final EventService eventService;
 
+    private static String[] tokenUrls =   {"/user/update", "/user/delete", "/user/getNotificationSettings",
+            "/user/getUsersWhoSharedWithMe", "/user/updateCity", "/user/share",
+            "/event/removeGuest", "/event/inviteGuest", "/event/switchRole", "/event/saveEvent",
+            "/event/updateEvent", "/event/GetAllShared", "/event/deleteEvent",
+            "/event/getEventsByUserId", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+            "/event/updateEvent/title", "/event/updateEvent/description", "/event/updateEvent/time",
+            "/event/updateEvent/duration", "/event/updateEvent/event", "/event/updateEvent/date",
+            "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly"};
+
+    private static String[] roleUrls = { "/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
+            "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",
+            "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent", "/event/switchRole", "/event/leaveEvent"};
+
     @Autowired
     public FilterConfig(AuthService authService, EventService eventService) {
 
@@ -59,16 +72,7 @@ public class FilterConfig {
         TokenFilter customURLFilter = new TokenFilter(authService);
         registrationBean.setFilter(customURLFilter);
 
-        registrationBean.addUrlPatterns(
-                "/user/update", "/user/delete", "/user/getNotificationSettings",
-                "/user/getUsersWhoSharedWithMe", "/user/updateCity", "/user/share",
-                "/event/removeGuest", "/event/inviteGuest", "/event/switchRole", "/event/saveEvent",
-                "/event/updateEvent", "/event/GetAllShared", "/event/deleteEvent",
-                "/event/getEventsByUserId", "/event/updateEvent/isPublic", "/event/updateEvent/location",
-                "/event/updateEvent/title", "/event/updateEvent/description", "/event/updateEvent/time",
-                "/event/updateEvent/duration", "/event/updateEvent/event", "/event/updateEvent/date",
-                "/event/switchStatus", "/event/leaveEvent", "/event/getEventsByUserIdShowOnly"
-        );
+        registrationBean.addUrlPatterns(tokenUrls);
 
         registrationBean.setOrder(2); //set precedence
 
@@ -91,15 +95,10 @@ public class FilterConfig {
         RoleFilter customURLFilter = new RoleFilter(eventService);
         registrationBean.setFilter(customURLFilter);
 
-        registrationBean.addUrlPatterns(
-                "/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic", "/event/updateEvent/location",
-                "/event/updateEvent/time", "/event/updateEvent/duration", "/event/updateEvent/date", "/event/updateEvent/description",
-                "/event/updateEvent/title", "/event/updateEvent/event", "/event/deleteEvent", "/event/switchRole", "/event/leaveEvent"
-        );
+        registrationBean.addUrlPatterns(roleUrls);
 
         registrationBean.setOrder(3); //set precedence
 
         return registrationBean;
     }
-
 }

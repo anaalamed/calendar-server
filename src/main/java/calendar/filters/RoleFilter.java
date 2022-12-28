@@ -6,13 +6,14 @@ import calendar.filters.entity.MutableHttpServletRequest;
 import calendar.service.EventService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import javax.servlet.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 
 public class RoleFilter implements Filter {
@@ -57,8 +58,13 @@ public class RoleFilter implements Filter {
 
         logger.info("Role filter is working on the following request: " + servletRequest);
 
-        String[] listOfAdminPermissions = {"/event/removeGuest", "/event/inviteGuest", "/event/updateEvent/isPublic",
-                "/event/updateEvent/location", "/event/updateEvent/description", "/event/updateEvent/event", "/event/leaveEvent"};
+        Properties properties = new Properties();
+
+        properties.load(new FileInputStream("src/main/resources/adminPermissions.properties"));
+
+        String urls = properties.getProperty("urls");;
+
+        String[] listOfAdminPermissions = urls.split(",");
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
 
