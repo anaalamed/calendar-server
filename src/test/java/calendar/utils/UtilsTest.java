@@ -4,6 +4,7 @@ import calendar.entities.DTO.EventDTO;
 import calendar.entities.Event;
 import calendar.entities.enums.City;
 import jdk.jshell.execution.Util;
+import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,9 +49,9 @@ class UtilsTest {
     @Test
     void changeEventTimesByTimeZone() {
 
-        List<EventDTO> newEvents = Utils.changeEventTimesByTimeZone(events, City.PARIS);
+        List<EventDTO> newEvents = Utils.changeEventTimesByTimeZone(events, City.NEW_YORK);
 
-        assertTrue(newEvents.get(0).getTime().isBefore(ZonedDateTime.now()));
+        assertEquals(newEvents.get(0).getTime().getZone().toString(),"America/New_York");
     }
 
     @Test
