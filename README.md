@@ -46,6 +46,6 @@ This is the server-side Spring Boot REST API for our calendar application.
   *
 
 ## Prerequisites
-Java 9 or higher
-Maven
-A MySQL database
+* Java 9 or higher
+* Maven
+* A MySQL database
