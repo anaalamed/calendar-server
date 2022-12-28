@@ -7,6 +7,7 @@ import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.eventNotifications.NotificationPublisher;
 import calendar.service.AuthService;
+import calendar.service.GithubAuthService;
 import calendar.utils.InputValidation;
 import org.apache.logging.log4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ import java.util.Optional;
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private GithubAuthService githubAuthService;
+
     @Autowired
     public NotificationPublisher notificationPublisher;
     @Autowired
@@ -85,7 +90,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse<LoginDataDTO>> loginGithub(@RequestParam String code) throws SQLDataException {
         logger.info("in loginGithub()");
 
-        Optional<LoginDataDTO> loginData = authService.loginGithub(code);
+        Optional<LoginDataDTO> loginData = githubAuthService.loginGithub(code);
 
         if (loginData == null || !loginData.isPresent()) {
             return ResponseEntity.badRequest().body(BaseResponse.failure("Failed to log in with github"));
