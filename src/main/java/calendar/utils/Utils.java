@@ -112,43 +112,4 @@ public class Utils {
 
         return result.verified;
     }
-
-
-    //    ------------------------ git login ---------------------------------
-    public static ResponseEntity<GitToken> reqGitGetToken(String link) {
-        logger.info("in reqGitGetToken()");
-        logger.debug(link);
-
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/json");
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        try {
-            return restTemplate.exchange(link, HttpMethod.POST, entity, GitToken.class);
-        } catch (Exception e) {
-            logger.error("git get token  exception" + e);
-            return null;
-        }
-    }
-
-    public static ResponseEntity<GitUser> reqGitGetUser(String link, String bearerToken) {
-        logger.info("in reqGitGetUser()");
-        logger.info(link);
-        logger.info(bearerToken);
-
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + bearerToken);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        try {
-            return restTemplate.exchange(link, HttpMethod.GET, entity, GitUser.class);
-        } catch (Exception e) {
-            logger.error("git get token  exception" + e);
-            return null;
-        }
-    }
-
-
 }

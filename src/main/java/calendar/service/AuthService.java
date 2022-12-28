@@ -2,8 +2,6 @@ package calendar.service;
 
 
 import calendar.controller.request.UserRequest;
-import calendar.controller.response.GitToken;
-import calendar.controller.response.GitUser;
 import calendar.entities.DTO.LoginDataDTO;
 import calendar.entities.NotificationSettings;
 import calendar.entities.User;
@@ -14,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
@@ -44,19 +41,15 @@ public class AuthService {
      * @throws SQLDataException - If the user is already registered in our DB.
      */
     public User createUser(UserRequest userRequest, ProviderType provider) throws IllegalArgumentException {
-
         logger.info("in createUser()");
 
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException(String.format("Email %s already exists!", userRequest.getEmail()));
         }
-
         logger.debug(userRequest);
 
         User createdUser = new User(userRequest.getName(), userRequest.getEmail(), Utils.hashPassword(userRequest.getPassword()), provider);
-
         NotificationSettings notificationSettings = new NotificationSettings(createdUser);
-
         createdUser.setNotificationSettings(notificationSettings);
 
         User savedUser = userRepository.save(createdUser);
@@ -101,71 +94,6 @@ public class AuthService {
                 .filter(entry -> token.equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .findFirst();
-    }
-
-    /**
-     * User logs in into our system with his GitHub.
-     * @param code -  A code given by the GitHub API to proceed with the login process.
-     * @return LoginData: user id and token.
-     */
-    public Optional<LoginDataDTO> loginGithub(String code) throws IllegalArgumentException {
-
-        logger.info("in loginGithub()");
-
-        GitUser githubUser = getGithubUser(code);
-
-        logger.info("user: " + githubUser);
-
-        if (githubUser != null && githubUser.getEmail() != null && !githubUser.getEmail().equals("")) {
-            Optional<User> userFromDB = userRepository.findByEmail(githubUser.getEmail());
-
-            if (!userFromDB.isPresent()) {
-                User userCreated = null;
-
-                if (!githubUser.getName().equals("") && githubUser.getName() != null) {
-                    userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getName(), ""), ProviderType.GITHUB);
-                    logger.info(userCreated);
-                } else {
-                    userCreated = createUser(new UserRequest(githubUser.getEmail(), githubUser.getLogin(), ""), ProviderType.GITHUB);
-                    logger.info(userCreated);
-                }
-            } else if (userFromDB.get().getProvider() == ProviderType.LOCAL) {
-                return null;
-            }
-
-            return login(new UserRequest(githubUser.getEmail(), ""));
-        }
-        return Optional.empty();
-    }
-
-
-    public ResponseEntity<GitToken> getGithubToken(String code) {
-
-        String baseLink = "https://github.com/login/oauth/access_token?";
-        String clientId = env.getProperty("spring.security.oauth2.client.registration.github.client-id");
-        String clientSecret = env.getProperty("spring.security.oauth2.client.registration.github.client-secret");
-        String linkGetToken = baseLink + "client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code;
-
-        logger.debug(linkGetToken);
-
-        return Utils.reqGitGetToken(linkGetToken);
-    }
-
-    public GitUser getGithubUser(String code) {
-        ResponseEntity<GitToken> gitTokenResponse = getGithubToken(code);
-
-        if (gitTokenResponse != null) {
-            String token = gitTokenResponse.getBody().getAccess_token();
-            logger.info("token: " + token);
-
-            String linkGetUser = "https://api.github.com/user";
-            ResponseEntity<GitUser> gitUserResponseEntity = Utils.reqGitGetUser(linkGetUser, token);
-
-            if (gitUserResponseEntity != null) {
-                return gitUserResponseEntity.getBody();
-            }
-        }
-        return null;
     }
 
     public static HashMap<Integer, String> getUsersTokensMap() {
