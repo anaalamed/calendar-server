@@ -69,6 +69,8 @@ public class NotificationListener implements ApplicationListener<Notification> {
                 return;
             }
 
+            simpMessagingTemplate.convertAndSend("/update/" + email, notification);
+
             logger.info("user - " + user.get());
             logger.info("settings - " + user.get().getNotificationSettings());
 
