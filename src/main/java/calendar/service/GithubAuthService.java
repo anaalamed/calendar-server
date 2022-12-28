@@ -4,11 +4,9 @@ import calendar.controller.request.UserRequest;
 import calendar.controller.response.GitToken;
 import calendar.controller.response.GitUser;
 import calendar.entities.DTO.LoginDataDTO;
-import calendar.entities.NotificationSettings;
 import calendar.entities.User;
 import calendar.entities.enums.ProviderType;
 import calendar.repository.UserRepository;
-import calendar.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +19,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class GithubAuthService {
     @Autowired
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private AuthService authService;
@@ -37,27 +34,9 @@ public class GithubAuthService {
 
     static HashMap<Integer, String> usersTokensMap = new HashMap<>();
 
-    public GithubAuthService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
 
 
-    /**
-     * Check if user is authenticated
-     *
-     * @param token - The token we wish to compare with our local token storage.
-     * @return userId if is present in usersTokensMap
-     */
-    public Optional<Integer> getUserIdByToken(String token) {
-        return usersTokensMap
-                .entrySet()
-                .stream()
-                .filter(entry -> token.equals(entry.getValue()))
-                .map(Map.Entry::getKey)
-                .findFirst();
-    }
 
     /**
      * User logs in into our system with his GitHub.
@@ -97,6 +76,11 @@ public class GithubAuthService {
         return Optional.empty();
     }
 
+    /**
+     * Get the details of the user from GitHub API (the second request)
+     * @param code
+     * @return the relevant details of User
+     */
     private GitUser getGithubUser(String code) {
         ResponseEntity<GitToken> gitTokenResponse = getGithubToken(code);
 
@@ -114,6 +98,11 @@ public class GithubAuthService {
         return null;
     }
 
+    /**
+     * Get bearer token for user from GitHub API (the first request)
+     * @param code
+     * @return
+     */
     private ResponseEntity<GitToken> getGithubToken(String code) {
 
         String baseLink = "https://github.com/login/oauth/access_token?";
@@ -126,6 +115,11 @@ public class GithubAuthService {
         return reqGitGetToken(linkGetToken);
     }
 
+    /**
+     * Generate request for get token request (the first request)
+     * @param link
+     * @return token
+     */
     private ResponseEntity<GitToken> reqGitGetToken(String link) {
         logger.info("in reqGitGetToken()");
         logger.debug(link);
@@ -143,6 +137,12 @@ public class GithubAuthService {
         }
     }
 
+    /**
+     * Generate request for get User request (the second request)
+     * @param link
+     * @param bearerToken
+     * @return
+     */
     private ResponseEntity<GitUser> reqGitGetUser(String link, String bearerToken) {
         logger.info("in reqGitGetUser()");
         logger.info(link);
@@ -160,7 +160,5 @@ public class GithubAuthService {
             return null;
         }
     }
-
-
 
 }
