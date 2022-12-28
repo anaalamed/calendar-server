@@ -346,7 +346,7 @@ public class EventController {
 
         List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
 
-        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO,userOfEvent.getCity());
+//        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO,userOfEvent.getCity());
 
         return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
@@ -372,7 +372,7 @@ public class EventController {
 
         List<EventDTO> eventsDTO = EventDTO.convertEventsToEventsDTO(events);
 
-        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO, userOfEvent.getCity());
+//        eventsDTO = Utils.changeEventTimesByTimeZone(eventsDTO, userOfEvent.getCity());
 
         return ResponseEntity.ok(BaseResponse.success(eventsDTO));
     }
@@ -405,7 +405,7 @@ public class EventController {
 
            List<EventDTO> events =  EventDTO.convertEventsToEventsDTO(eventService.GetAllShared(user, sharedEmails));
 
-           events = Utils.changeEventTimesByTimeZone(events,user.getCity());
+//           events = Utils.changeEventTimesByTimeZone(events,user.getCity());
 
             return ResponseEntity.ok(BaseResponse.success(events));
         } catch (IllegalArgumentException e) {
