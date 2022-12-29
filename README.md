@@ -41,7 +41,6 @@ This is the server-side Spring Boot REST API for our calendar application.
   * Users can see the calendar according to their time zone.
   * Users can change their time zone via the settings page.
 
-## Technologies
 
 ## Prerequisites
 * Java 9 or higher
