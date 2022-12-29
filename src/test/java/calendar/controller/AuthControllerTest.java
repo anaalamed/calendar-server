@@ -10,6 +10,7 @@ import calendar.entities.User;
 import calendar.entities.enums.City;
 import calendar.entities.enums.ProviderType;
 import calendar.service.AuthService;
+import calendar.service.GithubAuthService;
 import com.mysql.cj.log.Log;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ class AuthControllerTest {
     AuthController authController;
     @MockBean
     AuthService authService;
+    @MockBean
+    GithubAuthService githubAuthService;
 
     static User user;
 
@@ -137,7 +140,7 @@ class AuthControllerTest {
 
     @Test
     void Log_In_With_Git_Hub_Successfully() throws SQLDataException {
-        when(authService.loginGithub(code)).thenReturn(Optional.ofNullable(loginDataDTO));
+        when(githubAuthService.loginGithub(code)).thenReturn(Optional.ofNullable(loginDataDTO));
 
         ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
 
@@ -147,7 +150,7 @@ class AuthControllerTest {
 
     @Test
     void Try_To_Log_In_With_Git_Hub_User_Does_Not_Exist() throws SQLDataException {
-        when(authService.loginGithub(code)).thenReturn(Optional.empty());
+        when(githubAuthService.loginGithub(code)).thenReturn(Optional.empty());
 
         ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
 
@@ -156,7 +159,7 @@ class AuthControllerTest {
 
     @Test
     void Try_To_Log_In_With_Git_Hub_Failed() throws SQLDataException {
-        when(authService.loginGithub(code)).thenReturn(null);
+        when(githubAuthService.loginGithub(code)).thenReturn(null);
 
         ResponseEntity<BaseResponse<LoginDataDTO>> response = authController.loginGithub(code);
 
