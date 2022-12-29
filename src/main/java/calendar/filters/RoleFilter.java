@@ -60,11 +60,15 @@ public class RoleFilter implements Filter {
 
         Properties properties = new Properties();
 
-        properties.load(new FileInputStream("src/main/resources/adminPermissions.properties"));
+        properties.load(new FileInputStream("src/main/resources/rolePermissions.properties"));
+        String adminUrls = properties.getProperty("adminUrls");;
+        String[] listOfAdminPermissions = adminUrls.split(",");
 
-        String urls = properties.getProperty("urls");;
+        String organizerUrls = properties.getProperty("organizerUrls");;
+        String[] listOfOrganizerUrls = organizerUrls.split(",");
 
-        String[] listOfAdminPermissions = urls.split(",");
+        String guestUrls = properties.getProperty("guestUrls");;
+        String[] listOfGuestUrls = guestUrls.split(",");
 
         MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
 
@@ -86,9 +90,9 @@ public class RoleFilter implements Filter {
 
             // ~~~~~~ Organizer ~~~~~~
             if (role.getRoleType() == RoleType.ORGANIZER) {
-                if (url.equals("/event/leaveEvent")) {
+                if (Arrays.asList(listOfOrganizerUrls).contains(url)) {
                     returnBadResponse(res);
-                } // Organizer cant use the leave event function, use delete event instead!
+                }
                 req.setAttribute("role", role);
                 req.setAttribute("roleType", role.getRoleType());
                 filterChain.doFilter(req, res);
@@ -105,7 +109,7 @@ public class RoleFilter implements Filter {
 
                 // ~~~~~~ Guest ~~~~~~
             } else if (role.getRoleType() == RoleType.GUEST) {
-                if (url.equals("/event/leaveEvent")) {
+                if (Arrays.asList(listOfGuestUrls).contains(url)) {
                     req.setAttribute("role", role);
                     req.setAttribute("roleType", role.getRoleType());
                     filterChain.doFilter(req, res);
