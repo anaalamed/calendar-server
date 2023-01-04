@@ -118,8 +118,8 @@ public class EventController {
      * Update an event in the database if it exists. Only an admin or an organizer can access this method.
      *
      * @param event    - The event with the updated information.
-     * @param roleType - The event with the updated information.
-     * @param eventId  - The event with the updated information.
+     * @param roleType - The Role Type (Organizer , Admin).
+     * @param eventId  - The event ID.
      * @return BaseResponse with a data of the Updated Event or error message on fail.
      */
     @RequestMapping(value = "/updateEvent/event", method = RequestMethod.PUT)
