@@ -14,7 +14,7 @@ import java.util.Set;
 
 
 public class CorsFilter implements Filter {
-    private Set<String> origins = new HashSet<>(Set.of("http://localhost:9000"));
+    private Set<String> origins = new HashSet<>(Set.of("http://localhost:9000", "https://lam-calendar-client.web.app"));
 
     public static final Logger logger = LogManager.getLogger(TokenFilter.class);
 
