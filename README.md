@@ -1,5 +1,6 @@
 # Calendar API
 This is the server-side Spring Boot REST API for our calendar application.
+Client side - https://github.com/anaalamed/calendar-client
 
 ## Capabilities
 * Users can register to the app using their email or login using their GitHub account.
